@@ -19,25 +19,35 @@
              display: flex; justify-content: center; align-items: center;
              overflow: hidden; background-color: #f9fafb; padding: 0;
              text-align: center;
-             width: 100%; /* Takes width of parent */
-             max-width: 800px; /* Max width */
+             width: 100%; /* Takes width of parent grid cell */
+             max-width: 1000px; /* Max width */
              height: 600px; /* Fixed height */
-             margin-left: auto; /* Center */
-             margin-right: auto; /* Center */
+             margin-left: auto; /* Center if grid cell is wider */
+             margin-right: auto; /* Center if grid cell is wider */
         }
         #planPreview img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; margin: auto; }
         #planPreview iframe { width: 100%; height: 100%; border: none; border-radius: 0.375rem; }
 
         /* Container for map iframe - UPDATED */
         .map-container {
-            position: relative;
-            width: 100%; /* Takes width of parent */
-            max-width: 800px; /* Max width */
+            position: relative; /* Needed for absolute positioning of button */
+            width: 100%; /* Takes width of parent grid cell */
+            max-width: 1000px; /* Max width */
             height: 600px; /* Fixed height */
-             margin-left: auto; /* Center */
-             margin-right: auto; /* Center */
+             margin-left: auto; /* Center if grid cell is wider */
+             margin-right: auto; /* Center if grid cell is wider */
         }
         .map-container iframe { width: 100%; height: 100%; }
+
+        /* Style for button nested at bottom of map container */
+        #copyCoordsBtn {
+            position: absolute;
+            bottom: 10px; /* 10px from bottom */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust horizontal centering */
+            z-index: 10; /* Ensure it's above the iframe content */
+            /* Tailwind classes applied directly in HTML */
+        }
 
         /* Hide steps initially */
         .step { display: none; }
@@ -54,8 +64,8 @@
         label { /* Base label style if needed */ }
         .container { /* Base container style */ }
         h2 { /* Base heading style */ }
-        /* Grid class removed from here, elements will stack */
-        /* .map-plan-grid { ... } */
+        /* Grid for side-by-side layout and spacing - UPDATED GAP */
+        .map-plan-grid { @apply grid grid-cols-1 md:grid-cols-2 gap-4; } /* Reduced gap */
 
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -65,7 +75,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 21)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 22)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -100,19 +110,19 @@
         <div id="step3" class="step">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 2: Review Map/Plan & Enter Details</h2>
 
-            <div class="mb-6 mt-6 space-y-8"> {/* Added space-y for vertical spacing */}
-                <div class="flex flex-col items-center">
-                    <h3 class="text-lg font-medium text-gray-800 mb-2 w-full max-w-[800px]">Map Location</h3>
-                    <div class="map-container">
+            <div class="map-plan-grid mb-6 mt-6"> {/* Grid layout */}
+                <div class="mb-4 md:mb-0 flex flex-col items-center"> {/* Grid column 1 */}
+                    <h3 class="text-lg font-medium text-gray-800 mb-2 w-full max-w-[1000px]">Map Location</h3> {/* Adjusted max-width */}
+                    <div class="map-container"> {/* Width/Height applied here */}
                         <iframe id="mapFrame" src="about:blank" title="Location Map"></iframe>
+                        <button id="copyCoordsBtn" title="Copy coordinates to clipboard" class="py-2 px-4 text-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500 shadow-md rounded-md">Copy Coordinates</button>
                     </div>
-                    <button id="copyCoordsBtn" title="Copy coordinates to clipboard" class="mt-3 py-2 px-4 text-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500 shadow-md rounded-md">Copy Coordinates to Clipboard</button>
-                    <p id="copyCoordsStatus" class="text-sm text-green-600 mt-1 h-4"></p>
+                    <p id="copyCoordsStatus" class="text-sm text-green-600 mt-2 h-4"></p> {/* Status below button */}
                     <p id="mapSearchStatus" class="hidden"></p>
                 </div>
-                <div class="flex flex-col items-center">
-                    <h3 class="text-lg font-medium text-gray-800 mb-2 w-full max-w-[800px]">Uploaded Plan</h3>
-                    <div id="planPreview">
+                <div class="flex flex-col items-center"> {/* Grid column 2 */}
+                    <h3 class="text-lg font-medium text-gray-800 mb-2 w-full max-w-[1000px]">Uploaded Plan</h3> {/* Adjusted max-width */}
+                    <div id="planPreview"> {/* Width/Height applied here */}
                         <p class="text-gray-500 text-sm">Plan preview will appear here.</p>
                     </div>
                 </div>
@@ -194,7 +204,7 @@
         const refNumberDisplay = document.getElementById('refNumberDisplay');
         const dateDisplay = document.getElementById('dateDisplay');
         const coordsDisplay = document.getElementById('coordsDisplay');
-        const copyCoordsBtn = document.getElementById('copyCoordsBtn'); // Renamed ID
+        const copyCoordsBtn = document.getElementById('copyCoordsBtn'); // Updated ID
         const copyCoordsStatus = document.getElementById('copyCoordsStatus');
         const generatedNoticeTextarea = document.getElementById('generatedNotice');
         const copyNoticeBtn = document.getElementById('copyNoticeBtn');
@@ -479,96 +489,34 @@
          * @param {string} text - The text to add.
          * @param {number} x - The starting X coordinate.
          * @param {number} y - The starting Y coordinate.
-         * @param {object} options - Options: {maxWidth: number, fontStyle: 'normal'|'bold'|'italic'|'bolditalic', fontSize: number}
+         * @param {object} options - Options: {maxWidth: number, fontStyle: 'normal'|'bold'|'italic'|'bolditalic', fontSize: number, align: 'left'|'center'|'right'}
          * @returns {number} The Y coordinate after adding the text.
          */
         function addFormattedText(doc, text, x, y, options = {}) {
             const maxWidth = options.maxWidth || (doc.internal.pageSize.getWidth() - x - MARGIN_LEFT);
             const originalStyle = doc.getFont().fontStyle;
             const originalSize = doc.getFontSize();
+            const align = options.align || 'left';
 
             doc.setFont(undefined, options.fontStyle || 'normal');
             doc.setFontSize(options.fontSize || originalSize);
 
             const lines = doc.splitTextToSize(text, maxWidth);
-            doc.text(lines, x, y, { baseline: 'top' }); // Use top baseline for better control
+            doc.text(lines, x, y, { baseline: 'top', align: align }); // Use top baseline and alignment
 
             // Reset font style and size
             doc.setFont(undefined, originalStyle);
             doc.setFontSize(originalSize);
 
             // Calculate approximate line height based on font size
-            // Use a slightly larger factor for better spacing
-            const lineHeightFactor = 1.2;
+            const lineHeightFactor = 1.2; // Increased factor
             const lineHeight = ((options.fontSize || originalSize) / doc.internal.scaleFactor) * lineHeightFactor;
             return y + (lines.length * lineHeight);
         }
 
         /**
-         * Helper function to add text segments with potentially different styles on the same line, handling wrapping.
-         * @param {jsPDF} doc - The jsPDF document instance.
-         * @param {Array<object>} segments - Array of objects: { text: string, fontStyle: 'normal'|'bold', fontSize: number }
-         * @param {number} x - The starting X coordinate for the line.
-         * @param {number} y - The starting Y coordinate for the line.
-         * @param {number} maxWidth - The maximum width for the line.
-         * @returns {number} The Y coordinate after adding the text.
-         */
-        function addMixedStyleLine(doc, segments, x, y, maxWidth) {
-            let currentX = x;
-            let currentY = y;
-            const originalSize = doc.getFontSize();
-            const originalStyle = doc.getFont().fontStyle;
-            const spaceWidth = doc.getTextWidth(" "); // Approx width of a space
-
-            let maxFontSize = 10; // Default min size
-            segments.forEach(seg => { if (seg.fontSize && seg.fontSize > maxFontSize) maxFontSize = seg.fontSize; });
-            const lineHeightFactor = 1.2; // Increased factor for better line spacing
-            const lineHeight = (maxFontSize / doc.internal.scaleFactor) * lineHeightFactor;
-
-            segments.forEach((segment, index) => {
-                doc.setFontSize(segment.fontSize || originalSize);
-                doc.setFont(undefined, segment.fontStyle || 'normal');
-
-                let words = segment.text.split(/(\s+)/); // Split by spaces, keeping spaces
-
-                words.forEach((word) => {
-                    if (word.trim() === '') { // Handle spaces
-                        currentX += doc.getTextWidth(word);
-                        return; // Skip empty strings resulting from split
-                    }
-
-                    const wordWidth = doc.getTextWidth(word);
-
-                    if (currentX > x && currentX + wordWidth > x + maxWidth) { // Word doesn't fit, move to next line
-                        currentY += lineHeight;
-                        currentX = x;
-                         if (currentX + wordWidth <= x + maxWidth) { // Check if word fits on new line
-                             doc.text(word, currentX, currentY, { baseline: 'top' });
-                             currentX += wordWidth;
-                         } else {
-                             // Word itself is too long, split it
-                             const splitWords = doc.splitTextToSize(word, maxWidth);
-                             doc.text(splitWords, currentX, currentY, { baseline: 'top' });
-                             currentY += (splitWords.length -1) * lineHeight;
-                             currentX = x + doc.getTextWidth(splitWords[splitWords.length-1]);
-                         }
-                    } else { // Word fits
-                        doc.text(word, currentX, currentY, { baseline: 'top' });
-                        currentX += wordWidth;
-                    }
-                });
-            });
-
-            // Reset font
-            doc.setFontSize(originalSize);
-            doc.setFont(undefined, originalStyle);
-
-            return currentY + lineHeight; // Return Y position for the start of the *next* potential line
-        }
-
-
-        /**
          * Downloads the generated notice text as a formatted PDF file using jsPDF.
+         * Simplified approach to handle inline bolding.
          */
         function downloadNoticeAsPdf() {
             const filename = `Notice_${noticeData.ref || 'Ref'}_${noticeData.date.replace(/[\/\s]/g, '-') || 'Date'}.pdf`;
@@ -606,7 +554,7 @@
 
                 // --- PLEASE NOTE ---
                 pdfDoc.setFont(FONT_TIMES, 'bold');
-                currentY = addFormattedText(pdfDoc, "PLEASE NOTE", MARGIN_LEFT, currentY, { fontSize: 22, fontStyle: 'bold' }); // Corrected size
+                currentY = addFormattedText(pdfDoc, "PLEASE NOTE", MARGIN_LEFT, currentY, { fontSize: 22, fontStyle: 'bold' });
                 currentY += 4; // Space
 
                 // --- Date (Centered) ---
@@ -620,47 +568,48 @@
                 pdfDoc.line(dateX, currentY + 1, dateX + dateTextWidth, currentY + 1); // Underline
                 currentY += 15; // Space
 
-                // --- Main Paragraphs (Using mixed style helper) ---
+                // --- Main Paragraphs (Simplified approach) ---
                 pdfDoc.setFontSize(12);
                 pdfDoc.setFont(FONT_HELVETICA, 'normal');
 
                 // Paragraph 1
-                currentY = addMixedStyleLine(pdfDoc, [
-                    { text: `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along `, fontStyle: 'normal', fontSize: 12 },
-                    { text: noticeData.street + ".", fontStyle: 'bold', fontSize: 12 }
-                ], MARGIN_LEFT, currentY, CONTENT_WIDTH);
+                let text1_part1 = `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along `;
+                currentY = addFormattedText(pdfDoc, text1_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
+                currentY = addFormattedText(pdfDoc, noticeData.street + ".", MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
                 currentY += 5; // Paragraph space
 
                 // Paragraph 2
-                currentY = addMixedStyleLine(pdfDoc, [
-                    { text: `The work is expected to take a maximum of `, fontStyle: 'normal', fontSize: 12 },
-                    { text: `${noticeData.days} working days`, fontStyle: 'bold', fontSize: 12 },
-                    { text: ` and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion `, fontStyle: 'normal', fontSize: 12 },
-                    { text: noticeData.diversion, fontStyle: 'bold', fontSize: 12 },
-                    { text: ` and Vice Versa.`, fontStyle: 'normal', fontSize: 12 }
-                ], MARGIN_LEFT, currentY, CONTENT_WIDTH);
+                let text2_part1 = `The work is expected to take a maximum of `;
+                currentY = addFormattedText(pdfDoc, text2_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
+                let text2_part2 = `${noticeData.days} working days`;
+                currentY = addFormattedText(pdfDoc, text2_part2, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
+                let text2_part3 = ` and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion `;
+                currentY = addFormattedText(pdfDoc, text2_part3, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
+                let text2_part4 = noticeData.diversion;
+                currentY = addFormattedText(pdfDoc, text2_part4, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
+                let text2_part5 = ` and Vice Versa.`;
+                currentY = addFormattedText(pdfDoc, text2_part5, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                 currentY += 5; // Paragraph space
 
                 // Paragraph 3
-                currentY = addMixedStyleLine(pdfDoc, [
-                    { text: noticeData.street, fontStyle: 'bold', fontSize: 12 },
-                    { text: ` will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.`, fontStyle: 'normal', fontSize: 12 }
-                ], MARGIN_LEFT, currentY, CONTENT_WIDTH);
+                let text3_part1 = noticeData.street;
+                currentY = addFormattedText(pdfDoc, text3_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
+                let text3_part2 = ` will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.`;
+                currentY = addFormattedText(pdfDoc, text3_part2, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                 currentY += 5; // Paragraph space
 
                 // Apology Paragraph
-                currentY = addFormattedText(pdfDoc,
-                    `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.`,
-                    MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 }
-                );
+                let text4 = `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.`;
+                currentY = addFormattedText(pdfDoc, text4, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
                 currentY += 5; // Paragraph space
 
                 // Concerns Line
-                currentY = addMixedStyleLine(pdfDoc, [
-                    { text: `ANY CONCERNS PLEASE CALL `, fontStyle: 'normal', fontSize: 13 },
-                    { text: `0845 200 4035`, fontStyle: 'bold', fontSize: 13 },
-                    { text: ` WITH OUR REF: ${noticeData.ref}`, fontStyle: 'normal', fontSize: 13 }
-                ], MARGIN_LEFT, currentY, CONTENT_WIDTH);
+                let text5_part1 = `ANY CONCERNS PLEASE CALL `;
+                currentY = addFormattedText(pdfDoc, text5_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 13 });
+                let text5_part2 = `0845 200 4035`;
+                currentY = addFormattedText(pdfDoc, text5_part2, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 13 });
+                let text5_part3 = ` WITH OUR REF: ${noticeData.ref}`;
+                currentY = addFormattedText(pdfDoc, text5_part3, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 13 });
                 currentY += 10; // Space
 
                 // Closing
