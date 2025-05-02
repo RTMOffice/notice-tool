@@ -54,18 +54,18 @@
         /* Styles for the printable notice area */
         #noticePrintArea {
             display: none; /* Hidden by default */
-            font-family: 'Open Sans', sans-serif; /* Default font for print */
+            font-family: 'Open Sans', sans-serif; /* USE OPEN SANS */
             color: black;
             width: 210mm; /* A4 width */
             padding: 15mm; /* Standard margins */
             box-sizing: border-box;
             background-color: white;
         }
-        /* Font Substitutes & Sizes */
+        /* Font Substitutes & Sizes - UPDATED */
         #noticePrintArea .font-times { font-family: 'Tinos', serif; /* Google Font similar to Times */ }
-        #noticePrintArea .print-text-10pt { font-size: 10pt; line-height: 1; } /* Tighter line spacing */
-        #noticePrintArea .print-text-12pt { font-size: 12pt; line-height: 1; } /* Tighter line spacing */
-        #noticePrintArea .print-text-13pt { font-size: 13pt; line-height: 1; } /* Tighter line spacing */
+        #noticePrintArea .print-text-10pt { font-size: 10pt; line-height: 1.1; } /* Updated line height */
+        #noticePrintArea .print-text-11pt { font-size: 11pt; line-height: 1.1; } /* USE 11pt, Updated line height */
+        #noticePrintArea .print-text-12pt { font-size: 12pt; line-height: 1.1; } /* USE 12pt, Updated line height */
         #noticePrintArea .print-text-22pt { font-size: 22pt; line-height: 1.2; }
         #noticePrintArea .print-text-24pt { font-size: 24pt; line-height: 1.2; }
         #noticePrintArea .font-bold { font-weight: 700; } /* Use 700 for bold */
@@ -85,14 +85,25 @@
         #noticePrintArea .float-right { float: right; }
         #noticePrintArea .clear-both { clear: both; }
         /* Logo & Address Specific */
-        #noticePrintArea .logo-placeholder {
-            width: 50mm; height: 15mm; background-color: #90ee90; /* Light green */
-            float: right; margin-bottom: 5mm;
+        #noticePrintArea .logo-container { /* Changed from placeholder */
+            width: 59.8mm; /* Approx 224px */
+            height: 11.4mm; /* Approx 43px */
+            float: right;
+            margin-bottom: 5mm;
+            text-align: right; /* Align image within container if needed */
         }
+         #noticePrintArea .logo-container img {
+             max-width: 100%;
+             max-height: 100%;
+             display: inline-block; /* Allows text-align to work */
+         }
         #noticePrintArea .address-block {
-             float: right; text-align: right; clear: right; margin-top: 5mm; width: 60mm; /* Give it some width */
+             float: right; text-align: right; clear: right; margin-top: 5mm; width: 60mm;
         }
          #noticePrintArea p { margin-bottom: 5mm; } /* Default paragraph spacing */
+         /* Adjust paragraph spacing for specific elements if needed */
+         #noticePrintArea #print-closing p { margin-bottom: 1mm; margin-top: 1mm; }
+
 
         /* Print-specific styles */
         @media print {
@@ -104,9 +115,18 @@
                 padding: 15mm; margin: 0; border: none; box-shadow: none;
                 display: block !important;
             }
+             /* Remove default browser print header/footer */
              @page {
                 margin: 15mm; size: A4 portrait;
+                @top-left { content: ""; }
+                @top-center { content: ""; }
+                @top-right { content: ""; }
+                @bottom-left { content: ""; }
+                @bottom-center { content: ""; }
+                @bottom-right { content: ""; }
             }
+            /* Attempt to force no headers/footers in Chrome/Edge */
+            body { margin: 0; }
         }
 
     </style>
@@ -114,7 +134,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200" id="toolInterface">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 36)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 38)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -126,6 +146,13 @@
                 <button id="parseAndNextBtn" class="mt-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed">Parse Pasted Data</button>
                 <p id="pasteError" class="text-red-600 text-sm mt-2"></p>
                 <p id="pasteSuccess" class="text-green-600 text-sm mt-2"></p>
+            </div>
+
+             <div class="form-group bg-purple-50 p-4 rounded-md border border-purple-200">
+                <label for="logoFile" class="block text-sm font-bold text-gray-700 mb-1">Upload Logo (Optional)</label>
+                <input type="file" id="logoFile" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
+                 <p id="logoError" class="text-red-600 text-sm mt-2"></p>
+                 <p id="logoSuccess" class="text-green-600 text-sm mt-2"></p>
             </div>
 
             <div class="form-group bg-green-50 p-4 rounded-md border border-green-200">
@@ -215,7 +242,10 @@
         </div>
 
     </div> <div id="noticePrintArea">
-        <div class="logo-placeholder"></div>
+        <div class="logo-container">
+             <img id="print-logo-img" src="" alt="Company Logo" style="display: none;"> {/* Initially hidden */}
+             <div id="print-logo-placeholder" style="width: 59.8mm; height: 11.4mm; background-color: #90ee90; display: block;"></div> {/* Placeholder */}
+        </div>
         <div class="address-block print-text-10pt">
             <div>I & A Communications</div>
             <div>Burgon House</div>
@@ -224,28 +254,28 @@
             <div>Rochester</div>
             <div>Kent</div>
             <div>ME3 9GX</div>
-            <div class="mt-4">Tel:&nbsp;&nbsp;&nbsp;&nbsp; 0845 200 4035</div>
+            <div class="mt-4">Tel:     0845 200 4035</div>
         </div>
-        <div class="clear-both mb-10"></div> {/* Added margin below clear */}
+        <div class="clear-both mb-10"></div>
 
         <div class="mt-15 font-times print-text-22pt font-bold" id="print-please-note">PLEASE NOTE</div>
         <div class="mt-4 print-text-24pt underline text-center" id="print-date">On DATE</div>
-        <p class="mt-10 print-text-12pt" id="print-para1">
+        <p class="mt-10 print-text-11pt" id="print-para1">
             I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along <strong class="font-bold" id="print-para1-street">STREET</strong>.
         </p>
-        <p class="print-text-12pt" id="print-para2">
+        <p class="print-text-11pt" id="print-para2">
             The work is expected to take a maximum of <strong class="font-bold" id="print-para2-days">DAY working days</strong> and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion <strong class="font-bold" id="print-para2-div">DIV</strong> and Vice Versa.
         </p>
-        <p class="print-text-12pt" id="print-para3">
+        <p class="print-text-11pt" id="print-para3">
             <strong class="font-bold" id="print-para3-street">STREET</strong> will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.
         </p>
-        <p class="print-text-12pt font-bold" id="print-apology">
+        <p class="print-text-11pt font-bold" id="print-apology">
             We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.
         </p>
-        <p class="print-text-13pt" id="print-concerns">
+        <p class="print-text-12pt" id="print-concerns">
              ANY CONCERNS PLEASE CALL <strong class="font-bold" id="print-concerns-phone">0845 200 4035</strong> WITH OUR REF: <span id="print-concerns-ref">REFR</span>
         </p>
-        <div class="mt-10 print-text-12pt" id="print-closing">
+        <div class="mt-10 print-text-11pt" id="print-closing">
             <p>Regards</p>
             <p class="mt-4">Zoe Franks</p>
             <p>I & A Communications Ltd</p>
@@ -257,6 +287,7 @@
     <script>
         // --- Global Variables ---
         let planFileUrl = null;
+        let logoFileDataUrl = null; // To store the logo image data
         let noticeData = { ref: '', lat: '', lon: '', date: '', street: '', days: '1', diversion: '', houses: '' };
         let dataParsed = false;
         let planUploaded = false;
@@ -267,6 +298,9 @@
         const pasteArea = document.getElementById('pasteArea');
         const pasteError = document.getElementById('pasteError');
         const pasteSuccess = document.getElementById('pasteSuccess');
+        const logoFileInput = document.getElementById('logoFile'); // Logo input
+        const logoError = document.getElementById('logoError');
+        const logoSuccess = document.getElementById('logoSuccess');
         const planFileInput = document.getElementById('planFile');
         const planPreview = document.getElementById('planPreview');
         const planError = document.getElementById('planError');
@@ -286,6 +320,9 @@
         const copyNoticeBtn = document.getElementById('copyNoticeBtn');
         const printNoticeBtn = document.getElementById('printNoticeBtn'); // Changed ID
         const copyStatus = document.getElementById('copyStatus');
+        // Print area elements
+        const printLogoImg = document.getElementById('print-logo-img');
+        const printLogoPlaceholder = document.getElementById('print-logo-placeholder');
 
         // --- Navigation Buttons ---
         const parseAndNextBtn = document.getElementById('parseAndNextBtn');
@@ -303,6 +340,7 @@
         }
 
         function checkEnableStep1NextButton() {
+            // Requires data parsed AND plan uploaded (logo is optional)
             if (dataParsed && planUploaded) {
                 nextToStep3CombinedBtn.disabled = false;
                 console.log("Next button enabled.");
@@ -400,6 +438,49 @@
             }
         }
 
+         /**
+         * Handles logo file upload and stores it as a Data URL.
+         */
+         function handleLogoUpload(event) {
+            const file = event.target.files[0];
+            logoError.textContent = '';
+            logoSuccess.textContent = '';
+            logoFileDataUrl = null; // Reset logo data
+            // Hide image, show placeholder in print preview
+            if (printLogoImg) printLogoImg.style.display = 'none';
+            if (printLogoPlaceholder) printLogoPlaceholder.style.display = 'block';
+
+
+            if (!file) return; // No file selected
+
+            if (!file.type.startsWith('image/')) {
+                logoError.textContent = 'Please select an image file (e.g., JPG, PNG).';
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                logoFileDataUrl = e.target.result; // Store the Data URL
+                logoSuccess.textContent = `Logo "${file.name}" uploaded.`;
+                console.log("Logo uploaded and stored.");
+                 // Update print preview immediately if possible
+                 if (printLogoImg) {
+                     printLogoImg.src = logoFileDataUrl;
+                     printLogoImg.style.display = 'inline-block'; // Show image
+                 }
+                 if (printLogoPlaceholder) {
+                     printLogoPlaceholder.style.display = 'none'; // Hide placeholder
+                 }
+            };
+            reader.onerror = (e) => {
+                console.error("Error reading logo file:", e);
+                logoError.textContent = 'Error reading logo file.';
+                logoFileDataUrl = null;
+            };
+            reader.readAsDataURL(file); // Read file as Data URL
+        }
+
+
         function handlePlanUpload(event) {
             console.log("handlePlanUpload started");
             const file = event.target.files[0];
@@ -484,21 +565,16 @@
 
         function updateMap() {
             if (noticeData.lat && noticeData.lon) {
-                // Switch to Google Maps Embed URL
-                // Example: https://www.google.com/maps/embed/v1/view?key=YOUR_API_KEY&center=lat,lon&zoom=15
-                // Using a simple query search for now as embed requires API key for direct center/zoom
-                const mapUrl = `https://maps.google.com/maps?q=${noticeData.lat},${noticeData.lon}&hl=en&z=15&output=embed`;
+                // Use Google Maps Embed URL centered on coordinates
+                const mapUrl = `https://www.google.com/maps/embed/v1/view?key=YOUR_API_KEY&center=${noticeData.lat},${noticeData.lon}&zoom=15`;
                 mapFrame.src = mapUrl;
-                console.log("Updated map URL to:", mapUrl);
+                console.log("Updated map URL to Google Maps:", mapUrl);
             } else {
                 mapFrame.src = 'about:blank';
             }
         }
 
         function tryAutoFillMapSearch() {
-            // This function is less relevant for Google Maps embed,
-            // as direct interaction is generally not possible/needed.
-            // Keep it empty or remove if not attempting any interaction.
              console.log('tryAutoFillMapSearch called (no action for Google Maps embed)');
         }
 
@@ -522,12 +598,22 @@
         function generateNotice() {
              noticeData.street = streetNameInput.value.trim() || '[STREET NAME MISSING]';
              noticeData.days = workDaysInput.value || '1';
-             noticeData.houses = affectedHousesInput.value; // Note: This isn't used in the template currently
+             noticeData.houses = affectedHousesInput.value;
 
              if (noticeData.street === '[STREET NAME MISSING]') { alert("Please enter Street Name."); streetNameInput.focus(); return; }
              if (!noticeData.diversion) { alert("Please go back and enter the Diversion Route in Step 1."); showStep('step1'); diversionRouteStep1Input.focus(); return; }
 
              // --- Populate Hidden Print Area ---
+             // Logo
+             if (logoFileDataUrl) {
+                 printLogoImg.src = logoFileDataUrl;
+                 printLogoImg.style.display = 'inline-block';
+                 printLogoPlaceholder.style.display = 'none';
+             } else {
+                 printLogoImg.style.display = 'none';
+                 printLogoPlaceholder.style.display = 'block';
+             }
+             // Date
              document.getElementById('print-date').textContent = `On ${noticeData.date}`;
              // Paragraph 1
              document.getElementById('print-para1-street').textContent = noticeData.street;
@@ -569,17 +655,13 @@
          * Triggers the browser's print dialog.
          */
         function printNotice() {
-            // Ensure the print area is populated (usually done before showing Step 4)
-            // Optional: briefly show the print area to ensure styles apply, then hide after print
-            const printArea = document.getElementById('noticePrintArea');
-            // printArea.style.display = 'block'; // Temporarily show for style application? Maybe not needed.
             window.print();
-            // printArea.style.display = 'none'; // Hide again after print dialog closes (might not work reliably)
         }
 
 
         // --- Event Listeners ---
         parseAndNextBtn.addEventListener('click', parsePastedData);
+        logoFileInput.addEventListener('change', handleLogoUpload); // Add listener for logo
         planFileInput.addEventListener('change', handlePlanUpload);
         copyCoordsBtn.addEventListener('click', copyCoordinatesToClipboard); // Updated ID
 
