@@ -42,15 +42,7 @@
         }
         .map-container iframe { width: 100%; height: 100%; border: none; } /* Remove internal iframe border */
 
-        /* Style for button nested at bottom of map container */
-        #copyCoordsBtn {
-            position: absolute;
-            bottom: 10px; /* 10px from bottom */
-            left: 50%; /* Center horizontally */
-            transform: translateX(-50%); /* Adjust horizontal centering */
-            z-index: 10; /* Ensure it's above the iframe content */
-            /* Tailwind classes applied directly in HTML */
-        }
+        /* Style for button nested at bottom of map container is now done via Tailwind classes directly */
 
         /* Hide steps initially */
         .step { display: none; }
@@ -78,7 +70,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 27)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 28)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -118,7 +110,7 @@
                     <h3 class="text-lg font-medium text-gray-800 mb-2 w-full max-w-[1000px]">Map Location</h3> {/* Adjusted max-width */}
                     <div class="map-container"> {/* Width/Height applied here */}
                         <iframe id="mapFrame" src="about:blank" title="Location Map"></iframe>
-                        <button id="copyCoordsBtn" title="Copy coordinates to clipboard" class="py-2 px-4 text-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500 shadow-md rounded-md">Copy Coordinates</button>
+                        <button id="copyCoordsBtn" title="Copy coordinates to clipboard" class="absolute bottom-[10px] left-1/2 -translate-x-1/2 z-10 py-2 px-4 text-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500 shadow-md rounded-md">Copy Coordinates</button>
                     </div>
                     <p id="copyCoordsStatus" class="text-sm text-green-600 mt-2 h-4"></p> {/* Status below button */}
                     <p id="mapSearchStatus" class="hidden"></p>
@@ -194,8 +186,8 @@
         const FONT_TIMES = 'times';       // Substitute for Times New Roman
         const MARGIN_LEFT = 15;
         const PAGE_WIDTH = 210; // A4 width in mm
-        const MARGIN_RIGHT = PAGE_WIDTH - MARGIN_LEFT;
-        const CONTENT_WIDTH = MARGIN_RIGHT - MARGIN_LEFT;
+        const MARGIN_RIGHT_EDGE = PAGE_WIDTH - MARGIN_LEFT; // Right edge coordinate
+        const CONTENT_WIDTH = MARGIN_RIGHT_EDGE - MARGIN_LEFT;
 
 
         // --- DOM Elements ---
@@ -506,25 +498,25 @@
          */
         function addFormattedText(doc, text, x, y, options = {}) {
             const maxWidth = options.maxWidth || (CONTENT_WIDTH); // Use global CONTENT_WIDTH if not specified
-            const originalFont = doc.getFont();
+            const originalFontName = doc.getFont().fontName; // Store original font name
+            const originalFontStyle = doc.getFont().fontStyle; // Store original font style
             const originalSize = doc.getFontSize();
             const align = options.align || 'left';
 
             // Set font, style, and size
-            doc.setFont(options.font || originalFont.fontName, options.fontStyle || 'normal');
+            doc.setFont(options.font || originalFontName, options.fontStyle || 'normal');
             doc.setFontSize(options.fontSize || originalSize);
 
             const lines = doc.splitTextToSize(text, maxWidth);
             doc.text(lines, x, y, { baseline: 'top', align: align });
 
             // Reset font style and size
-            doc.setFont(originalFont.fontName, originalFont.fontStyle);
+            doc.setFont(originalFontName, originalFontStyle);
             doc.setFontSize(originalSize);
 
             const lineHeightFactor = 1.2;
             const lineHeight = ((options.fontSize || originalSize) / doc.internal.scaleFactor) * lineHeightFactor;
-            // Ensure we return Y pos *after* the last line was drawn
-            return y + (lines.length * lineHeight) ;
+            return y + (lines.length * lineHeight);
         }
 
 
@@ -544,24 +536,25 @@
                 // --- Placeholder Logo (Right) ---
                 console.log("Adding logo placeholder...");
                 const logoWidth = 50; const logoHeight = 15;
-                const logoX = MARGIN_RIGHT - logoWidth + MARGIN_LEFT; // Align to right margin
+                const logoX = MARGIN_RIGHT_EDGE - logoWidth; // Align to right margin edge
                 const logoY = currentY;
                 pdfDoc.setFillColor(144, 238, 144); // Light green
                 pdfDoc.rect(logoX, logoY, logoWidth, logoHeight, 'F');
                 let logoBottomY = logoY + logoHeight;
                 console.log("Logo placeholder added.");
 
-                // --- Address Block (Right Aligned, Below Logo) ---
-                console.log("Adding address block...");
-                const addressLines = [
-                    "I & A Communications", "Burgon House", "James Swallow Way",
-                    "London and Medway Commercial", "Rochester", "Kent", "ME3 9GX"
-                ];
-                // Start address below the logo
-                let addressY = logoBottomY + 5;
-                addressY = addFormattedText(pdfDoc, addressLines.join('\n'), MARGIN_RIGHT + MARGIN_LEFT, addressY, { font: FONT_HELVETICA, fontSize: 10, align: 'right' });
-                addressY = addFormattedText(pdfDoc, "Tel:     0845 200 4035", MARGIN_RIGHT + MARGIN_LEFT, addressY, { font: FONT_HELVETICA, fontSize: 10, align: 'right' });
-                console.log("Address block added. currentY:", addressY);
+                 // --- Address Block (Right Aligned, Below Logo) ---
+                 console.log("Adding address block...");
+                 const addressLines = [
+                     "I & A Communications", "Burgon House", "James Swallow Way",
+                     "London and Medway Commercial", "Rochester", "Kent", "ME3 9GX"
+                 ];
+                 // Start address below the logo
+                 let addressY = logoBottomY + 5;
+                 // Calculate X for right alignment based on the right margin edge
+                 addressY = addFormattedText(pdfDoc, addressLines.join('\n'), MARGIN_RIGHT_EDGE, addressY, { font: FONT_HELVETICA, fontSize: 10, align: 'right' });
+                 addressY = addFormattedText(pdfDoc, "Tel:     0845 200 4035", MARGIN_RIGHT_EDGE, addressY, { font: FONT_HELVETICA, fontSize: 10, align: 'right' });
+                 console.log("Address block added. currentY:", addressY);
 
                 // Set currentY to below the taller of the logo or address block
                 currentY = Math.max(logoBottomY, addressY) + 15;
@@ -575,7 +568,7 @@
                 // --- Date (Centered) ---
                 console.log("Adding Date...");
                 const dateText = `On ${noticeData.date}`;
-                pdfDoc.setFont(FONT_HELVETICA, 'normal'); // Set font before getting width
+                pdfDoc.setFont(FONT_HELVETICA, 'normal');
                 pdfDoc.setFontSize(24);
                 const dateTextWidth = pdfDoc.getTextWidth(dateText);
                 const dateX = (PAGE_WIDTH - dateTextWidth) / 2;
@@ -591,16 +584,15 @@
 
                 // Paragraph 1
                 console.log("Adding Paragraph 1...");
-                let para1 = `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along ${noticeData.street}.`;
-                currentY = addFormattedText(pdfDoc, para1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
-                 // Manually add bold - find position (this is tricky and approximate)
-                 // pdfDoc.setFont(undefined,'bold');
-                 // pdfDoc.text(noticeData.street + ".", X, Y); // Need to calculate X, Y based on previous text
-                 // pdfDoc.setFont(undefined,'normal');
+                let para1_part1 = `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along `;
+                let para1_part2 = `${noticeData.street}.`;
+                currentY = addFormattedText(pdfDoc, para1_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
+                // Add bold part - will likely go to next line if previous text was long
+                currentY = addFormattedText(pdfDoc, para1_part2, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
                 currentY += 5;
                 console.log("Paragraph 1 added. currentY:", currentY);
 
-                // Paragraph 2 - Simplified: Add bold parts on separate lines for now to ensure generation
+                // Paragraph 2
                  console.log("Adding Paragraph 2...");
                 currentY = addFormattedText(pdfDoc, `The work is expected to take a maximum of `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                 currentY = addFormattedText(pdfDoc, `${noticeData.days} working days`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
