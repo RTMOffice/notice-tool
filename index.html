@@ -13,7 +13,7 @@
         /* Set base height for iframes within containers */
         iframe { width: 100%; height: 100%; border: 1px solid #ccc; border-radius: 0.375rem; } /* Set height 100% */
 
-        /* Style for the plan preview area - UPDATED */
+        /* Style for the plan preview area */
         #planPreview {
              border: 1px solid #ccc; border-radius: 0.375rem;
              display: flex; justify-content: center; align-items: center;
@@ -28,7 +28,7 @@
         #planPreview img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; margin: auto; }
         #planPreview iframe { width: 100%; height: 100%; border: none; border-radius: 0.375rem; }
 
-        /* Container for map iframe - UPDATED */
+        /* Container for map iframe */
         .map-container {
             position: relative; /* Needed for absolute positioning of button */
             width: 100%; /* Takes width of parent grid cell */
@@ -78,7 +78,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 29)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 30)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -560,7 +560,7 @@
                  let addressY = logoBottomY + 5; // Start address below the logo
                  addressY = addFormattedText(pdfDoc, addressLines.join('\n'), MARGIN_RIGHT_EDGE, addressY, { font: FONT_HELVETICA, fontSize: 10, align: 'right' });
                  addressY = addFormattedText(pdfDoc, "Tel:     0845 200 4035", MARGIN_RIGHT_EDGE, addressY, { font: FONT_HELVETICA, fontSize: 10, align: 'right' });
-                 console.log("Address block added. currentY:", addressY);
+                 console.log("Address block added. addressY:", addressY);
 
                 // Set currentY to below the taller of the logo or address block
                 currentY = Math.max(logoBottomY, addressY) + 15;
@@ -585,24 +585,17 @@
                 console.log("Date added. currentY:", currentY);
 
                 // --- Main Paragraphs ---
-                pdfDoc.setFontSize(12); // Set default size
-                pdfDoc.setFont(FONT_HELVETICA, 'normal'); // Set default font
+                pdfDoc.setFontSize(12); // Reset default size
+                pdfDoc.setFont(FONT_HELVETICA, 'normal'); // Reset default font
 
                 // Paragraph 1
                 console.log("Adding Paragraph 1...");
                 let para1_part1 = `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along `;
                 let para1_part2 = `${noticeData.street}.`;
-                // Add text line by line, setting style before each part
                 pdfDoc.setFont(FONT_HELVETICA, 'normal');
-                let lines1 = pdfDoc.splitTextToSize(para1_part1, CONTENT_WIDTH);
-                pdfDoc.text(lines1, MARGIN_LEFT, currentY);
-                currentY += lines1.length * 5; // Approx line height
-
+                currentY = addFormattedText(pdfDoc, para1_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                 pdfDoc.setFont(FONT_HELVETICA, 'bold');
-                let lines2 = pdfDoc.splitTextToSize(para1_part2, CONTENT_WIDTH);
-                pdfDoc.text(lines2, MARGIN_LEFT, currentY);
-                currentY += lines2.length * 5;
-                pdfDoc.setFont(FONT_HELVETICA, 'normal'); // Reset
+                currentY = addFormattedText(pdfDoc, para1_part2, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
                 currentY += 5; // Paragraph space
                 console.log("Paragraph 1 added. currentY:", currentY);
 
@@ -634,7 +627,6 @@
                  console.log("Adding Apology...");
                  pdfDoc.setFont(FONT_HELVETICA, 'bold');
                  currentY = addFormattedText(pdfDoc, `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
-                 pdfDoc.setFont(FONT_HELVETICA, 'normal'); // Reset
                  currentY += 5;
                  console.log("Apology added. currentY:", currentY);
 
@@ -652,6 +644,7 @@
                 // Closing
                  console.log("Adding Closing...");
                  const closingLines = [ "Regards", "Zoe Franks", "I & A Communications Ltd", "Tel: 0845 200 4035" ];
+                 pdfDoc.setFont(FONT_HELVETICA, 'normal'); // Ensure normal font
                  currentY = addFormattedText(pdfDoc, closingLines.join('\n'), MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                  console.log("Closing added. currentY:", currentY);
 
