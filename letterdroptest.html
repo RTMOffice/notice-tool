@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notice Generation Tool</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    <style>
+        /* Basic styling */
+        body { font-family: 'Inter', sans-serif; }
+        iframe { width: 100%; height: 400px; border: 1px solid #ccc; border-radius: 0.375rem; }
+
+        /* Style for the plan preview area */
+        #planPreview {
+             border: 1px solid #ccc; border-radius: 0.375rem; height: 400px;
+             display: flex; justify-content: center; align-items: center;
+             overflow: hidden; background-color: #f9fafb; padding: 0; /* Remove padding for iframe */
+             text-align: center;
+        }
+        #planPreview img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; margin: auto; }
+        /* Style for the plan PDF preview (iframe) */
+        #planPreview iframe { width: 100%; height: 100%; border: none; border-radius: 0.375rem; }
+
+        /* Container for map iframe and overlay button */
+        .map-container {
+            position: relative; /* Needed for absolute positioning of children */
+            width: 100%;
+            height: 400px; /* Match iframe height */
+        }
+        .map-container iframe {
+             position: absolute; /* Take up container space */
+             top: 0; left: 0; width: 100%; height: 100%;
+        }
+        /* Overlay button style */
+        #copyCoordsBtnOverlay {
+            position: absolute;
+            bottom: 1rem; /* 16px */
+            right: 1rem; /* 16px */
+            z-index: 10; /* Ensure it's above the iframe */
+            @apply py-1 px-2 text-xs ml-2 secondary-button shadow-md; /* Use Tailwind classes */
+        }
+
+
+        /* Hide steps initially */
+        .step { display: none; }
+        #step1 { display: block; }
+
+        /* General form styling */
+        label { @apply block text-sm font-medium text-gray-700 mb-1; }
+        input[type="file"], input[type="text"], input[type="number"], textarea, select {
+            @apply mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm;
+        }
+        #pasteArea { @apply font-mono min-h-[80px]; }
+        button { @apply inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed; }
+        .secondary-button { @apply border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500; }
+        .step > * + * { margin-top: 1rem; }
+        .form-group > * + * { margin-top: 0.5rem; }
+        .container { @apply max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 bg-gray-50 rounded-lg shadow-md; }
+        h2 { @apply text-xl font-semibold text-gray-800 mb-4; }
+        .split-view { @apply grid grid-cols-1 md:grid-cols-2 gap-4; }
+        /* Remove input group styling as button is now separate */
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-8">
+
+    <div class="container">
+        <h1 class="text-2xl font-bold text-center text-gray-900 mb-6">Notice Generation Tool</h1>
+
+        <div id="step1" class="step">
+            <h2>Step 1: Paste Spreadsheet Row</h2>
+            <div class="form-group">
+                <label for="pasteArea">Paste one full row from your spreadsheet here:</label>
+                <textarea id="pasteArea" placeholder="Paste row data here..."></textarea>
+                <p class="text-xs text-gray-500 mt-1">Expects Date (A), Ref (H), Location (P).</p>
+                 <p id="pasteError" class="text-red-500 text-sm mt-1"></p>
+                 <p id="pasteSuccess" class="text-green-500 text-sm mt-1"></p>
+            </div>
+            <button id="parseAndNextBtn">Parse Data & Proceed</button>
+        </div>
+
+        <div id="step2" class="step">
+            <h2>Step 2: Upload Plan</h2>
+             <div class="form-group">
+                <label for="planFile">Select Plan File (Image or PDF):</label>
+                <input type="file" id="planFile" accept="image/*,application/pdf">
+                 <p class="text-xs text-gray-500 mt-1">Accepts images or PDF. PDF viewing requires a browser viewer/extension.</p>
+                 <p id="planError" class="text-red-500 text-sm mt-1"></p>
+                 <p id="planSuccess" class="text-green-500 text-sm mt-1"></p>
+            </div>
+             <button class="secondary-button" onclick="showStep('step1')">Back</button>
+            <button id="nextToStep3" disabled>Next: Review & Enter Details</button>
+        </div>
+
+        <div id="step3" class="step">
+            <h2>Step 3: Review Map/Plan & Enter Details</h2>
+
+            <div class="split-view mb-6">
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">Map Location</h3>
+                    <div class="map-container">
+                        <iframe id="mapFrame" src="about:blank" title="Location Map"></iframe>
+                        <button id="copyCoordsBtnOverlay" title="Copy coordinates to clipboard">Copy Coords</button>
+                    </div>
+                     <p class="text-xs text-gray-500 mt-1">
+                         Map centered. Tool attempts auto-fill.
+                         <strong class="text-indigo-700">If map search fails:</strong> Click overlay "Copy Coords", then paste into map's search box.
+                     </p>
+                     <p id="copyCoordsStatus" class="text-sm text-green-600 mt-1"></p> {/* Moved status here */}
+                     <p id="mapSearchStatus" class="text-xs text-orange-600 mt-1"></p>
+                </div>
+                <div>
+                    <h3 class="text-lg font-medium text-gray-800 mb-2">Uploaded Plan</h3>
+                    <div id="planPreview"><p class="text-gray-500 text-sm">Plan preview will appear here.</p></div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div class="form-group">
+                    <label for="streetName">Street Name:</label>
+                    <input type="text" id="streetName" placeholder="Enter street name from map">
+                </div>
+                 <div class="form-group">
+                    <label for="diversionRoute">Diversion Route:</label>
+                    <textarea id="diversionRoute" rows="3" placeholder="Enter diversion route"></textarea>
+                </div>
+                 <div class="form-group">
+                    <label for="workDays">Number of Working Days:</label>
+                    <input type="number" id="workDays" min="1" value="1">
+                </div>
+                <div class="form-group">
+                    <label for="affectedHouses">Affected Houses (approx):</label>
+                    <input type="number" id="affectedHouses" min="0" max="40" placeholder="e.g., 15">
+                </div>
+                 <div class="form-group">
+                    <label>Reference Number:</label>
+                    <input type="text" id="refNumberDisplay" readonly class="bg-gray-100">
+                 </div>
+                 <div class="form-group">
+                     <label>Date (adjusted):</label>
+                     <input type="text" id="dateDisplay" readonly class="bg-gray-100">
+                 </div>
+                 <div class="form-group md:col-span-2">
+                     <label>Coordinates (extracted Lat, Lon):</label>
+                     <input type="text" id="coordsDisplay" readonly class="bg-gray-100">
+                 </div>
+            </div>
+
+             <div class="mt-6 flex justify-between">
+                 <button class="secondary-button" onclick="showStep('step2')">Back</button>
+                <button id="generateNoticeBtn">Next: Generate Notice</button>
+            </div>
+        </div>
+
+        <div id="step4" class="step">
+            <h2>Step 4: Generated Notice Text</h2>
+             <p class="mb-4">Review the generated text below. Copy and paste into your Word template.</p>
+            <textarea id="generatedNotice" rows="20" readonly class="w-full p-2 border rounded bg-gray-100 font-mono text-sm"></textarea>
+             <div class="mt-6 flex justify-between items-center">
+                 <button class="secondary-button" onclick="showStep('step3')">Back</button>
+                 <div>
+                    <button id="copyNoticeBtn" class="mr-2">Copy Text</button>
+                    <button id="downloadNoticeBtn">Download as .txt</button>
+                 </div>
+            </div>
+             <p id="copyStatus" class="text-sm text-green-600 mt-2"></p>
+        </div>
+
+    </div>
+
+    <script>
+        // --- Global Variables ---
+        let planFileUrl = null;
+        let noticeData = { ref: '', lat: '', lon: '', date: '', street: '', days: '1', diversion: '', houses: '' };
+
+        // --- DOM Elements ---
+        const steps = document.querySelectorAll('.step');
+        const pasteArea = document.getElementById('pasteArea');
+        const pasteError = document.getElementById('pasteError');
+        const pasteSuccess = document.getElementById('pasteSuccess');
+        const planFileInput = document.getElementById('planFile');
+        const planPreview = document.getElementById('planPreview');
+        const planError = document.getElementById('planError');
+        const planSuccess = document.getElementById('planSuccess');
+        const mapFrame = document.getElementById('mapFrame');
+        const mapSearchStatus = document.getElementById('mapSearchStatus');
+        const streetNameInput = document.getElementById('streetName');
+        const diversionRouteInput = document.getElementById('diversionRoute');
+        const workDaysInput = document.getElementById('workDays');
+        const affectedHousesInput = document.getElementById('affectedHouses');
+        const refNumberDisplay = document.getElementById('refNumberDisplay');
+        const dateDisplay = document.getElementById('dateDisplay');
+        const coordsDisplay = document.getElementById('coordsDisplay');
+        const copyCoordsBtnOverlay = document.getElementById('copyCoordsBtnOverlay'); // Updated ID
+        const copyCoordsStatus = document.getElementById('copyCoordsStatus');
+        const generatedNoticeTextarea = document.getElementById('generatedNotice');
+        const copyNoticeBtn = document.getElementById('copyNoticeBtn');
+        const downloadNoticeBtn = document.getElementById('downloadNoticeBtn');
+        const copyStatus = document.getElementById('copyStatus');
+
+        // --- Navigation Buttons ---
+        const parseAndNextBtn = document.getElementById('parseAndNextBtn');
+        const nextToStep3Btn = document.getElementById('nextToStep3');
+        const generateNoticeBtn = document.getElementById('generateNoticeBtn');
+
+        // --- Template Text ---
+        const noticeTemplate = `
+I & A Communications Ltd
+
+Tel: 0845 200 4035
+
+PLEASE NOTE
+On DAY 2025
+I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along STREET
+
+The work is expected to take a maximum of DAY working days and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion DIV and Vice Versa.
+
+STREET will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.
+
+We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.
+
+ANY CONCERNS PLEASE CALL 0845 200 4035 WITH OUR REF: REFR
+
+Regards
+Zoe Franks
+I & A Communications Ltd
+Tel: 0845 200 4035
+        `;
+
+        // --- Functions ---
+
+        function showStep(stepId) {
+            steps.forEach(step => {
+                step.style.display = (step.id === stepId) ? 'block' : 'none';
+            });
+            window.scrollTo(0, 0);
+        }
+
+        function parsePastedData() {
+            pasteError.textContent = '';
+            pasteSuccess.textContent = '';
+            const pastedText = pasteArea.value.trim();
+            if (!pastedText) { pasteError.textContent = 'Please paste data.'; return; }
+            const columns = pastedText.split('\t');
+            if (columns.length <= 15) { pasteError.textContent = `Error: Need at least 16 columns (found ${columns.length}).`; return; }
+
+            try {
+                // Date Extraction and Adjustment
+                let rawDate = columns[0]?.trim();
+                if (!rawDate) throw new Error("Date (Col A) missing.");
+                let parsedDate;
+                let tempDate = new Date(rawDate);
+                if (!isNaN(tempDate.getTime())) { parsedDate = tempDate; }
+                else {
+                    const dateParts = rawDate.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+                    if (dateParts) {
+                        const day = parseInt(dateParts[1], 10), month = parseInt(dateParts[2], 10) - 1;
+                        let year = parseInt(dateParts[3], 10); if (year < 100) year += 2000;
+                        parsedDate = new Date(Date.UTC(year, month, day));
+                        if (isNaN(parsedDate.getTime())) throw new Error(`Invalid date format: "${rawDate}".`);
+                    } else {
+                        const potentialSerial = Number(rawDate);
+                        if (!isNaN(potentialSerial) && potentialSerial > 1 && potentialSerial < 2958466) {
+                            const excelEpochOffset = 25569;
+                            const jsTimestamp = (potentialSerial - excelEpochOffset) * 86400 * 1000;
+                            parsedDate = new Date(jsTimestamp);
+                            if (isNaN(parsedDate.getTime())) throw new Error(`Invalid date format: "${rawDate}".`);
+                        } else { throw new Error(`Invalid date format: "${rawDate}".`); }
+                    }
+                }
+                const today = new Date(), currentYear = today.getFullYear();
+                const comparisonDate = new Date(Date.UTC(currentYear, parsedDate.getUTCMonth(), parsedDate.getUTCDate()));
+                const todayDateOnly = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+                let finalYear = comparisonDate < todayDateOnly ? currentYear + 1 : currentYear;
+                parsedDate.setUTCFullYear(finalYear);
+                noticeData.date = `${('0' + parsedDate.getUTCDate()).slice(-2)}/${('0' + (parsedDate.getUTCMonth() + 1)).slice(-2)}/${parsedDate.getUTCFullYear()}`;
+
+                // Reference
+                noticeData.ref = columns[7]?.trim() || '[REF MISSING]';
+                if (noticeData.ref === '[REF MISSING]') throw new Error("Ref (Col H) missing.");
+
+                // Location & Coordinates
+                let locationString = columns[15]?.trim();
+                if (!locationString) throw new Error("Location (Col P) missing.");
+                if (locationString.includes('/')) locationString = locationString.split('/')[0].trim();
+                const coordRegex = /.*?(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)/;
+                const match = locationString.match(coordRegex);
+                if (match && match[1] && match[2]) {
+                    const lat = parseFloat(match[1]), lon = parseFloat(match[2]);
+                    if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
+                        noticeData.lat = String(lat); noticeData.lon = String(lon);
+                    } else { throw new Error(`Coords out of range (${lat}, ${lon}).`); }
+                } else { throw new Error("Couldn't find Lat, Lon in Col P."); }
+
+                console.log("Parsed Data:", noticeData);
+                pasteSuccess.textContent = 'Data parsed successfully!';
+                showStep('step2');
+
+            } catch (error) {
+                console.error("Parsing error:", error);
+                pasteError.textContent = `Error: ${error.message}`;
+                noticeData = { ref: '', lat: '', lon: '', date: '', street: '', days: '1', diversion: '', houses: '' }; // Reset
+            }
+        }
+
+        /**
+         * Handles plan upload (Image or PDF) and sets up preview (image or iframe).
+         */
+        function handlePlanUpload(event) {
+            const file = event.target.files[0];
+            planError.textContent = '';
+            planSuccess.textContent = '';
+            nextToStep3Btn.disabled = true;
+            planPreview.innerHTML = '<p class="text-gray-500 text-sm">Processing plan...</p>';
+
+            if (planFileUrl) { URL.revokeObjectURL(planFileUrl); planFileUrl = null; }
+            if (!file) { planPreview.innerHTML = '<p class="text-gray-500 text-sm">No plan selected.</p>'; return; }
+
+            try {
+                 planFileUrl = URL.createObjectURL(file);
+            } catch (e) {
+                 console.error("URL Creation Error:", e);
+                 planError.textContent = 'Could not create URL for the file.';
+                 planPreview.innerHTML = '<p class="text-red-500 text-sm">Error loading preview.</p>';
+                 return;
+            }
+
+            if (file.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = planFileUrl;
+                img.alt = "Plan Preview";
+                img.onerror = () => { planError.textContent = 'Could not display image.'; planPreview.innerHTML = '<p class="text-red-500 text-sm">Error loading preview.</p>'; URL.revokeObjectURL(planFileUrl); planFileUrl = null; nextToStep3Btn.disabled = true; };
+                img.onload = () => { planPreview.innerHTML = ''; planPreview.appendChild(img); planSuccess.textContent = `Image Plan "${file.name}" ready.`; nextToStep3Btn.disabled = false; };
+            } else if (file.type === 'application/pdf') {
+                // Revert to using iframe for PDF preview
+                planPreview.innerHTML = ''; // Clear loading message
+                const iframe = document.createElement('iframe');
+                iframe.src = planFileUrl;
+                iframe.title = "Plan PDF Preview";
+                iframe.setAttribute('type', 'application/pdf'); // Hint for viewers
+                planPreview.appendChild(iframe);
+                planSuccess.textContent = `PDF Plan "${file.name}" ready for preview above.`;
+                nextToStep3Btn.disabled = false; // Enable next step
+            } else {
+                planError.textContent = 'Unsupported file type (Image or PDF only).';
+                planPreview.innerHTML = '<p class="text-red-500 text-sm">Invalid file type.</p>';
+                URL.revokeObjectURL(planFileUrl); planFileUrl = null;
+            }
+        }
+
+        function updateMap() {
+            mapSearchStatus.textContent = '';
+            if (noticeData.lat && noticeData.lon) {
+                const mapUrl = `https://symology.maps.arcgis.com/apps/webappviewer/index.html?id=1055c1d3a2c344cea5353d8ed744831c&center=${noticeData.lon},${noticeData.lat}&level=15`;
+                mapFrame.src = mapUrl;
+            } else {
+                mapFrame.src = 'about:blank';
+            }
+        }
+
+        function tryAutoFillMapSearch() {
+             const coordsString = coordsDisplay.value;
+             if (!coordsString || coordsString === 'N/A') return;
+             mapSearchStatus.textContent = 'Attempting auto-fill...';
+             setTimeout(() => {
+                 try {
+                     const iframeDoc = mapFrame.contentWindow?.document;
+                     if (!iframeDoc) throw new Error("Cannot access iframe content.");
+                     const searchInput = iframeDoc.getElementById('esri_dijit_Search_0_input');
+                     if (searchInput) {
+                         searchInput.value = coordsString;
+                         console.log("Attempted map search auto-fill.");
+                         mapSearchStatus.textContent = 'Auto-fill attempted. Verify map.';
+                     } else { throw new Error("Map search input not found."); }
+                 } catch (error) {
+                     console.warn("Auto-fill failed:", error.message);
+                     mapSearchStatus.textContent = `Auto-fill failed (likely security). Use 'Copy Coords'.`;
+                 }
+             }, 3000);
+        }
+
+        /**
+         * Copies coordinates using the Clipboard API. Provides better feedback.
+         */
+        function copyCoordinatesToClipboard() {
+            const coordsString = coordsDisplay.value;
+            copyCoordsStatus.textContent = ''; // Clear previous status
+
+            if (!coordsString || coordsString === 'N/A') {
+                copyCoordsStatus.textContent = 'No coordinates to copy.';
+                return;
+            }
+
+            if (!navigator.clipboard || !navigator.clipboard.writeText) {
+                copyCoordsStatus.textContent = 'Clipboard API not available (try manual copy). Needs HTTPS or localhost.';
+                // Optional: Fallback using document.execCommand (less reliable)
+                // try {
+                //     const dummy = document.createElement("textarea");
+                //     document.body.appendChild(dummy);
+                //     dummy.value = coordsString;
+                //     dummy.select();
+                //     document.execCommand("copy");
+                //     document.body.removeChild(dummy);
+                //     copyCoordsStatus.textContent = 'Coords copied (fallback).';
+                // } catch (err) {
+                //     copyCoordsStatus.textContent = 'Copy failed. Please copy manually.';
+                // }
+                return;
+            }
+
+            navigator.clipboard.writeText(coordsString).then(() => {
+                copyCoordsStatus.textContent = 'Coordinates copied!';
+                setTimeout(() => { copyCoordsStatus.textContent = ''; }, 3000);
+            }).catch(err => {
+                console.error('Failed to copy coordinates:', err);
+                copyCoordsStatus.textContent = 'Copy failed. Check browser permissions or use HTTPS/localhost.';
+            });
+        }
+
+
+        function generateNotice() {
+             noticeData.street = streetNameInput.value.trim() || '[STREET NAME MISSING]';
+             noticeData.diversion = diversionRouteInput.value.trim() || '[DIVERSION ROUTE MISSING]';
+             noticeData.days = workDaysInput.value || '1';
+             noticeData.houses = affectedHousesInput.value;
+
+             if (noticeData.street === '[STREET NAME MISSING]') { alert("Please enter Street Name."); streetNameInput.focus(); return; }
+             if (noticeData.diversion === '[DIVERSION ROUTE MISSING]') { alert("Please enter Diversion Route."); diversionRouteInput.focus(); return; }
+
+             let populatedNotice = noticeTemplate;
+             populatedNotice = populatedNotice.replace(/DAY 2025/g, noticeData.date);
+             populatedNotice = populatedNotice.replace(/STREET/g, noticeData.street);
+             populatedNotice = populatedNotice.replace(/DAY working days/g, `${noticeData.days} working days`);
+             populatedNotice = populatedNotice.replace(/DIV/g, noticeData.diversion);
+             populatedNotice = populatedNotice.replace(/REFR/g, noticeData.ref);
+
+             generatedNoticeTextarea.value = populatedNotice;
+             showStep('step4');
+        }
+
+        function copyNoticeToClipboard() {
+            generatedNoticeTextarea.select();
+            generatedNoticeTextarea.setSelectionRange(0, 99999);
+            copyStatus.textContent = '';
+            if (!navigator.clipboard || !navigator.clipboard.writeText) {
+                copyStatus.textContent = 'Clipboard API not available (try manual copy).'; return;
+            }
+            navigator.clipboard.writeText(generatedNoticeTextarea.value)
+                .then(() => { copyStatus.textContent = 'Notice text copied!'; setTimeout(() => { copyStatus.textContent = ''; }, 3000); })
+                .catch(err => { console.error('Failed to copy notice:', err); copyStatus.textContent = 'Copy failed.'; });
+        }
+
+        function downloadNoticeAsTxt() {
+            const textToSave = generatedNoticeTextarea.value;
+            const blob = new Blob([textToSave], { type: 'text/plain;charset=utf-8' });
+            const filename = `Notice_${noticeData.ref || 'Ref'}_${noticeData.date.replace(/[\/\\]/g, '-') || 'Date'}.txt`;
+            saveAs(blob, filename);
+        }
+
+
+        // --- Event Listeners ---
+        parseAndNextBtn.addEventListener('click', parsePastedData);
+        planFileInput.addEventListener('change', handlePlanUpload);
+        copyCoordsBtnOverlay.addEventListener('click', copyCoordinatesToClipboard); // Listener attached to new button ID
+
+        nextToStep3Btn.addEventListener('click', () => {
+            updateMap();
+            refNumberDisplay.value = noticeData.ref;
+            dateDisplay.value = noticeData.date;
+            coordsDisplay.value = noticeData.lat && noticeData.lon ? `${noticeData.lat}, ${noticeData.lon}` : 'N/A';
+            showStep('step3');
+            tryAutoFillMapSearch();
+        });
+        generateNoticeBtn.addEventListener('click', generateNotice);
+        copyNoticeBtn.addEventListener('click', copyNoticeToClipboard);
+        downloadNoticeBtn.addEventListener('click', downloadNoticeAsTxt);
+
+        // --- Initialisation ---
+        showStep('step1');
+
+    </script>
+
+</body>
+</html>
