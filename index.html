@@ -18,8 +18,10 @@
              display: flex; justify-content: center; align-items: center;
              overflow: hidden; background-color: #f9fafb; padding: 0;
              text-align: center;
-             width: 100%; /* Ensure it takes full width of its grid cell */
-             aspect-ratio: 3 / 4; /* Apply 3:4 aspect ratio */
+             width: 100%; /* Takes width of parent */
+             max-height: 75vh; /* Limit height to 75% of viewport height */
+             height: 75vh; /* Set height to max-height for consistent sizing */
+             /* Removed aspect-ratio */
         }
         #planPreview img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; margin: auto; }
         /* Style for the plan PDF preview (iframe) */
@@ -28,14 +30,14 @@
         /* Container for map iframe and overlay button - UPDATED */
         .map-container {
             position: relative; /* Needed for absolute positioning of children */
-            width: 100%;
-            /* Removed fixed height */
-            aspect-ratio: 3 / 4; /* Apply 3:4 aspect ratio */
+            width: 100%; /* Takes width of parent */
+            max-height: 75vh; /* Limit height to 75% of viewport height */
+             height: 75vh; /* Set height to max-height for consistent sizing */
+            /* Removed aspect-ratio */
         }
         .map-container iframe {
              position: absolute;
              top: 0; left: 0; width: 100%; height: 100%; /* Make iframe fill container */
-             /* aspect-ratio applied to parent */
         }
         /* Overlay button style */
         #copyCoordsBtnOverlay {
@@ -62,16 +64,18 @@
         .secondary-button { @apply border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500; }
         .step > * + * { margin-top: 1rem; }
         .form-group > * + * { margin-top: 0.5rem; }
-        .container { @apply max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 bg-gray-50 rounded-lg shadow-md; }
+        .container { @apply max-w-full mx-auto px-[3.33%] py-4 sm:py-6 lg:py-8 bg-gray-50 rounded-lg shadow-md; } /* Use max-w-full and specific padding */
         h2 { @apply text-xl font-semibold text-gray-800 mb-4; }
-        /* Re-add grid classes for side-by-side layout on medium screens and up */
-        .map-plan-grid { @apply grid grid-cols-1 md:grid-cols-2 gap-4; }
+        /* Use Flexbox for side-by-side layout and spacing */
+        .map-plan-flex-container { @apply flex flex-wrap md:flex-nowrap justify-between gap-[3.33%]; } /* Use flex and justify-between */
+        .map-plan-item { @apply w-full md:w-[45%]; } /* Full width on small, 45% on medium+ */
+
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gray-100 p-8">
+<body class="bg-gray-100"> {/* Removed default body padding */}
 
     <div class="container">
         <h1 class="text-2xl font-bold text-center text-gray-900 mb-6">Notice Generation Tool</h1>
@@ -104,10 +108,10 @@
         <div id="step3" class="step">
             <h2>Step 3: Review Map/Plan & Enter Details</h2>
 
-            <div class="map-plan-grid mb-6">
-                <div> {/* Grid column 1 */}
+            <div class="map-plan-flex-container mb-6">
+                <div class="map-plan-item mb-4 md:mb-0"> {/* Added bottom margin for small screens */}
                     <h3 class="text-lg font-medium text-gray-800 mb-2">Map Location</h3>
-                    <div class="map-container"> {/* Aspect ratio applied here */}
+                    <div class="map-container"> {/* Max height applied here */}
                         <iframe id="mapFrame" src="about:blank" title="Location Map"></iframe>
                         <button id="copyCoordsBtnOverlay" title="Copy coordinates to clipboard">Copy Coords</button>
                     </div>
@@ -118,9 +122,9 @@
                      <p id="copyCoordsStatus" class="text-sm text-green-600 mt-1"></p>
                      <p id="mapSearchStatus" class="text-xs text-orange-600 mt-1"></p>
                 </div>
-                <div> {/* Grid column 2 */}
+                <div class="map-plan-item">
                     <h3 class="text-lg font-medium text-gray-800 mb-2">Uploaded Plan</h3>
-                    <div id="planPreview"> {/* Aspect ratio applied here */}
+                    <div id="planPreview"> {/* Max height applied here */}
                         <p class="text-gray-500 text-sm">Plan preview will appear here.</p>
                     </div>
                 </div>
