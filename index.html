@@ -20,32 +20,22 @@
              overflow: hidden; background-color: #f9fafb; padding: 0;
              text-align: center;
              width: 100%; /* Takes width of parent grid cell */
-             height: 500px; /* Set fixed height */
+             max-width: 600px; /* Max width */
+             height: 800px; /* Fixed height */
+             margin-left: auto; margin-right: auto;
         }
         #planPreview img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; margin: auto; }
-        /* Style for the plan PDF preview (iframe) */
         #planPreview iframe { width: 100%; height: 100%; border: none; border-radius: 0.375rem; }
 
-        /* Container for map iframe and overlay button */
+        /* Container for map iframe */
         .map-container {
-            position: relative; /* Needed for absolute positioning of children */
+            position: relative;
             width: 100%; /* Takes width of parent grid cell */
-            height: 500px; /* Set fixed height */
+            max-width: 600px; /* Max width */
+            height: 800px; /* Fixed height */
+             margin-left: auto; margin-right: auto;
         }
-        .map-container iframe {
-             position: absolute;
-             top: 0; left: 0; width: 100%; height: 100%; /* Make iframe fill container */
-        }
-        /* Overlay button style */
-        #copyCoordsBtnOverlay {
-            position: absolute;
-            top: 10px; /* 10px from top */
-            left: 50%; /* Center horizontally */
-            transform: translateX(-50%); /* Adjust horizontal centering */
-            z-index: 10; /* Ensure it's above the iframe */
-            /* Tailwind classes applied directly in HTML */
-        }
-
+        .map-container iframe { width: 100%; height: 100%; }
 
         /* Hide steps initially */
         .step { display: none; }
@@ -53,17 +43,15 @@
 
         /* Add a subtle border between form groups in Step 1 */
         #step1 .form-group + .form-group {
-            border-top: 1px solid #e5e7eb; /* Tailwind gray-200 */
-            padding-top: 1.5rem; /* Add padding above the border */
-            margin-top: 1.5rem; /* Keep margin consistent */
+            border-top: 1px solid #e5e7eb;
+            padding-top: 1.5rem;
+            margin-top: 1.5rem;
         }
 
         /* General form styling (Tailwind classes used directly in HTML mostly) */
         label { /* Base label style if needed */ }
-        /* Container */
         .container { /* Base container style */ }
         h2 { /* Base heading style */ }
-        /* Grid for side-by-side layout and spacing */
         .map-plan-grid { /* Base grid style */ }
 
     </style>
@@ -74,7 +62,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 14)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 16)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -110,16 +98,18 @@
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 2: Review Map/Plan & Enter Details</h2>
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6 mb-6 mt-6">
-                <div class="mb-4 md:mb-0"> {/* Grid column 1 */}
-                    <h3 class="text-lg font-medium text-gray-800 mb-2">Map Location</h3>
-                    <div class="map-container"> {/* Height applied here */}
-                        <iframe id="mapFrame" src="about:blank" title="Location Map" class="w-full h-full"></iframe>
-                        <button id="copyCoordsBtnOverlay" title="Copy coordinates to clipboard" class="py-1 px-2 text-xs border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500 shadow-md rounded-md">Copy Coords</button>
+                <div class="mb-4 md:mb-0 flex flex-col items-center">
+                    <h3 class="text-lg font-medium text-gray-800 mb-2 w-full max-w-[600px]">Map Location</h3>
+                    <div class="map-container">
+                        <iframe id="mapFrame" src="about:blank" title="Location Map"></iframe>
                     </div>
+                    <button id="copyCoordsBtn" title="Copy coordinates to clipboard" class="mt-3 py-2 px-4 text-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500 shadow-md rounded-md">Copy Coordinates to Clipboard</button>
+                    <p id="copyCoordsStatus" class="text-sm text-green-600 mt-1 h-4"></p>
+                    <p id="mapSearchStatus" class="hidden"></p>
                 </div>
-                <div> {/* Grid column 2 */}
-                    <h3 class="text-lg font-medium text-gray-800 mb-2">Uploaded Plan</h3>
-                    <div id="planPreview"> {/* Height applied here */}
+                <div class="flex flex-col items-center">
+                    <h3 class="text-lg font-medium text-gray-800 mb-2 w-full max-w-[600px]">Uploaded Plan</h3>
+                    <div id="planPreview">
                         <p class="text-gray-500 text-sm">Plan preview will appear here.</p>
                     </div>
                 </div>
@@ -149,8 +139,6 @@
                  <div class="form-group md:col-span-2">
                      <label class="block text-sm font-medium text-gray-700 mb-1">Coordinates (extracted Lat, Lon):</label>
                      <input type="text" id="coordsDisplay" readonly class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm">
-                     <p id="copyCoordsStatus" class="text-sm text-green-600 mt-1"></p>
-                     <p id="mapSearchStatus" class="hidden"></p>
                  </div>
             </div>
 
@@ -203,7 +191,7 @@
         const refNumberDisplay = document.getElementById('refNumberDisplay');
         const dateDisplay = document.getElementById('dateDisplay');
         const coordsDisplay = document.getElementById('coordsDisplay');
-        const copyCoordsBtnOverlay = document.getElementById('copyCoordsBtnOverlay');
+        const copyCoordsBtn = document.getElementById('copyCoordsBtn'); // Renamed ID
         const copyCoordsStatus = document.getElementById('copyCoordsStatus');
         const generatedNoticeTextarea = document.getElementById('generatedNotice');
         const copyNoticeBtn = document.getElementById('copyNoticeBtn');
@@ -215,29 +203,8 @@
         const nextToStep3CombinedBtn = document.getElementById('nextToStep3Combined');
         const generateNoticeBtn = document.getElementById('generateNoticeBtn');
 
-        // --- Template Text ---
-        const noticeTemplate = `
-I & A Communications Ltd
-
-Tel: 0845 200 4035
-
-PLEASE NOTE
-On DAY 2025
-I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along STREET
-
-The work is expected to take a maximum of DAY working days and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion DIV and Vice Versa.
-
-STREET will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.
-
-We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.
-
-ANY CONCERNS PLEASE CALL 0845 200 4035 WITH OUR REF: REFR
-
-Regards
-Zoe Franks
-I & A Communications Ltd
-Tel: 0845 200 4035
-        `;
+        // --- Template Text (Used for structure, not direct output anymore) ---
+        // const noticeTemplate = `...`; // No longer needed for direct replacement
 
         // --- Functions ---
 
@@ -259,13 +226,8 @@ Tel: 0845 200 4035
             }
         }
 
-        /**
-         * Helper function to get the day suffix (st, nd, rd, th).
-         * @param {number} day - The day of the month (1-31).
-         * @returns {string} The suffix.
-         */
         function getDaySuffix(day) {
-            if (day > 3 && day < 21) return 'th'; // covers 4th to 20th
+            if (day > 3 && day < 21) return 'th';
             switch (day % 10) {
                 case 1: return "st";
                 case 2: return "nd";
@@ -286,16 +248,13 @@ Tel: 0845 200 4035
             if (columns.length <= 15) { pasteError.textContent = `Error: Need at least 16 columns (found ${columns.length}).`; return; }
 
             try {
-                // --- Date Extraction, Adjustment, and Formatting ---
+                // Date Extraction, Adjustment, and Formatting
                 let rawDate = columns[0]?.trim();
                 if (!rawDate) throw new Error("Date (Col A) missing.");
                 let parsedDate;
-                // Try standard parsing first
                 let tempDate = new Date(rawDate);
-                if (!isNaN(tempDate.getTime())) {
-                    parsedDate = tempDate;
-                } else {
-                    // Try DD/MM/YYYY or DD-MM-YYYY format
+                if (!isNaN(tempDate.getTime())) { parsedDate = tempDate; }
+                else {
                     const dateParts = rawDate.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
                     if (dateParts) {
                         const day = parseInt(dateParts[1], 10), month = parseInt(dateParts[2], 10) - 1;
@@ -303,7 +262,6 @@ Tel: 0845 200 4035
                         parsedDate = new Date(Date.UTC(year, month, day));
                         if (isNaN(parsedDate.getTime())) throw new Error(`Invalid date format: "${rawDate}".`);
                     } else {
-                        // Try parsing as Excel serial date number
                         const potentialSerial = Number(rawDate);
                         if (!isNaN(potentialSerial) && potentialSerial > 1 && potentialSerial < 2958466) {
                             const excelEpochOffset = 25569;
@@ -313,33 +271,23 @@ Tel: 0845 200 4035
                         } else { throw new Error(`Invalid date format: "${rawDate}".`); }
                     }
                 }
-
-                // Year Adjustment Logic
                 const today = new Date(), currentYear = today.getFullYear();
                 const comparisonDate = new Date(Date.UTC(currentYear, parsedDate.getUTCMonth(), parsedDate.getUTCDate()));
                 const todayDateOnly = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
                 let finalYear = comparisonDate < todayDateOnly ? currentYear + 1 : currentYear;
                 parsedDate.setUTCFullYear(finalYear);
-
-                // Format the final adjusted date: MONDAY 19th MAY 2025
-                const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-                // Use UTC methods to ensure consistency regardless of local timezone
                 const dayOfMonth = parsedDate.getUTCDate();
-                const formattedDateString = parsedDate.toLocaleDateString('en-GB', options); // Use en-GB for DD Month YYYY order initially
-                // Manually reconstruct with suffix and uppercase
-                const parts = formattedDateString.split(' '); // e.g., ["Monday,", "19", "May", "2025"] or ["19", "May", "2025,", "Monday"] depending on locale nuances
-                const weekday = parsedDate.toLocaleDateString('en-GB', { weekday: 'long' }).toUpperCase(); // MONDAY
-                const month = parsedDate.toLocaleDateString('en-GB', { month: 'long' }).toUpperCase(); // MAY
-                const year = parsedDate.getUTCFullYear(); // 2025
-                const dayWithSuffix = dayOfMonth + getDaySuffix(dayOfMonth); // 19th
+                const weekday = parsedDate.toLocaleDateString('en-GB', { weekday: 'long' }).toUpperCase();
+                const month = parsedDate.toLocaleDateString('en-GB', { month: 'long' }).toUpperCase();
+                const year = parsedDate.getUTCFullYear();
+                const dayWithSuffix = dayOfMonth + getDaySuffix(dayOfMonth);
+                noticeData.date = `${weekday} ${dayWithSuffix} ${month} ${year}`; // Formatted Date
 
-                noticeData.date = `${weekday} ${dayWithSuffix} ${month} ${year}`; // MONDAY 19th MAY 2025
-
-                // --- Reference ---
+                // Reference
                 noticeData.ref = columns[7]?.trim() || '[REF MISSING]';
                 if (noticeData.ref === '[REF MISSING]') throw new Error("Ref (Col H) missing.");
 
-                // --- Location & Coordinates ---
+                // Location & Coordinates
                 let locationString = columns[15]?.trim();
                 if (!locationString) throw new Error("Location (Col P) missing.");
                 if (locationString.includes('/')) locationString = locationString.split('/')[0].trim();
@@ -498,15 +446,19 @@ Tel: 0845 200 4035
              if (noticeData.street === '[STREET NAME MISSING]') { alert("Please enter Street Name."); streetNameInput.focus(); return; }
              if (!noticeData.diversion) { alert("Please go back and enter the Diversion Route in Step 1."); showStep('step1'); diversionRouteStep1Input.focus(); return; }
 
-             let populatedNotice = noticeTemplate;
-             // Replace date placeholder with the newly formatted date
-             populatedNotice = populatedNotice.replace(/On DAY 2025/g, `On ${noticeData.date}`);
-             populatedNotice = populatedNotice.replace(/STREET/g, noticeData.street);
-             populatedNotice = populatedNotice.replace(/DAY working days/g, `${noticeData.days} working days`);
-             populatedNotice = populatedNotice.replace(/DIV/g, noticeData.diversion);
-             populatedNotice = populatedNotice.replace(/REFR/g, noticeData.ref);
+             // Generate the plain text version for the textarea preview
+             let textPreview = `I & A Communications Ltd\n\n`;
+             textPreview += `Tel: 0845 200 4035\n\n`;
+             textPreview += `PLEASE NOTE\n`;
+             textPreview += `On ${noticeData.date}\n\n`;
+             textPreview += `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along ${noticeData.street}.\n\n`;
+             textPreview += `The work is expected to take a maximum of ${noticeData.days} working days and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion ${noticeData.diversion} and Vice Versa.\n\n`;
+             textPreview += `${noticeData.street} will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.\n\n`;
+             textPreview += `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.\n\n`;
+             textPreview += `ANY CONCERNS PLEASE CALL 0845 200 4035 WITH OUR REF: ${noticeData.ref}\n\n`;
+             textPreview += `Regards\nZoe Franks\nI & A Communications Ltd\nTel: 0845 200 4035`;
 
-             generatedNoticeTextarea.value = populatedNotice;
+             generatedNoticeTextarea.value = textPreview;
              showStep('step4');
         }
 
@@ -521,28 +473,222 @@ Tel: 0845 200 4035
         }
 
         /**
-         * Downloads the generated notice text as a PDF file using jsPDF.
+         * Downloads the generated notice text as a formatted PDF file using jsPDF.
          */
         function downloadNoticeAsPdf() {
-            const textToSave = generatedNoticeTextarea.value;
-            const filename = `Notice_${noticeData.ref || 'Ref'}_${noticeData.date.replace(/[\/\\]/g, '-') || 'Date'}.pdf`;
+            const filename = `Notice_${noticeData.ref || 'Ref'}_${noticeData.date.replace(/[\/\s]/g, '-') || 'Date'}.pdf`;
+            const FONT_HELVETICA = 'helvetica'; // Substitute for Calibri
+            const FONT_TIMES = 'times';       // Substitute for Times New Roman
+            const MARGIN_LEFT = 15;
+            const MARGIN_RIGHT = 195; // Approx right margin on A4 (210mm width)
+            const CONTENT_WIDTH = MARGIN_RIGHT - MARGIN_LEFT;
+            let currentY = 20; // Start Y position
 
             try {
-                const pdfDoc = new jsPDF();
+                const pdfDoc = new jsPDF({
+                    orientation: 'p', // portrait
+                    unit: 'mm', // millimeters
+                    format: 'a4' // A4 size
+                });
 
-                // Set basic font (jsPDF default is helvetica)
-                pdfDoc.setFont('helvetica', 'normal');
-                pdfDoc.setFontSize(10); // Set font size
+                // --- Placeholder Logo ---
+                pdfDoc.setFillColor(144, 238, 144); // Light green
+                pdfDoc.rect(MARGIN_LEFT, currentY, 50, 15, 'F'); // x, y, width, height, style (F=fill)
+                currentY += 25; // Move down past logo
 
-                // Split text into lines and add to PDF, handling basic wrapping
-                const lines = pdfDoc.splitTextToSize(textToSave, 180); // 180mm width approx A4 portrait margin
-                pdfDoc.text(lines, 15, 20); // Add text lines starting at x=15, y=20
+                // --- Address Block ---
+                pdfDoc.setFont(FONT_HELVETICA, 'normal');
+                pdfDoc.setFontSize(10);
+                const addressLines = [
+                    "I & A Communications",
+                    "Burgon House",
+                    "James Swallow Way",
+                    "London and Medway Commercial",
+                    "Rochester",
+                    "Kent",
+                    "ME3 9GX"
+                ];
+                pdfDoc.text(addressLines, MARGIN_LEFT, currentY);
+                currentY += (addressLines.length * 4); // Adjust Y based on line height (approx 4mm for 10pt)
+                pdfDoc.text("Tel:     0845 200 4035", MARGIN_LEFT, currentY);
+                currentY += 15; // Space before next section
 
+                // --- PLEASE NOTE ---
+                pdfDoc.setFont(FONT_TIMES, 'bold');
+                pdfDoc.setFontSize(12);
+                pdfDoc.text("PLEASE NOTE", MARGIN_LEFT, currentY);
+                currentY += 8; // Space
+
+                // --- Date ---
+                pdfDoc.setFont(FONT_HELVETICA, 'normal'); // Back to Helvetica for date
+                pdfDoc.setFontSize(24);
+                const dateText = `On ${noticeData.date}`;
+                pdfDoc.text(dateText, MARGIN_LEFT, currentY);
+                // Underline - calculate text width
+                const dateTextWidth = pdfDoc.getTextWidth(dateText);
+                pdfDoc.setLineWidth(0.5);
+                pdfDoc.line(MARGIN_LEFT, currentY + 1, MARGIN_LEFT + dateTextWidth, currentY + 1); // x1, y1, x2, y2
+                currentY += 15; // Space
+
+                // --- Main Paragraph 1 ---
+                pdfDoc.setFontSize(12);
+                let text = `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along `;
+                let lines = pdfDoc.splitTextToSize(text, CONTENT_WIDTH);
+                pdfDoc.text(lines, MARGIN_LEFT, currentY);
+                currentY += (lines.length * 5); // Adjust Y (approx 5mm for 12pt)
+                // Add Street (bold) - needs careful placement if text wrapped
+                pdfDoc.setFont(undefined, 'bold');
+                // Get Y pos of last line + small offset for potential space
+                let lastLineY = currentY - 5 + pdfDoc.getTextDimensions(lines[lines.length-1]).h;
+                let lastLineXEnd = MARGIN_LEFT + pdfDoc.getTextWidth(lines[lines.length-1] + " "); // Add space width
+                 // If street fits on same line
+                 if (lastLineXEnd + pdfDoc.getTextWidth(noticeData.street) < MARGIN_RIGHT) {
+                    pdfDoc.text(noticeData.street, lastLineXEnd, lastLineY);
+                    currentY = lastLineY; // Keep Y the same if it fits
+                 } else { // Street needs new line
+                    currentY += 5; // Move to next line
+                    pdfDoc.text(noticeData.street, MARGIN_LEFT, currentY);
+                 }
+                pdfDoc.setFont(undefined, 'normal');
+                currentY += 10; // Space
+
+                 // --- Main Paragraph 2 ---
+                 text = `The work is expected to take a maximum of `;
+                 lines = pdfDoc.splitTextToSize(text, CONTENT_WIDTH);
+                 pdfDoc.text(lines, MARGIN_LEFT, currentY);
+                 lastLineY = currentY + (lines.length -1) * 5; // Y pos of start of last line
+                 lastLineXEnd = MARGIN_LEFT + pdfDoc.getTextWidth(lines[lines.length-1] + " ");
+
+                 // Add working days (bold)
+                 pdfDoc.setFont(undefined, 'bold');
+                 const daysText = `${noticeData.days} working days`;
+                 if (lastLineXEnd + pdfDoc.getTextWidth(daysText) < MARGIN_RIGHT) {
+                     pdfDoc.text(daysText, lastLineXEnd, lastLineY);
+                     lastLineXEnd += pdfDoc.getTextWidth(daysText + " ");
+                 } else {
+                     currentY += (lines.length * 5); // Move past previous lines
+                     lastLineY = currentY;
+                     pdfDoc.text(daysText, MARGIN_LEFT, currentY);
+                     lastLineXEnd = MARGIN_LEFT + pdfDoc.getTextWidth(daysText + " ");
+                     currentY += 5; // Add line break space if needed
+                 }
+                 pdfDoc.setFont(undefined, 'normal');
+
+                 // Add rest of paragraph 2
+                 text = ` and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion `;
+                  // Check if the remaining text fits on the current line
+                 if (lastLineXEnd + pdfDoc.getTextWidth(text.split('\n')[0]) < MARGIN_RIGHT) { // Check first part
+                     pdfDoc.text(text, lastLineXEnd, lastLineY);
+                     lastLineXEnd += pdfDoc.getTextWidth(text + " ");
+                 } else { // Doesn't fit, needs new line(s)
+                    currentY = lastLineY + 5; // Move to next line definitely
+                    lines = pdfDoc.splitTextToSize(text, CONTENT_WIDTH);
+                    pdfDoc.text(lines, MARGIN_LEFT, currentY);
+                    lastLineY = currentY + (lines.length -1) * 5;
+                    lastLineXEnd = MARGIN_LEFT + pdfDoc.getTextWidth(lines[lines.length-1] + " ");
+                 }
+
+                 // Add Diversion (bold)
+                 pdfDoc.setFont(undefined, 'bold');
+                  if (lastLineXEnd + pdfDoc.getTextWidth(noticeData.diversion) < MARGIN_RIGHT) {
+                     pdfDoc.text(noticeData.diversion, lastLineXEnd, lastLineY);
+                     lastLineXEnd += pdfDoc.getTextWidth(noticeData.diversion + " ");
+                 } else {
+                     currentY = lastLineY + 5;
+                     lastLineY = currentY;
+                     pdfDoc.text(noticeData.diversion, MARGIN_LEFT, currentY);
+                     lastLineXEnd = MARGIN_LEFT + pdfDoc.getTextWidth(noticeData.diversion + " ");
+                 }
+                 pdfDoc.setFont(undefined, 'normal');
+
+                 // Add "and Vice Versa."
+                  text = ` and Vice Versa.`;
+                  if (lastLineXEnd + pdfDoc.getTextWidth(text) < MARGIN_RIGHT) {
+                     pdfDoc.text(text, lastLineXEnd, lastLineY);
+                 } else {
+                     currentY = lastLineY + 5;
+                     pdfDoc.text(text, MARGIN_LEFT, currentY);
+                 }
+                 currentY += 10; // Space
+
+                 // --- Main Paragraph 3 ---
+                 pdfDoc.setFont(undefined, 'bold');
+                 text = `${noticeData.street}`;
+                 lines = pdfDoc.splitTextToSize(text, CONTENT_WIDTH);
+                 pdfDoc.text(lines, MARGIN_LEFT, currentY);
+                 lastLineY = currentY + (lines.length -1) * 5;
+                 lastLineXEnd = MARGIN_LEFT + pdfDoc.getTextWidth(lines[lines.length-1] + " ");
+                 pdfDoc.setFont(undefined, 'normal');
+
+                 text = ` will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.`;
+                 if (lastLineXEnd + pdfDoc.getTextWidth(text.split('\n')[0]) < MARGIN_RIGHT) {
+                     pdfDoc.text(text, lastLineXEnd, lastLineY);
+                     currentY = lastLineY + 5; // Approx next line start
+                 } else {
+                    currentY = lastLineY + 5;
+                    lines = pdfDoc.splitTextToSize(text, CONTENT_WIDTH);
+                    pdfDoc.text(lines, MARGIN_LEFT, currentY);
+                    currentY += (lines.length * 5);
+                 }
+                 currentY += 5; // Space
+
+                 // --- Apology Paragraph ---
+                 pdfDoc.setFont(undefined, 'bold');
+                 text = `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.`;
+                 lines = pdfDoc.splitTextToSize(text, CONTENT_WIDTH);
+                 pdfDoc.text(lines, MARGIN_LEFT, currentY);
+                 currentY += (lines.length * 5) + 5; // Space
+                 pdfDoc.setFont(undefined, 'normal');
+
+
+                 // --- Concerns Line ---
+                 pdfDoc.setFontSize(13);
+                 text = `ANY CONCERNS PLEASE CALL `;
+                 lines = pdfDoc.splitTextToSize(text, CONTENT_WIDTH);
+                 pdfDoc.text(lines, MARGIN_LEFT, currentY);
+                 lastLineY = currentY + (lines.length -1) * 5.5; // Approx 5.5mm for 13pt
+                 lastLineXEnd = MARGIN_LEFT + pdfDoc.getTextWidth(lines[lines.length-1] + " ");
+
+                 pdfDoc.setFont(undefined, 'bold');
+                 const phoneText = `0845 200 4035`;
+                 if (lastLineXEnd + pdfDoc.getTextWidth(phoneText) < MARGIN_RIGHT) {
+                     pdfDoc.text(phoneText, lastLineXEnd, lastLineY);
+                     lastLineXEnd += pdfDoc.getTextWidth(phoneText + " ");
+                 } else {
+                     currentY = lastLineY + 5.5;
+                     lastLineY = currentY;
+                     pdfDoc.text(phoneText, MARGIN_LEFT, currentY);
+                     lastLineXEnd = MARGIN_LEFT + pdfDoc.getTextWidth(phoneText + " ");
+                 }
+                 pdfDoc.setFont(undefined, 'normal');
+
+                 text = ` WITH OUR REF: ${noticeData.ref}`;
+                 if (lastLineXEnd + pdfDoc.getTextWidth(text) < MARGIN_RIGHT) {
+                     pdfDoc.text(text, lastLineXEnd, lastLineY);
+                 } else {
+                     currentY = lastLineY + 5.5;
+                     pdfDoc.text(text, MARGIN_LEFT, currentY);
+                 }
+                 currentY += 15; // Space
+
+
+                 // --- Closing ---
+                 pdfDoc.setFontSize(12);
+                 const closingLines = [
+                     "Regards",
+                     "Zoe Franks",
+                     "I & A Communications Ltd",
+                     "Tel: 0845 200 4035"
+                 ];
+                  pdfDoc.text(closingLines, MARGIN_LEFT, currentY);
+
+
+                // --- Save ---
                 pdfDoc.save(filename); // Trigger download
+
             } catch (error) {
                 console.error("Error generating PDF:", error);
                 alert("Sorry, there was an error generating the PDF.\nPlease try copying the text manually.");
-                // Fallback or alternative? Could offer TXT download again.
             }
         }
 
@@ -550,7 +696,7 @@ Tel: 0845 200 4035
         // --- Event Listeners ---
         parseAndNextBtn.addEventListener('click', parsePastedData);
         planFileInput.addEventListener('change', handlePlanUpload);
-        copyCoordsBtnOverlay.addEventListener('click', copyCoordinatesToClipboard);
+        copyCoordsBtn.addEventListener('click', copyCoordinatesToClipboard); // Updated ID
 
         nextToStep3CombinedBtn.addEventListener('click', () => {
             noticeData.diversion = diversionRouteStep1Input.value.trim();
