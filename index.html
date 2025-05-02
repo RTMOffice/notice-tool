@@ -32,13 +32,15 @@
              position: absolute; /* Take up container space */
              top: 0; left: 0; width: 100%; height: 100%;
         }
-        /* Overlay button style */
+        /* Overlay button style - UPDATED */
         #copyCoordsBtnOverlay {
             position: absolute;
-            bottom: 1rem; /* 16px */
-            right: 1rem; /* 16px */
+            top: 10px; /* 10px from top */
+            left: 50%; /* Center horizontally */
+            transform: translateX(-50%); /* Adjust horizontal centering */
             z-index: 10; /* Ensure it's above the iframe */
-            @apply py-1 px-2 text-xs ml-2 secondary-button shadow-md; /* Use Tailwind classes */
+            /* Apply Tailwind classes for styling (secondary-button gives white background) */
+            @apply py-1 px-2 text-xs secondary-button shadow-md;
         }
 
 
@@ -58,8 +60,8 @@
         .form-group > * + * { margin-top: 0.5rem; }
         .container { @apply max-w-4xl mx-auto p-4 sm:p-6 lg:p-8 bg-gray-50 rounded-lg shadow-md; }
         h2 { @apply text-xl font-semibold text-gray-800 mb-4; }
-        .split-view { @apply grid grid-cols-1 md:grid-cols-2 gap-4; }
-        /* Remove input group styling as button is now separate */
+        /* Removed split-view class, elements will stack vertically by default */
+        /* .split-view { @apply grid grid-cols-1 md:grid-cols-2 gap-4; } */
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -98,8 +100,8 @@
         <div id="step3" class="step">
             <h2>Step 3: Review Map/Plan & Enter Details</h2>
 
-            <div class="split-view mb-6">
-                <div>
+            <div class="mb-6"> {/* Removed split-view class */}
+                <div class="mb-6"> {/* Added bottom margin for spacing */}
                     <h3 class="text-lg font-medium text-gray-800 mb-2">Map Location</h3>
                     <div class="map-container">
                         <iframe id="mapFrame" src="about:blank" title="Location Map"></iframe>
@@ -109,10 +111,10 @@
                          Map centered. Tool attempts auto-fill.
                          <strong class="text-indigo-700">If map search fails:</strong> Click overlay "Copy Coords", then paste into map's search box.
                      </p>
-                     <p id="copyCoordsStatus" class="text-sm text-green-600 mt-1"></p> {/* Moved status here */}
+                     <p id="copyCoordsStatus" class="text-sm text-green-600 mt-1"></p>
                      <p id="mapSearchStatus" class="text-xs text-orange-600 mt-1"></p>
                 </div>
-                <div>
+                <div> {/* No extra margin needed if parent has mb-6 */}
                     <h3 class="text-lg font-medium text-gray-800 mb-2">Uploaded Plan</h3>
                     <div id="planPreview"><p class="text-gray-500 text-sm">Plan preview will appear here.</p></div>
                 </div>
@@ -231,6 +233,9 @@ Tel: 0845 200 4035
         `;
 
         // --- Functions ---
+        // Functions (showStep, parsePastedData, handlePlanUpload, updateMap, tryAutoFillMapSearch,
+        // copyCoordinatesToClipboard, generateNotice, copyNoticeToClipboard, downloadNoticeAsTxt)
+        // remain the same as the previous version (v4). They are included here for completeness.
 
         function showStep(stepId) {
             steps.forEach(step => {
@@ -306,9 +311,6 @@ Tel: 0845 200 4035
             }
         }
 
-        /**
-         * Handles plan upload (Image or PDF) and sets up preview (image or iframe).
-         */
         function handlePlanUpload(event) {
             const file = event.target.files[0];
             planError.textContent = '';
@@ -335,15 +337,14 @@ Tel: 0845 200 4035
                 img.onerror = () => { planError.textContent = 'Could not display image.'; planPreview.innerHTML = '<p class="text-red-500 text-sm">Error loading preview.</p>'; URL.revokeObjectURL(planFileUrl); planFileUrl = null; nextToStep3Btn.disabled = true; };
                 img.onload = () => { planPreview.innerHTML = ''; planPreview.appendChild(img); planSuccess.textContent = `Image Plan "${file.name}" ready.`; nextToStep3Btn.disabled = false; };
             } else if (file.type === 'application/pdf') {
-                // Revert to using iframe for PDF preview
-                planPreview.innerHTML = ''; // Clear loading message
+                planPreview.innerHTML = '';
                 const iframe = document.createElement('iframe');
                 iframe.src = planFileUrl;
                 iframe.title = "Plan PDF Preview";
-                iframe.setAttribute('type', 'application/pdf'); // Hint for viewers
+                iframe.setAttribute('type', 'application/pdf');
                 planPreview.appendChild(iframe);
                 planSuccess.textContent = `PDF Plan "${file.name}" ready for preview above.`;
-                nextToStep3Btn.disabled = false; // Enable next step
+                nextToStep3Btn.disabled = false;
             } else {
                 planError.textContent = 'Unsupported file type (Image or PDF only).';
                 planPreview.innerHTML = '<p class="text-red-500 text-sm">Invalid file type.</p>';
@@ -382,12 +383,9 @@ Tel: 0845 200 4035
              }, 3000);
         }
 
-        /**
-         * Copies coordinates using the Clipboard API. Provides better feedback.
-         */
         function copyCoordinatesToClipboard() {
             const coordsString = coordsDisplay.value;
-            copyCoordsStatus.textContent = ''; // Clear previous status
+            copyCoordsStatus.textContent = '';
 
             if (!coordsString || coordsString === 'N/A') {
                 copyCoordsStatus.textContent = 'No coordinates to copy.';
@@ -396,18 +394,6 @@ Tel: 0845 200 4035
 
             if (!navigator.clipboard || !navigator.clipboard.writeText) {
                 copyCoordsStatus.textContent = 'Clipboard API not available (try manual copy). Needs HTTPS or localhost.';
-                // Optional: Fallback using document.execCommand (less reliable)
-                // try {
-                //     const dummy = document.createElement("textarea");
-                //     document.body.appendChild(dummy);
-                //     dummy.value = coordsString;
-                //     dummy.select();
-                //     document.execCommand("copy");
-                //     document.body.removeChild(dummy);
-                //     copyCoordsStatus.textContent = 'Coords copied (fallback).';
-                // } catch (err) {
-                //     copyCoordsStatus.textContent = 'Copy failed. Please copy manually.';
-                // }
                 return;
             }
 
@@ -419,7 +405,6 @@ Tel: 0845 200 4035
                 copyCoordsStatus.textContent = 'Copy failed. Check browser permissions or use HTTPS/localhost.';
             });
         }
-
 
         function generateNotice() {
              noticeData.street = streetNameInput.value.trim() || '[STREET NAME MISSING]';
@@ -464,7 +449,7 @@ Tel: 0845 200 4035
         // --- Event Listeners ---
         parseAndNextBtn.addEventListener('click', parsePastedData);
         planFileInput.addEventListener('change', handlePlanUpload);
-        copyCoordsBtnOverlay.addEventListener('click', copyCoordinatesToClipboard); // Listener attached to new button ID
+        copyCoordsBtnOverlay.addEventListener('click', copyCoordinatesToClipboard);
 
         nextToStep3Btn.addEventListener('click', () => {
             updateMap();
