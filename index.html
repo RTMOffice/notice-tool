@@ -78,7 +78,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 25)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 26)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -188,6 +188,15 @@
         let planUploaded = false;
         // Import jsPDF - Ensure it's loaded via CDN
         const { jsPDF } = window.jspdf;
+
+        // --- PDF Layout Constants (Global Scope) ---
+        const FONT_HELVETICA = 'helvetica'; // Substitute for Calibri
+        const FONT_TIMES = 'times';       // Substitute for Times New Roman
+        const MARGIN_LEFT = 15;
+        const PAGE_WIDTH = 210; // A4 width in mm
+        const MARGIN_RIGHT = PAGE_WIDTH - MARGIN_LEFT;
+        const CONTENT_WIDTH = MARGIN_RIGHT - MARGIN_LEFT;
+
 
         // --- DOM Elements ---
         const steps = document.querySelectorAll('.step');
@@ -496,8 +505,8 @@
          * @returns {number} The Y coordinate after adding the text.
          */
         function addFormattedText(doc, text, x, y, options = {}) {
-            const maxWidth = options.maxWidth || (doc.internal.pageSize.getWidth() - x - MARGIN_LEFT);
-            const originalFont = doc.getFont(); // Store original font object
+            const maxWidth = options.maxWidth || (CONTENT_WIDTH); // Use global CONTENT_WIDTH if not specified
+            const originalFont = doc.getFont();
             const originalSize = doc.getFontSize();
             const align = options.align || 'left';
 
@@ -506,14 +515,13 @@
             doc.setFontSize(options.fontSize || originalSize);
 
             const lines = doc.splitTextToSize(text, maxWidth);
-            doc.text(lines, x, y, { baseline: 'top', align: align }); // Use top baseline and alignment
+            doc.text(lines, x, y, { baseline: 'top', align: align });
 
             // Reset font style and size
             doc.setFont(originalFont.fontName, originalFont.fontStyle);
             doc.setFontSize(originalSize);
 
-            // Calculate approximate line height based on font size
-            const lineHeightFactor = 1.2; // Increased factor
+            const lineHeightFactor = 1.2;
             const lineHeight = ((options.fontSize || originalSize) / doc.internal.scaleFactor) * lineHeightFactor;
             return y + (lines.length * lineHeight);
         }
@@ -524,114 +532,112 @@
          * Simplified approach to handle inline bolding.
          */
         function downloadNoticeAsPdf() {
-            console.log("Starting PDF generation..."); // DEBUG
+            console.log("Starting PDF generation...");
             const filename = `Notice_${noticeData.ref || 'Ref'}_${noticeData.date.replace(/[\/\s]/g, '-') || 'Date'}.pdf`;
-            const FONT_HELVETICA = 'helvetica'; // Substitute for Calibri
-            const FONT_TIMES = 'times';       // Substitute for Times New Roman
-            const MARGIN_LEFT = 15;
-            const PAGE_WIDTH = 210; // A4 width in mm
-            const MARGIN_RIGHT = PAGE_WIDTH - MARGIN_LEFT;
-            const CONTENT_WIDTH = MARGIN_RIGHT - MARGIN_LEFT;
             let currentY = 20; // Start Y position
 
             try {
                 const pdfDoc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-                console.log("jsPDF object created."); // DEBUG
+                console.log("jsPDF object created.");
 
                 // --- Address Block (Left) ---
-                console.log("Adding address block..."); // DEBUG
+                console.log("Adding address block...");
                 const addressLines = [
                     "I & A Communications", "Burgon House", "James Swallow Way",
                     "London and Medway Commercial", "Rochester", "Kent", "ME3 9GX"
                 ];
                 currentY = addFormattedText(pdfDoc, addressLines.join('\n'), MARGIN_LEFT, currentY, { font: FONT_HELVETICA, fontSize: 10 });
                 currentY = addFormattedText(pdfDoc, "Tel:     0845 200 4035", MARGIN_LEFT, currentY, { font: FONT_HELVETICA, fontSize: 10 });
-                console.log("Address block added. currentY:", currentY); // DEBUG
+                console.log("Address block added. currentY:", currentY);
 
                 // --- Placeholder Logo (Right) ---
-                console.log("Adding logo placeholder..."); // DEBUG
+                console.log("Adding logo placeholder...");
                 const logoWidth = 50; const logoHeight = 15;
-                const logoX = MARGIN_RIGHT - logoWidth; const logoY = 20; // Reset Y to top for logo
+                const logoX = MARGIN_RIGHT - logoWidth + MARGIN_LEFT; // Adjusted X for right align
+                const logoY = 20; // Reset Y to top for logo
                 pdfDoc.setFillColor(144, 238, 144); // Light green
                 pdfDoc.rect(logoX, logoY, logoWidth, logoHeight, 'F');
-                console.log("Logo placeholder added."); // DEBUG
+                console.log("Logo placeholder added.");
 
                 currentY += 10; // Space before next section
 
                 // --- PLEASE NOTE ---
-                console.log("Adding PLEASE NOTE..."); // DEBUG
+                console.log("Adding PLEASE NOTE...");
                 currentY = addFormattedText(pdfDoc, "PLEASE NOTE", MARGIN_LEFT, currentY, { font: FONT_TIMES, fontSize: 22, fontStyle: 'bold' });
                 currentY += 4; // Space
-                console.log("PLEASE NOTE added. currentY:", currentY); // DEBUG
+                console.log("PLEASE NOTE added. currentY:", currentY);
 
                 // --- Date (Centered) ---
-                console.log("Adding Date..."); // DEBUG
+                console.log("Adding Date...");
                 const dateText = `On ${noticeData.date}`;
-                const dateTextWidth = pdfDoc.getTextWidth(dateText); // Get width *before* changing font size potentially
+                // Need to set font size *before* getting width for centering
+                pdfDoc.setFont(FONT_HELVETICA, 'normal');
+                pdfDoc.setFontSize(24);
+                const dateTextWidth = pdfDoc.getTextWidth(dateText);
                 const dateX = (PAGE_WIDTH - dateTextWidth) / 2;
-                let dateLineY = addFormattedText(pdfDoc, dateText, dateX, currentY, { font: FONT_HELVETICA, fontSize: 24 }); // Get Y after text
+                let dateLineY = addFormattedText(pdfDoc, dateText, dateX, currentY, { font: FONT_HELVETICA, fontSize: 24 });
                 // Underline
                 pdfDoc.setLineWidth(0.5);
                 pdfDoc.line(dateX, dateLineY - 2 , dateX + dateTextWidth, dateLineY - 2); // Adjust Y slightly up
                 currentY = dateLineY + 10; // Space after date line
-                console.log("Date added. currentY:", currentY); // DEBUG
+                console.log("Date added. currentY:", currentY);
 
                 // --- Main Paragraphs ---
-                pdfDoc.setFontSize(12); // Set default size
-                pdfDoc.setFont(FONT_HELVETICA, 'normal'); // Set default font
+                pdfDoc.setFontSize(12); // Reset default size
+                pdfDoc.setFont(FONT_HELVETICA, 'normal'); // Reset default font
 
                 // Paragraph 1
-                console.log("Adding Paragraph 1..."); // DEBUG
+                console.log("Adding Paragraph 1...");
                 currentY = addFormattedText(pdfDoc, `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                 currentY = addFormattedText(pdfDoc, noticeData.street + ".", MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
                 currentY += 5; // Paragraph space
-                console.log("Paragraph 1 added. currentY:", currentY); // DEBUG
+                console.log("Paragraph 1 added. currentY:", currentY);
 
                 // Paragraph 2
-                 console.log("Adding Paragraph 2..."); // DEBUG
+                 console.log("Adding Paragraph 2...");
                 currentY = addFormattedText(pdfDoc, `The work is expected to take a maximum of `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                 currentY = addFormattedText(pdfDoc, `${noticeData.days} working days`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
                 currentY = addFormattedText(pdfDoc, ` and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                 currentY = addFormattedText(pdfDoc, noticeData.diversion, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
                 currentY = addFormattedText(pdfDoc, ` and Vice Versa.`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                 currentY += 5; // Paragraph space
-                 console.log("Paragraph 2 added. currentY:", currentY); // DEBUG
+                 console.log("Paragraph 2 added. currentY:", currentY);
 
                 // Paragraph 3
-                 console.log("Adding Paragraph 3..."); // DEBUG
+                 console.log("Adding Paragraph 3...");
                 currentY = addFormattedText(pdfDoc, noticeData.street, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
                 currentY = addFormattedText(pdfDoc, ` will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                 currentY += 5; // Paragraph space
-                 console.log("Paragraph 3 added. currentY:", currentY); // DEBUG
+                 console.log("Paragraph 3 added. currentY:", currentY);
 
                 // Apology Paragraph
-                 console.log("Adding Apology..."); // DEBUG
+                 console.log("Adding Apology...");
                 currentY = addFormattedText(pdfDoc, `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
                 currentY += 5; // Paragraph space
-                 console.log("Apology added. currentY:", currentY); // DEBUG
+                 console.log("Apology added. currentY:", currentY);
 
                 // Concerns Line
-                 console.log("Adding Concerns line..."); // DEBUG
+                 console.log("Adding Concerns line...");
                 currentY = addFormattedText(pdfDoc, `ANY CONCERNS PLEASE CALL `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 13 });
                 currentY = addFormattedText(pdfDoc, `0845 200 4035`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 13 });
                 currentY = addFormattedText(pdfDoc, ` WITH OUR REF: ${noticeData.ref}`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 13 });
                 currentY += 10; // Space
-                 console.log("Concerns line added. currentY:", currentY); // DEBUG
+                 console.log("Concerns line added. currentY:", currentY);
 
                 // Closing
-                 console.log("Adding Closing..."); // DEBUG
+                 console.log("Adding Closing...");
                 const closingLines = [ "Regards", "Zoe Franks", "I & A Communications Ltd", "Tel: 0845 200 4035" ];
                 currentY = addFormattedText(pdfDoc, closingLines.join('\n'), MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
-                 console.log("Closing added. currentY:", currentY); // DEBUG
+                 console.log("Closing added. currentY:", currentY);
 
                 // --- Save ---
-                console.log("Saving PDF..."); // DEBUG
+                console.log("Saving PDF...");
                 pdfDoc.save(filename);
-                console.log("PDF save initiated."); // DEBUG
+                console.log("PDF save initiated.");
 
             } catch (error) {
                 console.error("Error generating PDF:", error); // Log the specific error
-                alert("Sorry, there was an error generating the PDF.\nPlease try copying the text manually.\nError details: " + error.message); // Show error message to user
+                alert("Sorry, there was an error generating the PDF.\nPlease check the console (F12) for details and try copying the text manually.\nError: " + error.message); // Show error message to user
             }
         }
 
