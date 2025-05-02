@@ -61,18 +61,18 @@
             box-sizing: border-box;
             background-color: white;
         }
-        /* Font Substitutes & Sizes - UPDATED */
+        /* Font Substitutes & Sizes */
         #noticePrintArea .font-times { font-family: 'Tinos', serif; /* Google Font similar to Times */ }
-        #noticePrintArea .print-text-10pt { font-size: 10pt; line-height: 1.1; } /* Updated line height */
-        #noticePrintArea .print-text-11pt { font-size: 11pt; line-height: 1.1; } /* USE 11pt, Updated line height */
-        #noticePrintArea .print-text-12pt { font-size: 12pt; line-height: 1.1; } /* USE 12pt, Updated line height */
+        #noticePrintArea .print-text-10pt { font-size: 10pt; line-height: 1.1; }
+        #noticePrintArea .print-text-11pt { font-size: 11pt; line-height: 1.1; }
+        #noticePrintArea .print-text-12pt { font-size: 12pt; line-height: 1.1; }
         #noticePrintArea .print-text-22pt { font-size: 22pt; line-height: 1.2; }
         #noticePrintArea .print-text-24pt { font-size: 24pt; line-height: 1.2; }
-        #noticePrintArea .font-bold { font-weight: 700; } /* Use 700 for bold */
+        #noticePrintArea .font-bold { font-weight: 700; }
         #noticePrintArea .underline { text-decoration: underline; }
         #noticePrintArea .text-center { text-align: center; }
         #noticePrintArea .text-right { text-align: right; }
-        /* Spacing Helpers (approximating mm) */
+        /* Spacing Helpers */
         #noticePrintArea .mt-4 { margin-top: 4mm; }
         #noticePrintArea .mt-5 { margin-top: 5mm; }
         #noticePrintArea .mt-8 { margin-top: 8mm; }
@@ -85,23 +85,17 @@
         #noticePrintArea .float-right { float: right; }
         #noticePrintArea .clear-both { clear: both; }
         /* Logo & Address Specific */
-        #noticePrintArea .logo-container { /* Container for logo */
-            width: 59.8mm; /* Approx 224px */
-            height: 11.4mm; /* Approx 43px */
-            float: right;
-            margin-bottom: 5mm;
-            text-align: right; /* Align image within container if needed */
+        #noticePrintArea .logo-container {
+            width: 59.8mm; height: 11.4mm; float: right;
+            margin-bottom: 5mm; text-align: right;
         }
          #noticePrintArea .logo-container img {
-             max-width: 100%;
-             max-height: 100%;
-             display: inline-block; /* Allows text-align to work */
+             max-width: 100%; max-height: 100%; display: inline-block;
          }
         #noticePrintArea .address-block {
              float: right; text-align: right; clear: right; margin-top: 5mm; width: 60mm;
         }
-         #noticePrintArea p { margin-bottom: 5mm; } /* Default paragraph spacing */
-         /* Adjust paragraph spacing for specific elements if needed */
+         #noticePrintArea p { margin-bottom: 5mm; }
          #noticePrintArea #print-closing p { margin-bottom: 1mm; margin-top: 1mm; }
 
 
@@ -115,16 +109,10 @@
                 padding: 15mm; margin: 0; border: none; box-shadow: none;
                 display: block !important;
             }
-             /* Remove default browser print header/footer */
              @page {
-                margin: 0mm; /* Set margin to 0 for @page, use padding on #noticePrintArea */
-                size: A4 portrait;
-                 /* Standard CSS doesn't reliably remove headers/footers,
-                    but setting margin to 0 helps minimize their impact.
-                    Users might need to adjust settings in their print dialog. */
+                margin: 0mm; size: A4 portrait;
             }
-            /* Attempt to force no headers/footers in Chrome/Edge */
-             body { margin: 0 !important; padding: 0 !important; } /* Ensure body has no margin/padding */
+             body { margin: 0 !important; padding: 0 !important; }
         }
 
     </style>
@@ -132,7 +120,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200" id="toolInterface">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 43)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 45)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -228,7 +216,8 @@
             <textarea id="generatedNotice" rows="20" readonly class="w-full p-3 border border-gray-300 rounded bg-gray-50 font-mono text-sm shadow-sm"></textarea>
              <div class="mt-6 flex justify-between items-center">
                  <button class="secondary-button inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onclick="showStep('step3')">Back</button>
-                 <div>
+                 <div class="flex items-center">
+                     <p id="printCopiesInstruction" class="text-sm text-indigo-700 mr-4"></p>
                     <button id="copyNoticeBtn" class="mr-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Copy Text</button>
                     <button id="printNoticeBtn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Print Notice</button>
                  </div>
@@ -315,9 +304,7 @@
         const copyNoticeBtn = document.getElementById('copyNoticeBtn');
         const printNoticeBtn = document.getElementById('printNoticeBtn'); // Changed ID
         const copyStatus = document.getElementById('copyStatus');
-        // Print area elements
-        const printLogoImg = document.getElementById('print-logo-img');
-        // printLogoPlaceholder removed
+        const printCopiesInstruction = document.getElementById('printCopiesInstruction'); // Added element
 
         // --- Navigation Buttons ---
         const parseAndNextBtn = document.getElementById('parseAndNextBtn');
@@ -575,11 +562,10 @@
              const streetAndTown = `${noticeData.street}, ${noticeData.town}`; // Combine for display
 
              noticeData.days = workDaysInput.value || '1';
-             noticeData.houses = affectedHousesInput.value;
+             noticeData.houses = affectedHousesInput.value || '0'; // Default to 0 if empty
 
              if (noticeData.street === '[STREET MISSING]' || noticeData.town === '[TOWN MISSING]') {
                  alert("Please enter both Street and Town names.");
-                 // Focus the first empty field
                  if (noticeData.street === '[STREET MISSING]') streetInput.focus();
                  else townInput.focus();
                  return;
@@ -588,14 +574,10 @@
 
              // --- Populate Hidden Print Area ---
              document.getElementById('print-date').textContent = `On ${noticeData.date}`;
-             // Paragraph 1
-             document.getElementById('print-para1-street-town').textContent = streetAndTown; // Use combined
-             // Paragraph 2
+             document.getElementById('print-para1-street-town').textContent = streetAndTown;
              document.getElementById('print-para2-days').textContent = `${noticeData.days} working days`;
              document.getElementById('print-para2-div').textContent = noticeData.diversion;
-             // Paragraph 3
-             document.getElementById('print-para3-street-town').textContent = streetAndTown; // Use combined
-             // Concerns
+             document.getElementById('print-para3-street-town').textContent = streetAndTown;
              document.getElementById('print-concerns-ref').textContent = noticeData.ref;
              // Logo src is set directly in HTML
 
@@ -604,14 +586,19 @@
              textPreview += `Tel: 0845 200 4035\n\n`;
              textPreview += `PLEASE NOTE\n`;
              textPreview += `On ${noticeData.date}\n\n`;
-             textPreview += `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along ${streetAndTown}.\n\n`; // Use combined
+             textPreview += `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along ${streetAndTown}.\n\n`;
              textPreview += `The work is expected to take a maximum of ${noticeData.days} working days and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion ${noticeData.diversion} and Vice Versa.\n\n`;
-             textPreview += `${streetAndTown} will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.\n\n`; // Use combined
+             textPreview += `${streetAndTown} will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.\n\n`;
              textPreview += `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.\n\n`;
              textPreview += `ANY CONCERNS PLEASE CALL 0845 200 4035 WITH OUR REF: ${noticeData.ref}\n\n`;
              textPreview += `Regards\nZoe Franks\nI & A Communications Ltd\nTel: 0845 200 4035`;
 
              generatedNoticeTextarea.value = textPreview;
+
+             // --- Populate Print Copies Instruction ---
+             const numHouses = parseInt(noticeData.houses, 10) || 0;
+             printCopiesInstruction.textContent = `(${numHouses} houses affected - Remember to set Copies to ${numHouses} in the print dialog)`;
+
              showStep('step4');
         }
 
