@@ -132,7 +132,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200" id="toolInterface">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 39)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 40)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -235,7 +235,7 @@
     </div> <div id="noticePrintArea">
         <div class="logo-container">
              <img id="print-logo-img" src="https://raw.githubusercontent.com/RTMOffice/notice-tool/refs/heads/main/Logo.jpg" alt="Company Logo">
-             </div>
+        </div>
         <div class="address-block print-text-10pt">
             <div>I & A Communications</div>
             <div>Burgon House</div>
@@ -515,17 +515,36 @@
 
         function updateMap() {
             if (noticeData.lat && noticeData.lon) {
-                // Use Google Maps Embed URL centered on coordinates
-                const mapUrl = `https://www.google.com/maps/embed/v1/view?key=YOUR_API_KEY&center=${noticeData.lat},${noticeData.lon}&zoom=15`;
+                // Revert to ArcGIS Map URL
+                const mapUrl = `https://symology.maps.arcgis.com/apps/webappviewer/index.html?id=1055c1d3a2c344cea5353d8ed744831c&center=${noticeData.lon},${noticeData.lat}&level=15`;
                 mapFrame.src = mapUrl;
-                console.log("Updated map URL to Google Maps:", mapUrl);
+                console.log("Updated map URL to ArcGIS:", mapUrl);
             } else {
                 mapFrame.src = 'about:blank';
             }
         }
 
         function tryAutoFillMapSearch() {
-             console.log('tryAutoFillMapSearch called (no action for Google Maps embed)');
+             // Attempt to auto-fill ArcGIS map search
+             const coordsString = coordsDisplay.value;
+             if (!coordsString || coordsString === 'N/A') return;
+             console.log('Attempting auto-fill ArcGIS map...');
+             setTimeout(() => {
+                 try {
+                     const iframeDoc = mapFrame.contentWindow?.document;
+                     if (!iframeDoc) throw new Error("Cannot access iframe content.");
+                     // Use the specific ID for the ArcGIS search box
+                     const searchInput = iframeDoc.getElementById('esri_dijit_Search_0_input');
+                     if (searchInput) {
+                         searchInput.value = coordsString;
+                         // Optionally trigger an input event if needed by ArcGIS
+                         // searchInput.dispatchEvent(new Event('input', { bubbles: true }));
+                         console.log("Attempted ArcGIS map search auto-fill.");
+                     } else { throw new Error("ArcGIS map search input 'esri_dijit_Search_0_input' not found."); }
+                 } catch (error) {
+                     console.warn("ArcGIS Auto-fill failed:", error.message);
+                 }
+             }, 3000); // Wait for map to potentially load
         }
 
         function copyCoordinatesToClipboard() {
@@ -554,18 +573,13 @@
              if (!noticeData.diversion) { alert("Please go back and enter the Diversion Route in Step 1."); showStep('step1'); diversionRouteStep1Input.focus(); return; }
 
              // --- Populate Hidden Print Area ---
-             // Logo src is set directly in HTML now
-             // Date
              document.getElementById('print-date').textContent = `On ${noticeData.date}`;
-             // Paragraph 1
              document.getElementById('print-para1-street').textContent = noticeData.street;
-             // Paragraph 2
              document.getElementById('print-para2-days').textContent = `${noticeData.days} working days`;
              document.getElementById('print-para2-div').textContent = noticeData.diversion;
-             // Paragraph 3
              document.getElementById('print-para3-street').textContent = noticeData.street;
-             // Concerns
              document.getElementById('print-concerns-ref').textContent = noticeData.ref;
+             // Logo src is set directly in HTML
 
              // --- Populate Visible Textarea (for reference/copy) ---
              let textPreview = `I & A Communications Ltd\n\n`;
@@ -617,7 +631,7 @@
             dateDisplay.value = noticeData.date; // Display formatted date
             coordsDisplay.value = noticeData.lat && noticeData.lon ? `${noticeData.lat}, ${noticeData.lon}` : 'N/A';
             showStep('step3');
-            // tryAutoFillMapSearch(); // Less relevant for Google Maps
+            tryAutoFillMapSearch(); // Attempt auto-fill for ArcGIS
         });
 
         generateNoticeBtn.addEventListener('click', generateNotice);
