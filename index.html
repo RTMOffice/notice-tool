@@ -132,7 +132,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200" id="toolInterface">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 41)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 42)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -187,8 +187,12 @@
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
                  <div class="form-group">
-                    <label for="streetName" class="block text-sm font-medium text-gray-700 mb-1">Street Name:</label>
-                    <input type="text" id="streetName" placeholder="Enter street name from map" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <label for="streetInput" class="block text-sm font-medium text-gray-700 mb-1">Street:</label>
+                    <input type="text" id="streetInput" placeholder="Enter street name from map" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                 <div class="form-group">
+                    <label for="townInput" class="block text-sm font-medium text-gray-700 mb-1">Town:</label>
+                    <input type="text" id="townInput" placeholder="Enter town name from map" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 </div>
                  <div class="form-group">
                     <label for="workDays" class="block text-sm font-medium text-gray-700 mb-1">Number of Working Days:</label>
@@ -252,13 +256,13 @@
         <div class="mt-4 print-text-24pt underline text-center" id="print-date">On DATE</div>
         {/* Updated paragraph classes to 11pt */}
         <p class="mt-10 print-text-11pt" id="print-para1">
-            I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along <strong class="font-bold" id="print-para1-street">STREET</strong>.
+            I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along <strong class="font-bold" id="print-para1-street-town">STREET, TOWN</strong>.
         </p>
         <p class="print-text-11pt" id="print-para2">
             The work is expected to take a maximum of <strong class="font-bold" id="print-para2-days">DAY working days</strong> and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion <strong class="font-bold" id="print-para2-div">DIV</strong> and Vice Versa.
         </p>
         <p class="print-text-11pt" id="print-para3">
-            <strong class="font-bold" id="print-para3-street">STREET</strong> will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.
+            <strong class="font-bold" id="print-para3-street-town">STREET, TOWN</strong> will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.
         </p>
         <p class="print-text-11pt font-bold" id="print-apology">
             We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.
@@ -280,8 +284,7 @@
     <script>
         // --- Global Variables ---
         let planFileUrl = null;
-        // logoFileDataUrl removed, using direct URL now
-        let noticeData = { ref: '', lat: '', lon: '', date: '', street: '', days: '1', diversion: '', houses: '' };
+        let noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '1', diversion: '', houses: '' }; // Added town
         let dataParsed = false;
         let planUploaded = false;
         // jsPDF removed
@@ -299,7 +302,8 @@
         const diversionRouteStep1Input = document.getElementById('diversionRouteStep1');
         const mapFrame = document.getElementById('mapFrame');
         const mapSearchStatus = document.getElementById('mapSearchStatus');
-        const streetNameInput = document.getElementById('streetName');
+        const streetInput = document.getElementById('streetInput'); // New Street Input
+        const townInput = document.getElementById('townInput'); // New Town Input
         const workDaysInput = document.getElementById('workDays');
         const affectedHousesInput = document.getElementById('affectedHouses');
         const refNumberDisplay = document.getElementById('refNumberDisplay');
@@ -425,7 +429,7 @@
                 pasteError.textContent = `Error: ${error.message}`;
                 dataParsed = false;
                 checkEnableStep1NextButton();
-                noticeData = { ref: '', lat: '', lon: '', date: '', street: '', days: '1', diversion: '', houses: '' };
+                noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '1', diversion: '', houses: '' }; // Reset town too
             }
         }
 
@@ -565,19 +569,33 @@
          * Populates the hidden print area and the visible textarea.
          */
         function generateNotice() {
-             noticeData.street = streetNameInput.value.trim() || '[STREET NAME MISSING]';
+             // Read Street and Town from new inputs
+             noticeData.street = streetInput.value.trim() || '[STREET MISSING]';
+             noticeData.town = townInput.value.trim() || '[TOWN MISSING]';
+             const streetAndTown = `${noticeData.street}, ${noticeData.town}`; // Combine for display
+
              noticeData.days = workDaysInput.value || '1';
              noticeData.houses = affectedHousesInput.value;
 
-             if (noticeData.street === '[STREET NAME MISSING]') { alert("Please enter Street Name."); streetNameInput.focus(); return; }
+             if (noticeData.street === '[STREET MISSING]' || noticeData.town === '[TOWN MISSING]') {
+                 alert("Please enter both Street and Town names.");
+                 // Focus the first empty field
+                 if (noticeData.street === '[STREET MISSING]') streetInput.focus();
+                 else townInput.focus();
+                 return;
+             }
              if (!noticeData.diversion) { alert("Please go back and enter the Diversion Route in Step 1."); showStep('step1'); diversionRouteStep1Input.focus(); return; }
 
              // --- Populate Hidden Print Area ---
              document.getElementById('print-date').textContent = `On ${noticeData.date}`;
-             document.getElementById('print-para1-street').textContent = noticeData.street;
+             // Paragraph 1
+             document.getElementById('print-para1-street-town').textContent = streetAndTown; // Use combined
+             // Paragraph 2
              document.getElementById('print-para2-days').textContent = `${noticeData.days} working days`;
              document.getElementById('print-para2-div').textContent = noticeData.diversion;
-             document.getElementById('print-para3-street').textContent = noticeData.street;
+             // Paragraph 3
+             document.getElementById('print-para3-street-town').textContent = streetAndTown; // Use combined
+             // Concerns
              document.getElementById('print-concerns-ref').textContent = noticeData.ref;
              // Logo src is set directly in HTML
 
@@ -586,9 +604,9 @@
              textPreview += `Tel: 0845 200 4035\n\n`;
              textPreview += `PLEASE NOTE\n`;
              textPreview += `On ${noticeData.date}\n\n`;
-             textPreview += `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along ${noticeData.street}.\n\n`;
+             textPreview += `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along ${streetAndTown}.\n\n`; // Use combined
              textPreview += `The work is expected to take a maximum of ${noticeData.days} working days and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion ${noticeData.diversion} and Vice Versa.\n\n`;
-             textPreview += `${noticeData.street} will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.\n\n`;
+             textPreview += `${streetAndTown} will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.\n\n`; // Use combined
              textPreview += `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.\n\n`;
              textPreview += `ANY CONCERNS PLEASE CALL 0845 200 4035 WITH OUR REF: ${noticeData.ref}\n\n`;
              textPreview += `Regards\nZoe Franks\nI & A Communications Ltd\nTel: 0845 200 4035`;
