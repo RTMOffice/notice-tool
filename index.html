@@ -17,7 +17,7 @@
         #planPreview {
              border: 1px solid #ccc; border-radius: 0.375rem;
              display: flex; justify-content: center; align-items: center;
-             overflow: hidden; background-color: #f9fafb; padding: 0;
+             overflow: auto; /* Changed overflow to auto */ background-color: #f9fafb; padding: 0;
              text-align: center;
              width: 100%; /* Takes width of parent grid cell */
              max-width: 1000px; /* Max width */
@@ -36,8 +36,11 @@
             height: 600px; /* Fixed height */
              margin-left: auto; /* Center if grid cell is wider */
              margin-right: auto; /* Center if grid cell is wider */
+             overflow: hidden; /* Hide overflow from button potentially */
+             border: 1px solid #ccc; /* Add border like planPreview */
+             border-radius: 0.375rem; /* Add rounding like planPreview */
         }
-        .map-container iframe { width: 100%; height: 100%; }
+        .map-container iframe { width: 100%; height: 100%; border: none; } /* Remove internal iframe border */
 
         /* Style for button nested at bottom of map container */
         #copyCoordsBtn {
@@ -75,7 +78,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 22)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 23)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -494,18 +497,19 @@
          */
         function addFormattedText(doc, text, x, y, options = {}) {
             const maxWidth = options.maxWidth || (doc.internal.pageSize.getWidth() - x - MARGIN_LEFT);
-            const originalStyle = doc.getFont().fontStyle;
+            const originalFont = doc.getFont(); // Store original font object
             const originalSize = doc.getFontSize();
             const align = options.align || 'left';
 
-            doc.setFont(undefined, options.fontStyle || 'normal');
+            // Set font style and size
+            doc.setFont(originalFont.fontName, options.fontStyle || 'normal'); // Use original font name
             doc.setFontSize(options.fontSize || originalSize);
 
             const lines = doc.splitTextToSize(text, maxWidth);
             doc.text(lines, x, y, { baseline: 'top', align: align }); // Use top baseline and alignment
 
             // Reset font style and size
-            doc.setFont(undefined, originalStyle);
+            doc.setFont(originalFont.fontName, originalFont.fontStyle);
             doc.setFontSize(originalSize);
 
             // Calculate approximate line height based on font size
@@ -553,63 +557,54 @@
                 currentY = telY + addressLineHeight + 15; // Move down past address/tel + space
 
                 // --- PLEASE NOTE ---
-                pdfDoc.setFont(FONT_TIMES, 'bold');
-                currentY = addFormattedText(pdfDoc, "PLEASE NOTE", MARGIN_LEFT, currentY, { fontSize: 22, fontStyle: 'bold' });
+                pdfDoc.setFont(FONT_TIMES, 'bold'); // Set font before calling helper
+                currentY = addFormattedText(pdfDoc, "PLEASE NOTE", MARGIN_LEFT, currentY, { fontSize: 22, fontStyle: 'bold' }); // Size corrected
                 currentY += 4; // Space
 
                 // --- Date (Centered) ---
-                pdfDoc.setFont(FONT_HELVETICA, 'normal');
+                pdfDoc.setFont(FONT_HELVETICA, 'normal'); // Reset font before calling helper
                 pdfDoc.setFontSize(24);
                 const dateText = `On ${noticeData.date}`;
                 const dateTextWidth = pdfDoc.getTextWidth(dateText);
                 const dateX = (PAGE_WIDTH - dateTextWidth) / 2;
-                pdfDoc.text(dateText, dateX, currentY);
+                // Use addFormattedText for consistency, though alignment is handled by x coord here
+                let dateY = addFormattedText(pdfDoc, dateText, dateX, currentY, { fontSize: 24 });
+                // Underline - Draw line just below the baseline of the date text
+                const dateLineY = dateY - ((24 / pdfDoc.internal.scaleFactor) * 0.15); // Adjust Y slightly below baseline
                 pdfDoc.setLineWidth(0.5);
-                pdfDoc.line(dateX, currentY + 1, dateX + dateTextWidth, currentY + 1); // Underline
-                currentY += 15; // Space
+                pdfDoc.line(dateX, dateLineY, dateX + dateTextWidth, dateLineY);
+                currentY = dateY + 10; // Space after date line
 
                 // --- Main Paragraphs (Simplified approach) ---
-                pdfDoc.setFontSize(12);
-                pdfDoc.setFont(FONT_HELVETICA, 'normal');
+                pdfDoc.setFontSize(12); // Set default size for paragraphs
+                pdfDoc.setFont(FONT_HELVETICA, 'normal'); // Set default font
 
                 // Paragraph 1
-                let text1_part1 = `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along `;
-                currentY = addFormattedText(pdfDoc, text1_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
+                currentY = addFormattedText(pdfDoc, `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                 currentY = addFormattedText(pdfDoc, noticeData.street + ".", MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
                 currentY += 5; // Paragraph space
 
                 // Paragraph 2
-                let text2_part1 = `The work is expected to take a maximum of `;
-                currentY = addFormattedText(pdfDoc, text2_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
-                let text2_part2 = `${noticeData.days} working days`;
-                currentY = addFormattedText(pdfDoc, text2_part2, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
-                let text2_part3 = ` and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion `;
-                currentY = addFormattedText(pdfDoc, text2_part3, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
-                let text2_part4 = noticeData.diversion;
-                currentY = addFormattedText(pdfDoc, text2_part4, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
-                let text2_part5 = ` and Vice Versa.`;
-                currentY = addFormattedText(pdfDoc, text2_part5, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
+                currentY = addFormattedText(pdfDoc, `The work is expected to take a maximum of `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
+                currentY = addFormattedText(pdfDoc, `${noticeData.days} working days`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
+                currentY = addFormattedText(pdfDoc, ` and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
+                currentY = addFormattedText(pdfDoc, noticeData.diversion, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
+                currentY = addFormattedText(pdfDoc, ` and Vice Versa.`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                 currentY += 5; // Paragraph space
 
                 // Paragraph 3
-                let text3_part1 = noticeData.street;
-                currentY = addFormattedText(pdfDoc, text3_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
-                let text3_part2 = ` will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.`;
-                currentY = addFormattedText(pdfDoc, text3_part2, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
+                currentY = addFormattedText(pdfDoc, noticeData.street, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
+                currentY = addFormattedText(pdfDoc, ` will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                 currentY += 5; // Paragraph space
 
                 // Apology Paragraph
-                let text4 = `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.`;
-                currentY = addFormattedText(pdfDoc, text4, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
+                currentY = addFormattedText(pdfDoc, `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
                 currentY += 5; // Paragraph space
 
                 // Concerns Line
-                let text5_part1 = `ANY CONCERNS PLEASE CALL `;
-                currentY = addFormattedText(pdfDoc, text5_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 13 });
-                let text5_part2 = `0845 200 4035`;
-                currentY = addFormattedText(pdfDoc, text5_part2, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 13 });
-                let text5_part3 = ` WITH OUR REF: ${noticeData.ref}`;
-                currentY = addFormattedText(pdfDoc, text5_part3, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 13 });
+                currentY = addFormattedText(pdfDoc, `ANY CONCERNS PLEASE CALL `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 13 });
+                currentY = addFormattedText(pdfDoc, `0845 200 4035`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 13 });
+                currentY = addFormattedText(pdfDoc, ` WITH OUR REF: ${noticeData.ref}`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 13 });
                 currentY += 10; // Space
 
                 // Closing
