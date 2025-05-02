@@ -5,6 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notice Generation Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;700&family=Tinos:wght@400;700&display=swap" rel="stylesheet">
     <style>
         /* Basic styling */
         body { font-family: 'Inter', sans-serif; }
@@ -51,77 +54,67 @@
         /* Styles for the printable notice area */
         #noticePrintArea {
             display: none; /* Hidden by default */
-            font-family: sans-serif; /* Use a common sans-serif as Calibri substitute */
+            font-family: 'Open Sans', sans-serif; /* Default font for print */
             color: black;
             width: 210mm; /* A4 width */
-           /* height: 297mm; /* A4 height - might not be needed */
             padding: 15mm; /* Standard margins */
-            box-sizing: border-box; /* Include padding in width/height */
+            box-sizing: border-box;
             background-color: white;
         }
-        #noticePrintArea .font-times { font-family: serif; /* Use serif as Times substitute */ }
-        #noticePrintArea .text-10pt { font-size: 10pt; line-height: 1.2; }
-        #noticePrintArea .text-12pt { font-size: 12pt; line-height: 1.4; }
-        #noticePrintArea .text-13pt { font-size: 13pt; line-height: 1.4; }
-        #noticePrintArea .text-22pt { font-size: 22pt; line-height: 1.2; }
-        #noticePrintArea .text-24pt { font-size: 24pt; line-height: 1.2; }
-        #noticePrintArea .font-bold { font-weight: bold; }
+        /* Font Substitutes & Sizes */
+        #noticePrintArea .font-times { font-family: 'Tinos', serif; /* Google Font similar to Times */ }
+        #noticePrintArea .print-text-10pt { font-size: 10pt; line-height: 1; } /* Tighter line spacing */
+        #noticePrintArea .print-text-12pt { font-size: 12pt; line-height: 1; } /* Tighter line spacing */
+        #noticePrintArea .print-text-13pt { font-size: 13pt; line-height: 1; } /* Tighter line spacing */
+        #noticePrintArea .print-text-22pt { font-size: 22pt; line-height: 1.2; }
+        #noticePrintArea .print-text-24pt { font-size: 24pt; line-height: 1.2; }
+        #noticePrintArea .font-bold { font-weight: 700; } /* Use 700 for bold */
         #noticePrintArea .underline { text-decoration: underline; }
         #noticePrintArea .text-center { text-align: center; }
         #noticePrintArea .text-right { text-align: right; }
-        #noticePrintArea .mt-4 { margin-top: 1rem; } /* Approx 4mm */
-        #noticePrintArea .mt-8 { margin-top: 2rem; } /* Approx 8mm */
-        #noticePrintArea .mt-10 { margin-top: 2.5rem; } /* Approx 10mm */
-        #noticePrintArea .mt-15 { margin-top: 3.75rem; } /* Approx 15mm */
-        #noticePrintArea .mb-4 { margin-bottom: 1rem; }
-        #noticePrintArea .mb-5 { margin-bottom: 1.25rem; } /* Approx 5mm */
-        #noticePrintArea .mb-10 { margin-bottom: 2.5rem; } /* Approx 10mm */
+        /* Spacing Helpers (approximating mm) */
+        #noticePrintArea .mt-4 { margin-top: 4mm; }
+        #noticePrintArea .mt-5 { margin-top: 5mm; }
+        #noticePrintArea .mt-8 { margin-top: 8mm; }
+        #noticePrintArea .mt-10 { margin-top: 10mm; }
+        #noticePrintArea .mt-15 { margin-top: 15mm; }
+        #noticePrintArea .mb-4 { margin-bottom: 4mm; }
+        #noticePrintArea .mb-5 { margin-bottom: 5mm; }
+        #noticePrintArea .mb-10 { margin-bottom: 10mm; }
+        /* Float/Clear */
         #noticePrintArea .float-right { float: right; }
         #noticePrintArea .clear-both { clear: both; }
+        /* Logo & Address Specific */
         #noticePrintArea .logo-placeholder {
             width: 50mm; height: 15mm; background-color: #90ee90; /* Light green */
             float: right; margin-bottom: 5mm;
         }
         #noticePrintArea .address-block {
-             float: right; text-align: right; clear: right; margin-top: 5mm;
+             float: right; text-align: right; clear: right; margin-top: 5mm; width: 60mm; /* Give it some width */
         }
+         #noticePrintArea p { margin-bottom: 5mm; } /* Default paragraph spacing */
 
         /* Print-specific styles */
         @media print {
-            body * {
-                visibility: hidden; /* Hide everything */
-            }
-            #noticePrintArea, #noticePrintArea * {
-                visibility: visible; /* Show only the notice area and its children */
-            }
+            body * { visibility: hidden; }
+            #noticePrintArea, #noticePrintArea * { visibility: visible; }
             #noticePrintArea {
-                position: absolute;
-                left: 0;
-                top: 0;
-                width: 100%; /* Use full page width */
-                height: auto;
-                padding: 15mm; /* Ensure padding is applied */
-                margin: 0;
-                border: none;
-                box-shadow: none;
-                display: block !important; /* Ensure it's displayed */
+                position: absolute; left: 0; top: 0;
+                width: 100%; height: auto;
+                padding: 15mm; margin: 0; border: none; box-shadow: none;
+                display: block !important;
             }
-             /* Optional: Hide headers/footers added by browser */
              @page {
-                margin: 15mm; /* Match padding */
-                size: A4 portrait;
+                margin: 15mm; size: A4 portrait;
             }
         }
 
     </style>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200" id="toolInterface">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 35)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 36)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -223,7 +216,7 @@
 
     </div> <div id="noticePrintArea">
         <div class="logo-placeholder"></div>
-        <div class="address-block text-10pt">
+        <div class="address-block print-text-10pt">
             <div>I & A Communications</div>
             <div>Burgon House</div>
             <div>James Swallow Way</div>
@@ -233,30 +226,30 @@
             <div>ME3 9GX</div>
             <div class="mt-4">Tel:&nbsp;&nbsp;&nbsp;&nbsp; 0845 200 4035</div>
         </div>
-        <div class="clear-both"></div>
+        <div class="clear-both mb-10"></div> {/* Added margin below clear */}
 
-        <div class="mt-15 font-times text-22pt font-bold" id="print-please-note">PLEASE NOTE</div>
-        <div class="mt-4 text-24pt underline text-center" id="print-date">On DATE</div>
-        <div class="mt-10 text-12pt">
-            <span id="print-para1-normal">I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along </span><span id="print-para1-street" class="font-bold">STREET</span><span>.</span>
-        </div>
-        <div class="mt-5 text-12pt">
-            <span id="print-para2-normal1">The work is expected to take a maximum of </span><span id="print-para2-days" class="font-bold">DAY working days</span><span id="print-para2-normal2"> and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion </span><span id="print-para2-div" class="font-bold">DIV</span><span id="print-para2-normal3"> and Vice Versa.</span>
-        </div>
-        <div class="mt-5 text-12pt">
-            <span id="print-para3-street" class="font-bold">STREET</span><span id="print-para3-normal"> will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.</span>
-        </div>
-        <div class="mt-5 text-12pt font-bold" id="print-apology">
+        <div class="mt-15 font-times print-text-22pt font-bold" id="print-please-note">PLEASE NOTE</div>
+        <div class="mt-4 print-text-24pt underline text-center" id="print-date">On DATE</div>
+        <p class="mt-10 print-text-12pt" id="print-para1">
+            I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along <strong class="font-bold" id="print-para1-street">STREET</strong>.
+        </p>
+        <p class="print-text-12pt" id="print-para2">
+            The work is expected to take a maximum of <strong class="font-bold" id="print-para2-days">DAY working days</strong> and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion <strong class="font-bold" id="print-para2-div">DIV</strong> and Vice Versa.
+        </p>
+        <p class="print-text-12pt" id="print-para3">
+            <strong class="font-bold" id="print-para3-street">STREET</strong> will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.
+        </p>
+        <p class="print-text-12pt font-bold" id="print-apology">
             We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.
-        </div>
-        <div class="mt-5 text-13pt">
-             <span id="print-concerns1">ANY CONCERNS PLEASE CALL </span><span id="print-concerns-phone" class="font-bold">0845 200 4035</span><span id="print-concerns2"> WITH OUR REF: </span><span id="print-concerns-ref">REFR</span>
-        </div>
-        <div class="mt-10 text-12pt" id="print-closing">
-            <div>Regards</div>
-            <div class="mt-4">Zoe Franks</div>
-            <div>I & A Communications Ltd</div>
-            <div>Tel: 0845 200 4035</div>
+        </p>
+        <p class="print-text-13pt" id="print-concerns">
+             ANY CONCERNS PLEASE CALL <strong class="font-bold" id="print-concerns-phone">0845 200 4035</strong> WITH OUR REF: <span id="print-concerns-ref">REFR</span>
+        </p>
+        <div class="mt-10 print-text-12pt" id="print-closing">
+            <p>Regards</p>
+            <p class="mt-4">Zoe Franks</p>
+            <p>I & A Communications Ltd</p>
+            <p>Tel: 0845 200 4035</p>
         </div>
     </div>
 
@@ -491,30 +484,22 @@
 
         function updateMap() {
             if (noticeData.lat && noticeData.lon) {
-                const mapUrl = `https://symology.maps.arcgis.com/apps/webappviewer/index.html?id=1055c1d3a2c344cea5353d8ed744831c&center=${noticeData.lon},${noticeData.lat}&level=15`;
+                // Switch to Google Maps Embed URL
+                // Example: https://www.google.com/maps/embed/v1/view?key=YOUR_API_KEY&center=lat,lon&zoom=15
+                // Using a simple query search for now as embed requires API key for direct center/zoom
+                const mapUrl = `https://maps.google.com/maps?q=${noticeData.lat},${noticeData.lon}&hl=en&z=15&output=embed`;
                 mapFrame.src = mapUrl;
+                console.log("Updated map URL to:", mapUrl);
             } else {
                 mapFrame.src = 'about:blank';
             }
         }
 
         function tryAutoFillMapSearch() {
-             const coordsString = coordsDisplay.value;
-             if (!coordsString || coordsString === 'N/A') return;
-             console.log('Attempting auto-fill...');
-             setTimeout(() => {
-                 try {
-                     const iframeDoc = mapFrame.contentWindow?.document;
-                     if (!iframeDoc) throw new Error("Cannot access iframe content.");
-                     const searchInput = iframeDoc.getElementById('esri_dijit_Search_0_input');
-                     if (searchInput) {
-                         searchInput.value = coordsString;
-                         console.log("Attempted map search auto-fill.");
-                     } else { throw new Error("Map search input not found."); }
-                 } catch (error) {
-                     console.warn("Auto-fill failed:", error.message);
-                 }
-             }, 3000);
+            // This function is less relevant for Google Maps embed,
+            // as direct interaction is generally not possible/needed.
+            // Keep it empty or remove if not attempting any interaction.
+             console.log('tryAutoFillMapSearch called (no action for Google Maps embed)');
         }
 
         function copyCoordinatesToClipboard() {
@@ -544,10 +529,14 @@
 
              // --- Populate Hidden Print Area ---
              document.getElementById('print-date').textContent = `On ${noticeData.date}`;
+             // Paragraph 1
              document.getElementById('print-para1-street').textContent = noticeData.street;
+             // Paragraph 2
              document.getElementById('print-para2-days').textContent = `${noticeData.days} working days`;
              document.getElementById('print-para2-div').textContent = noticeData.diversion;
+             // Paragraph 3
              document.getElementById('print-para3-street').textContent = noticeData.street;
+             // Concerns
              document.getElementById('print-concerns-ref').textContent = noticeData.ref;
 
              // --- Populate Visible Textarea (for reference/copy) ---
@@ -580,8 +569,12 @@
          * Triggers the browser's print dialog.
          */
         function printNotice() {
-            // Ensure the print area is populated (might call generateNotice again if needed, but usually done before showing Step 4)
+            // Ensure the print area is populated (usually done before showing Step 4)
+            // Optional: briefly show the print area to ensure styles apply, then hide after print
+            const printArea = document.getElementById('noticePrintArea');
+            // printArea.style.display = 'block'; // Temporarily show for style application? Maybe not needed.
             window.print();
+            // printArea.style.display = 'none'; // Hide again after print dialog closes (might not work reliably)
         }
 
 
@@ -595,12 +588,12 @@
             if (!noticeData.diversion) { alert("Please enter the diversion route before proceeding."); diversionRouteStep1Input.focus(); return; }
             if (!dataParsed || !planUploaded) { alert("Please ensure data is parsed and a plan is uploaded successfully before proceeding."); console.error("Proceed clicked but flags not set. Data Parsed:", dataParsed, "Plan Uploaded:", planUploaded); return; }
 
-            updateMap();
+            updateMap(); // Update map URL
             refNumberDisplay.value = noticeData.ref;
             dateDisplay.value = noticeData.date; // Display formatted date
             coordsDisplay.value = noticeData.lat && noticeData.lon ? `${noticeData.lat}, ${noticeData.lon}` : 'N/A';
             showStep('step3');
-            tryAutoFillMapSearch();
+            // tryAutoFillMapSearch(); // Less relevant for Google Maps
         });
 
         generateNoticeBtn.addEventListener('click', generateNotice);
