@@ -5,13 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Notice Generation Tool</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         /* Basic styling */
         body { font-family: 'Inter', sans-serif; }
-        /* Set base height for iframes within containers */
-        iframe { width: 100%; height: 100%; border: 1px solid #ccc; border-radius: 0.375rem; } /* Set height 100% */
+        iframe { width: 100%; height: 100%; border: 1px solid #ccc; border-radius: 0.375rem; }
 
         /* Style for the plan preview area */
         #planPreview {
@@ -19,37 +16,24 @@
              display: flex; justify-content: center; align-items: center;
              overflow: auto; background-color: #f9fafb; padding: 0;
              text-align: center;
-             width: 100%; /* Takes width of parent grid cell */
-             max-width: 1000px; /* Max width */
-             height: 600px; /* Fixed height */
-             margin-left: auto; /* Center if grid cell is wider */
-             margin-right: auto; /* Center if grid cell is wider */
+             width: 100%; max-width: 1000px; height: 600px;
+             margin-left: auto; margin-right: auto;
         }
         #planPreview img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; margin: auto; }
         #planPreview iframe { width: 100%; height: 100%; border: none; border-radius: 0.375rem; }
 
         /* Container for map iframe */
         .map-container {
-            position: relative; /* Needed for absolute positioning of button */
-            width: 100%; /* Takes width of parent grid cell */
-            max-width: 1000px; /* Max width */
-            height: 600px; /* Fixed height */
-             margin-left: auto; /* Center if grid cell is wider */
-             margin-right: auto; /* Center if grid cell is wider */
-             overflow: hidden; /* Hide overflow from button potentially */
-             border: 1px solid #ccc; /* Add border like planPreview */
-             border-radius: 0.375rem; /* Add rounding like planPreview */
+            position: relative; width: 100%; max-width: 1000px; height: 600px;
+             margin-left: auto; margin-right: auto;
+             overflow: hidden; border: 1px solid #ccc; border-radius: 0.375rem;
         }
-        .map-container iframe { width: 100%; height: 100%; border: none; } /* Remove internal iframe border */
+        .map-container iframe { width: 100%; height: 100%; border: none; }
 
         /* Style for button nested at bottom of map container */
         #copyCoordsBtn {
-            position: absolute;
-            bottom: 10px; /* 10px from bottom */
-            left: 50%; /* Center horizontally */
-            transform: translateX(-50%); /* Adjust horizontal centering */
-            z-index: 10; /* Ensure it's above the iframe content */
-            /* Tailwind classes applied directly in HTML */
+            position: absolute; bottom: 10px; left: 50%;
+            transform: translateX(-50%); z-index: 10;
         }
 
         /* Hide steps initially */
@@ -58,17 +42,76 @@
 
         /* Add a subtle border between form groups in Step 1 */
         #step1 .form-group + .form-group {
-            border-top: 1px solid #e5e7eb;
-            padding-top: 1.5rem;
-            margin-top: 1.5rem;
+            border-top: 1px solid #e5e7eb; padding-top: 1.5rem; margin-top: 1.5rem;
         }
 
-        /* General form styling (Tailwind classes used directly in HTML mostly) */
-        label { /* Base label style if needed */ }
-        .container { /* Base container style */ }
-        h2 { /* Base heading style */ }
-        /* Grid for side-by-side layout and spacing - UPDATED GAP */
-        .map-plan-grid { @apply grid grid-cols-1 md:grid-cols-2 gap-4; } /* Reduced gap */
+        /* Grid for side-by-side layout and spacing */
+        .map-plan-grid { @apply grid grid-cols-1 md:grid-cols-2 gap-4; }
+
+        /* Styles for the printable notice area */
+        #noticePrintArea {
+            display: none; /* Hidden by default */
+            font-family: sans-serif; /* Use a common sans-serif as Calibri substitute */
+            color: black;
+            width: 210mm; /* A4 width */
+           /* height: 297mm; /* A4 height - might not be needed */
+            padding: 15mm; /* Standard margins */
+            box-sizing: border-box; /* Include padding in width/height */
+            background-color: white;
+        }
+        #noticePrintArea .font-times { font-family: serif; /* Use serif as Times substitute */ }
+        #noticePrintArea .text-10pt { font-size: 10pt; line-height: 1.2; }
+        #noticePrintArea .text-12pt { font-size: 12pt; line-height: 1.4; }
+        #noticePrintArea .text-13pt { font-size: 13pt; line-height: 1.4; }
+        #noticePrintArea .text-22pt { font-size: 22pt; line-height: 1.2; }
+        #noticePrintArea .text-24pt { font-size: 24pt; line-height: 1.2; }
+        #noticePrintArea .font-bold { font-weight: bold; }
+        #noticePrintArea .underline { text-decoration: underline; }
+        #noticePrintArea .text-center { text-align: center; }
+        #noticePrintArea .text-right { text-align: right; }
+        #noticePrintArea .mt-4 { margin-top: 1rem; } /* Approx 4mm */
+        #noticePrintArea .mt-8 { margin-top: 2rem; } /* Approx 8mm */
+        #noticePrintArea .mt-10 { margin-top: 2.5rem; } /* Approx 10mm */
+        #noticePrintArea .mt-15 { margin-top: 3.75rem; } /* Approx 15mm */
+        #noticePrintArea .mb-4 { margin-bottom: 1rem; }
+        #noticePrintArea .mb-5 { margin-bottom: 1.25rem; } /* Approx 5mm */
+        #noticePrintArea .mb-10 { margin-bottom: 2.5rem; } /* Approx 10mm */
+        #noticePrintArea .float-right { float: right; }
+        #noticePrintArea .clear-both { clear: both; }
+        #noticePrintArea .logo-placeholder {
+            width: 50mm; height: 15mm; background-color: #90ee90; /* Light green */
+            float: right; margin-bottom: 5mm;
+        }
+        #noticePrintArea .address-block {
+             float: right; text-align: right; clear: right; margin-top: 5mm;
+        }
+
+        /* Print-specific styles */
+        @media print {
+            body * {
+                visibility: hidden; /* Hide everything */
+            }
+            #noticePrintArea, #noticePrintArea * {
+                visibility: visible; /* Show only the notice area and its children */
+            }
+            #noticePrintArea {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%; /* Use full page width */
+                height: auto;
+                padding: 15mm; /* Ensure padding is applied */
+                margin: 0;
+                border: none;
+                box-shadow: none;
+                display: block !important; /* Ensure it's displayed */
+            }
+             /* Optional: Hide headers/footers added by browser */
+             @page {
+                margin: 15mm; /* Match padding */
+                size: A4 portrait;
+            }
+        }
 
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -77,8 +120,8 @@
 </head>
 <body class="bg-gray-100 p-4">
 
-    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 34)</h1>
+    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200" id="toolInterface">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 35)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -115,17 +158,17 @@
 
             <div class="map-plan-grid mb-6 mt-6"> {/* Grid layout */}
                 <div class="mb-4 md:mb-0 flex flex-col items-center"> {/* Grid column 1 */}
-                    <h3 class="text-lg font-medium text-gray-800 mb-2 w-full max-w-[1000px]">Map Location</h3> {/* Adjusted max-width */}
-                    <div class="map-container"> {/* Width/Height applied here */}
+                    <h3 class="text-lg font-medium text-gray-800 mb-2 w-full max-w-[1000px]">Map Location</h3>
+                    <div class="map-container">
                         <iframe id="mapFrame" src="about:blank" title="Location Map"></iframe>
                         <button id="copyCoordsBtn" title="Copy coordinates to clipboard" class="absolute bottom-[10px] left-1/2 -translate-x-1/2 z-10 py-2 px-4 text-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500 shadow-md rounded-md">Copy Coordinates</button>
                     </div>
-                    <p id="copyCoordsStatus" class="text-sm text-green-600 mt-2 h-4"></p> {/* Status below button */}
+                    <p id="copyCoordsStatus" class="text-sm text-green-600 mt-2 h-4"></p>
                     <p id="mapSearchStatus" class="hidden"></p>
                 </div>
                 <div class="flex flex-col items-center"> {/* Grid column 2 */}
-                    <h3 class="text-lg font-medium text-gray-800 mb-2 w-full max-w-[1000px]">Uploaded Plan</h3> {/* Adjusted max-width */}
-                    <div id="planPreview"> {/* Width/Height applied here */}
+                    <h3 class="text-lg font-medium text-gray-800 mb-2 w-full max-w-[1000px]">Uploaded Plan</h3>
+                    <div id="planPreview">
                         <p class="text-gray-500 text-sm">Plan preview will appear here.</p>
                     </div>
                 </div>
@@ -166,19 +209,57 @@
 
         <div id="step4" class="step">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 3: Generated Notice Text</h2>
-             <p class="mb-4 mt-6 text-sm text-gray-600">Review the generated text below. Copy and paste into your Word template or download as PDF.</p>
+             <p class="mb-4 mt-6 text-sm text-gray-600">Review the generated text below. Copy and paste into your Word template or use the Print button.</p>
             <textarea id="generatedNotice" rows="20" readonly class="w-full p-3 border border-gray-300 rounded bg-gray-50 font-mono text-sm shadow-sm"></textarea>
              <div class="mt-6 flex justify-between items-center">
                  <button class="secondary-button inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onclick="showStep('step3')">Back</button>
                  <div>
                     <button id="copyNoticeBtn" class="mr-2 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Copy Text</button>
-                    <button id="downloadNoticeBtn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Download as PDF</button>
+                    <button id="printNoticeBtn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Print Notice</button>
                  </div>
             </div>
              <p id="copyStatus" class="text-sm text-green-600 mt-2 text-right"></p>
         </div>
 
+    </div> <div id="noticePrintArea">
+        <div class="logo-placeholder"></div>
+        <div class="address-block text-10pt">
+            <div>I & A Communications</div>
+            <div>Burgon House</div>
+            <div>James Swallow Way</div>
+            <div>London and Medway Commercial</div>
+            <div>Rochester</div>
+            <div>Kent</div>
+            <div>ME3 9GX</div>
+            <div class="mt-4">Tel:&nbsp;&nbsp;&nbsp;&nbsp; 0845 200 4035</div>
+        </div>
+        <div class="clear-both"></div>
+
+        <div class="mt-15 font-times text-22pt font-bold" id="print-please-note">PLEASE NOTE</div>
+        <div class="mt-4 text-24pt underline text-center" id="print-date">On DATE</div>
+        <div class="mt-10 text-12pt">
+            <span id="print-para1-normal">I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along </span><span id="print-para1-street" class="font-bold">STREET</span><span>.</span>
+        </div>
+        <div class="mt-5 text-12pt">
+            <span id="print-para2-normal1">The work is expected to take a maximum of </span><span id="print-para2-days" class="font-bold">DAY working days</span><span id="print-para2-normal2"> and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion </span><span id="print-para2-div" class="font-bold">DIV</span><span id="print-para2-normal3"> and Vice Versa.</span>
+        </div>
+        <div class="mt-5 text-12pt">
+            <span id="print-para3-street" class="font-bold">STREET</span><span id="print-para3-normal"> will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.</span>
+        </div>
+        <div class="mt-5 text-12pt font-bold" id="print-apology">
+            We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.
+        </div>
+        <div class="mt-5 text-13pt">
+             <span id="print-concerns1">ANY CONCERNS PLEASE CALL </span><span id="print-concerns-phone" class="font-bold">0845 200 4035</span><span id="print-concerns2"> WITH OUR REF: </span><span id="print-concerns-ref">REFR</span>
+        </div>
+        <div class="mt-10 text-12pt" id="print-closing">
+            <div>Regards</div>
+            <div class="mt-4">Zoe Franks</div>
+            <div>I & A Communications Ltd</div>
+            <div>Tel: 0845 200 4035</div>
+        </div>
     </div>
+
 
     <script>
         // --- Global Variables ---
@@ -186,17 +267,7 @@
         let noticeData = { ref: '', lat: '', lon: '', date: '', street: '', days: '1', diversion: '', houses: '' };
         let dataParsed = false;
         let planUploaded = false;
-        // Import jsPDF - Ensure it's loaded via CDN
-        const { jsPDF } = window.jspdf;
-
-        // --- PDF Layout Constants (Global Scope) ---
-        const FONT_HELVETICA = 'helvetica'; // Substitute for Calibri
-        const FONT_TIMES = 'times';       // Substitute for Times New Roman
-        const MARGIN_LEFT = 15;
-        const PAGE_WIDTH = 210; // A4 width in mm
-        const MARGIN_RIGHT_EDGE = PAGE_WIDTH - MARGIN_LEFT; // Right edge coordinate
-        const CONTENT_WIDTH = MARGIN_RIGHT_EDGE - MARGIN_LEFT;
-
+        // jsPDF removed
 
         // --- DOM Elements ---
         const steps = document.querySelectorAll('.step');
@@ -220,7 +291,7 @@
         const copyCoordsStatus = document.getElementById('copyCoordsStatus');
         const generatedNoticeTextarea = document.getElementById('generatedNotice');
         const copyNoticeBtn = document.getElementById('copyNoticeBtn');
-        const downloadNoticeBtn = document.getElementById('downloadNoticeBtn');
+        const printNoticeBtn = document.getElementById('printNoticeBtn'); // Changed ID
         const copyStatus = document.getElementById('copyStatus');
 
         // --- Navigation Buttons ---
@@ -460,15 +531,26 @@
             });
         }
 
+        /**
+         * Populates the hidden print area and the visible textarea.
+         */
         function generateNotice() {
              noticeData.street = streetNameInput.value.trim() || '[STREET NAME MISSING]';
              noticeData.days = workDaysInput.value || '1';
-             noticeData.houses = affectedHousesInput.value;
+             noticeData.houses = affectedHousesInput.value; // Note: This isn't used in the template currently
 
              if (noticeData.street === '[STREET NAME MISSING]') { alert("Please enter Street Name."); streetNameInput.focus(); return; }
              if (!noticeData.diversion) { alert("Please go back and enter the Diversion Route in Step 1."); showStep('step1'); diversionRouteStep1Input.focus(); return; }
 
-             // Generate the plain text version for the textarea preview
+             // --- Populate Hidden Print Area ---
+             document.getElementById('print-date').textContent = `On ${noticeData.date}`;
+             document.getElementById('print-para1-street').textContent = noticeData.street;
+             document.getElementById('print-para2-days').textContent = `${noticeData.days} working days`;
+             document.getElementById('print-para2-div').textContent = noticeData.diversion;
+             document.getElementById('print-para3-street').textContent = noticeData.street;
+             document.getElementById('print-concerns-ref').textContent = noticeData.ref;
+
+             // --- Populate Visible Textarea (for reference/copy) ---
              let textPreview = `I & A Communications Ltd\n\n`;
              textPreview += `Tel: 0845 200 4035\n\n`;
              textPreview += `PLEASE NOTE\n`;
@@ -495,155 +577,11 @@
         }
 
         /**
-         * Helper function to add text to PDF, handling wrapping and returning new Y position.
-         * Allows setting font style for the added text.
-         * @param {jsPDF} doc - The jsPDF document instance.
-         * @param {string} text - The text to add.
-         * @param {number} x - The starting X coordinate.
-         * @param {number} y - The starting Y coordinate.
-         * @param {object} options - Options: {maxWidth: number, font: string, fontStyle: 'normal'|'bold'|'italic'|'bolditalic', fontSize: number, align: 'left'|'center'|'right'}
-         * @returns {number} The Y coordinate after adding the text.
+         * Triggers the browser's print dialog.
          */
-        function addFormattedText(doc, text, x, y, options = {}) {
-            const maxWidth = options.maxWidth || (CONTENT_WIDTH); // Use global CONTENT_WIDTH if not specified
-            const originalFontName = doc.getFont().fontName;
-            const originalFontStyle = doc.getFont().fontStyle;
-            const originalSize = doc.getFontSize();
-            const align = options.align || 'left';
-
-            // Set font, style, and size
-            doc.setFont(options.font || originalFontName, options.fontStyle || 'normal');
-            doc.setFontSize(options.fontSize || originalSize);
-
-            const lines = doc.splitTextToSize(text, maxWidth);
-            doc.text(lines, x, y, { baseline: 'top', align: align });
-
-            // Reset font style and size
-            doc.setFont(originalFontName, originalFontStyle);
-            doc.setFontSize(originalSize);
-
-            const lineHeightFactor = 1.2;
-            const lineHeight = ((options.fontSize || originalSize) / doc.internal.scaleFactor) * lineHeightFactor;
-            return y + (lines.length * lineHeight);
-        }
-
-        /**
-         * Downloads the generated notice text as a formatted PDF file using jsPDF.
-         * Revised approach to handle inline bolding more reliably.
-         */
-        function downloadNoticeAsPdf() {
-            console.log("Starting PDF generation...");
-            const filename = `Notice_${noticeData.ref || 'Ref'}_${noticeData.date.replace(/[\/\s]/g, '-') || 'Date'}.pdf`;
-            let currentY = 20; // Start Y position
-            const lineSpacing = 5; // Extra space between paragraphs/sections
-            const smallLineSpacing = 2; // Smaller space after certain lines
-
-            try {
-                const pdfDoc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
-                console.log("jsPDF object created.");
-
-                // --- Placeholder Logo (Right) ---
-                console.log("Adding logo placeholder...");
-                const logoWidth = 50; const logoHeight = 15;
-                const logoX = MARGIN_RIGHT_EDGE - logoWidth;
-                const logoY = currentY;
-                pdfDoc.setFillColor(144, 238, 144); // Light green
-                pdfDoc.rect(logoX, logoY, logoWidth, logoHeight, 'F');
-                let logoBottomY = logoY + logoHeight;
-                console.log("Logo placeholder added.");
-
-                 // --- Address Block (Right Aligned, Below Logo) ---
-                 console.log("Adding address block...");
-                 const addressLines = [
-                     "I & A Communications", "Burgon House", "James Swallow Way",
-                     "London and Medway Commercial", "Rochester", "Kent", "ME3 9GX"
-                 ];
-                 let addressY = logoBottomY + 5;
-                 addressY = addFormattedText(pdfDoc, addressLines.join('\n'), MARGIN_RIGHT_EDGE, addressY, { font: FONT_HELVETICA, fontSize: 10, align: 'right' });
-                 addressY = addFormattedText(pdfDoc, "Tel:     0845 200 4035", MARGIN_RIGHT_EDGE, addressY, { font: FONT_HELVETICA, fontSize: 10, align: 'right' });
-                 console.log("Address block added. addressY:", addressY);
-
-                // Set currentY to below the taller of the logo or address block
-                currentY = Math.max(logoBottomY, addressY) + lineSpacing * 2;
-
-                // --- PLEASE NOTE ---
-                console.log("Adding PLEASE NOTE...");
-                currentY = addFormattedText(pdfDoc, "PLEASE NOTE", MARGIN_LEFT, currentY, { font: FONT_TIMES, fontSize: 22, fontStyle: 'bold' });
-                currentY += lineSpacing; // Use defined spacing
-                console.log("PLEASE NOTE added. currentY:", currentY);
-
-                // --- Date (Centered) ---
-                console.log("Adding Date...");
-                const dateText = `On ${noticeData.date}`;
-                pdfDoc.setFont(FONT_HELVETICA, 'normal');
-                pdfDoc.setFontSize(24);
-                const dateTextWidth = pdfDoc.getTextWidth(dateText);
-                const dateX = (PAGE_WIDTH - dateTextWidth) / 2;
-                let dateLineY = addFormattedText(pdfDoc, dateText, dateX, currentY, { font: FONT_HELVETICA, fontSize: 24 });
-                pdfDoc.setLineWidth(0.5);
-                pdfDoc.line(dateX, dateLineY - 2 , dateX + dateTextWidth, dateLineY - 2); // Underline
-                currentY = dateLineY + lineSpacing * 2; // More space after date line
-                console.log("Date added. currentY:", currentY);
-
-                // --- Main Paragraphs ---
-                pdfDoc.setFontSize(12); // Reset default size
-                pdfDoc.setFont(FONT_HELVETICA, 'normal'); // Reset default font
-
-                // Paragraph 1
-                console.log("Adding Paragraph 1...");
-                let para1_part1 = `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along `;
-                let para1_part2 = `${noticeData.street}.`;
-                currentY = addFormattedText(pdfDoc, para1_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
-                currentY = addFormattedText(pdfDoc, para1_part2, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
-                currentY += lineSpacing;
-                console.log("Paragraph 1 added. currentY:", currentY);
-
-                // Paragraph 2
-                 console.log("Adding Paragraph 2...");
-                 currentY = addFormattedText(pdfDoc, `The work is expected to take a maximum of `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
-                 currentY = addFormattedText(pdfDoc, `${noticeData.days} working days`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
-                 currentY = addFormattedText(pdfDoc, ` and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
-                 currentY = addFormattedText(pdfDoc, noticeData.diversion, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
-                 currentY = addFormattedText(pdfDoc, ` and Vice Versa.`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
-                 currentY += lineSpacing;
-                 console.log("Paragraph 2 added. currentY:", currentY);
-
-                // Paragraph 3
-                 console.log("Adding Paragraph 3...");
-                 currentY = addFormattedText(pdfDoc, noticeData.street, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
-                 currentY = addFormattedText(pdfDoc, ` will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
-                 currentY += lineSpacing;
-                 console.log("Paragraph 3 added. currentY:", currentY);
-
-                // Apology Paragraph
-                 console.log("Adding Apology...");
-                 currentY = addFormattedText(pdfDoc, `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
-                 currentY += lineSpacing;
-                 console.log("Apology added. currentY:", currentY);
-
-                // Concerns Line
-                 console.log("Adding Concerns line...");
-                 currentY = addFormattedText(pdfDoc, `ANY CONCERNS PLEASE CALL `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 13 });
-                 currentY = addFormattedText(pdfDoc, `0845 200 4035`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 13 });
-                 currentY = addFormattedText(pdfDoc, ` WITH OUR REF: ${noticeData.ref}`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 13 });
-                 currentY += lineSpacing * 2; // More space after concerns
-                 console.log("Concerns line added. currentY:", currentY);
-
-                // Closing
-                 console.log("Adding Closing...");
-                 const closingLines = [ "Regards", "Zoe Franks", "I & A Communications Ltd", "Tel: 0845 200 4035" ];
-                 currentY = addFormattedText(pdfDoc, closingLines.join('\n'), MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
-                 console.log("Closing added. currentY:", currentY);
-
-                // --- Save ---
-                console.log("Saving PDF...");
-                pdfDoc.save(filename);
-                console.log("PDF save initiated.");
-
-            } catch (error) {
-                console.error("Error generating PDF:", error); // Log the specific error
-                alert("Sorry, there was an error generating the PDF.\nPlease check the console (F12) for details and try copying the text manually.\nError: " + error.message); // Show error message to user
-            }
+        function printNotice() {
+            // Ensure the print area is populated (might call generateNotice again if needed, but usually done before showing Step 4)
+            window.print();
         }
 
 
@@ -667,8 +605,8 @@
 
         generateNoticeBtn.addEventListener('click', generateNotice);
         copyNoticeBtn.addEventListener('click', copyNoticeToClipboard);
-        // Updated listener to call PDF function
-        downloadNoticeBtn.addEventListener('click', downloadNoticeAsPdf);
+        // Changed listener to call print function
+        printNoticeBtn.addEventListener('click', printNotice);
 
         // --- Initialisation ---
         showStep('step1');
