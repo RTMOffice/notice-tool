@@ -13,7 +13,7 @@
         /* Set base height for iframes within containers */
         iframe { width: 100%; height: 100%; border: 1px solid #ccc; border-radius: 0.375rem; } /* Set height 100% */
 
-        /* Style for the plan preview area */
+        /* Style for the plan preview area - UPDATED */
         #planPreview {
              border: 1px solid #ccc; border-radius: 0.375rem;
              display: flex; justify-content: center; align-items: center;
@@ -26,10 +26,9 @@
              margin-right: auto; /* Center if grid cell is wider */
         }
         #planPreview img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; margin: auto; }
-        /* Style for the plan PDF preview (iframe) */
         #planPreview iframe { width: 100%; height: 100%; border: none; border-radius: 0.375rem; }
 
-        /* Container for map iframe */
+        /* Container for map iframe - UPDATED */
         .map-container {
             position: relative;
             width: 100%; /* Takes width of parent grid cell */
@@ -65,7 +64,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200"> {/* Increased max-width for wider content */}
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 18)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 19)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -472,29 +471,35 @@
                 .catch(err => { console.error('Failed to copy notice:', err); copyStatus.textContent = 'Copy failed.'; });
         }
 
-         /**
+        /**
          * Helper function to add text to PDF, handling wrapping and returning new Y position.
+         * Allows setting font style for the added text.
          * @param {jsPDF} doc - The jsPDF document instance.
          * @param {string} text - The text to add.
          * @param {number} x - The starting X coordinate.
          * @param {number} y - The starting Y coordinate.
-         * @param {object} options - Options for text (e.g., {maxWidth: number, fontStyle: 'bold'})
+         * @param {object} options - Options: {maxWidth: number, fontStyle: 'normal'|'bold'|'italic'|'bolditalic', fontSize: number}
          * @returns {number} The Y coordinate after adding the text.
          */
-         function addWrappedText(doc, text, x, y, options = {}) {
-            const maxWidth = options.maxWidth || (doc.internal.pageSize.getWidth() - x - MARGIN_LEFT); // Default to page width minus margins
-            const fontStyle = options.fontStyle || 'normal';
-            const fontSize = options.fontSize || doc.getFontSize(); // Use current font size if not specified
+        function addFormattedText(doc, text, x, y, options = {}) {
+            const maxWidth = options.maxWidth || (doc.internal.pageSize.getWidth() - x - MARGIN_LEFT);
+            const originalStyle = doc.getFont().fontStyle; // Store original style
+            const originalSize = doc.getFontSize(); // Store original size
 
-            doc.setFont(undefined, fontStyle); // Set font style
-            doc.setFontSize(fontSize); // Ensure correct font size
+            doc.setFont(undefined, options.fontStyle || 'normal');
+            doc.setFontSize(options.fontSize || originalSize);
 
             const lines = doc.splitTextToSize(text, maxWidth);
             doc.text(lines, x, y);
-            // Calculate approximate line height based on font size (adjust factor as needed)
-            const lineHeightFactor = 1.15; // General factor
-            const lineHeight = (fontSize / doc.internal.scaleFactor) * lineHeightFactor; // Convert pt to mm
-            return y + (lines.length * lineHeight); // Return Y position after the text block
+
+            // Reset font style and size
+            doc.setFont(undefined, originalStyle);
+            doc.setFontSize(originalSize);
+
+            // Calculate approximate line height based on font size
+            const lineHeightFactor = 1.15;
+            const lineHeight = ((options.fontSize || originalSize) / doc.internal.scaleFactor) * lineHeightFactor;
+            return y + (lines.length * lineHeight);
         }
 
 
@@ -521,28 +526,26 @@
                     "I & A Communications", "Burgon House", "James Swallow Way",
                     "London and Medway Commercial", "Rochester", "Kent", "ME3 9GX"
                 ];
-                // Calculate height of address block roughly
                 const addressLineHeight = 4; // Approx mm for 10pt
-                const addressBlockHeight = addressLines.length * addressLineHeight;
                 pdfDoc.text(addressLines, MARGIN_LEFT, currentY);
-                const telY = currentY + addressBlockHeight + 2; // Y position for Tel line
+                const addressBlockHeight = addressLines.length * addressLineHeight;
+                const telY = currentY + addressBlockHeight + 2;
                 pdfDoc.text("Tel:     0845 200 4035", MARGIN_LEFT, telY);
 
                 // --- Placeholder Logo (Right) ---
                 const logoWidth = 50;
                 const logoHeight = 15;
-                const logoX = MARGIN_RIGHT - logoWidth; // Align to right margin
-                const logoY = currentY; // Align vertically with top of address
+                const logoX = MARGIN_RIGHT - logoWidth;
+                const logoY = currentY;
                 pdfDoc.setFillColor(144, 238, 144); // Light green
                 pdfDoc.rect(logoX, logoY, logoWidth, logoHeight, 'F');
 
-                // Determine next Y based on the taller element (address block + tel)
                 currentY = telY + addressLineHeight + 15; // Move down past address/tel + space
 
                 // --- PLEASE NOTE ---
                 pdfDoc.setFont(FONT_TIMES, 'bold');
-                pdfDoc.setFontSize(12);
-                currentY = addWrappedText(pdfDoc, "PLEASE NOTE", MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH });
+                pdfDoc.setFontSize(22); // Updated font size
+                currentY = addFormattedText(pdfDoc, "PLEASE NOTE", MARGIN_LEFT, currentY, { fontSize: 22, fontStyle: 'bold' });
                 currentY += 4; // Space
 
                 // --- Date (Centered) ---
@@ -550,9 +553,8 @@
                 pdfDoc.setFontSize(24);
                 const dateText = `On ${noticeData.date}`;
                 const dateTextWidth = pdfDoc.getTextWidth(dateText);
-                const dateX = (PAGE_WIDTH - dateTextWidth) / 2; // Center X calculation
+                const dateX = (PAGE_WIDTH - dateTextWidth) / 2;
                 pdfDoc.text(dateText, dateX, currentY);
-                // Underline
                 pdfDoc.setLineWidth(0.5);
                 pdfDoc.line(dateX, currentY + 1, dateX + dateTextWidth, currentY + 1);
                 currentY += 15; // Space
@@ -560,64 +562,117 @@
                 // --- Main Paragraphs ---
                 pdfDoc.setFontSize(12);
                 pdfDoc.setFont(FONT_HELVETICA, 'normal');
+                const LINE_HEIGHT_12 = (12 / pdfDoc.internal.scaleFactor) * 1.15; // Approx height for 12pt
 
                 // Paragraph 1
-                let text1 = `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along `;
-                currentY = addWrappedText(pdfDoc, text1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH });
-                pdfDoc.setFont(undefined, 'bold'); // Set bold for street
-                currentY = addWrappedText(pdfDoc, noticeData.street + ".", MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold' }); // Add period, keep bold
-                pdfDoc.setFont(undefined, 'normal'); // Reset font style
-                currentY += 5; // Paragraph space
+                let currentX = MARGIN_LEFT;
+                let text1_part1 = `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along `;
+                let lines1 = pdfDoc.splitTextToSize(text1_part1, CONTENT_WIDTH);
+                pdfDoc.text(lines1, currentX, currentY);
+                currentY += (lines1.length - 1) * LINE_HEIGHT_12; // Move Y to last line start
+                currentX = MARGIN_LEFT + pdfDoc.getTextWidth(lines1[lines1.length - 1] + " "); // X after last part of text
+
+                pdfDoc.setFont(undefined, 'bold');
+                let text1_part2 = noticeData.street + ".";
+                let lines1_bold = pdfDoc.splitTextToSize(text1_part2, MARGIN_RIGHT - currentX); // Wrap bold part if needed
+                if (lines1_bold.length > 1 || currentX === MARGIN_LEFT) { // If bold part wraps or starts new line
+                    currentY += LINE_HEIGHT_12; // Move to next line
+                    currentX = MARGIN_LEFT;
+                }
+                pdfDoc.text(lines1_bold, currentX, currentY);
+                pdfDoc.setFont(undefined, 'normal');
+                currentY += (lines1_bold.length * LINE_HEIGHT_12) + 5; // Move past bold text + paragraph space
+
 
                 // Paragraph 2
+                currentX = MARGIN_LEFT;
                 let text2_part1 = `The work is expected to take a maximum of `;
-                currentY = addWrappedText(pdfDoc, text2_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH });
+                lines = pdfDoc.splitTextToSize(text2_part1, CONTENT_WIDTH);
+                pdfDoc.text(lines, currentX, currentY);
+                currentY += (lines.length - 1) * LINE_HEIGHT_12;
+                currentX = MARGIN_LEFT + pdfDoc.getTextWidth(lines[lines.length - 1] + " ");
+
                 pdfDoc.setFont(undefined, 'bold');
                 let text2_part2 = `${noticeData.days} working days`;
-                currentY = addWrappedText(pdfDoc, text2_part2, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold' });
+                lines = pdfDoc.splitTextToSize(text2_part2, MARGIN_RIGHT - currentX);
+                if (lines.length > 1 || currentX === MARGIN_LEFT) { currentY += LINE_HEIGHT_12; currentX = MARGIN_LEFT; }
+                pdfDoc.text(lines, currentX, currentY);
+                currentX += pdfDoc.getTextWidth(lines[lines.length - 1] + " ");
                 pdfDoc.setFont(undefined, 'normal');
+
                 let text2_part3 = ` and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion `;
-                currentY = addWrappedText(pdfDoc, text2_part3, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH });
+                lines = pdfDoc.splitTextToSize(text2_part3, MARGIN_RIGHT - currentX);
+                 if (lines.length > 1 || currentX === MARGIN_LEFT) { currentY += LINE_HEIGHT_12; currentX = MARGIN_LEFT; }
+                 pdfDoc.text(lines, currentX, currentY);
+                 currentY += (lines.length - 1) * LINE_HEIGHT_12;
+                 currentX = MARGIN_LEFT + pdfDoc.getTextWidth(lines[lines.length - 1] + " ");
+
                 pdfDoc.setFont(undefined, 'bold');
                 let text2_part4 = noticeData.diversion;
-                currentY = addWrappedText(pdfDoc, text2_part4, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold' });
+                lines = pdfDoc.splitTextToSize(text2_part4, MARGIN_RIGHT - currentX);
+                if (lines.length > 1 || currentX === MARGIN_LEFT) { currentY += LINE_HEIGHT_12; currentX = MARGIN_LEFT; }
+                pdfDoc.text(lines, currentX, currentY);
+                currentX += pdfDoc.getTextWidth(lines[lines.length - 1] + " ");
                 pdfDoc.setFont(undefined, 'normal');
+
                 let text2_part5 = ` and Vice Versa.`;
-                currentY = addWrappedText(pdfDoc, text2_part5, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH });
-                currentY += 5; // Paragraph space
+                lines = pdfDoc.splitTextToSize(text2_part5, MARGIN_RIGHT - currentX);
+                if (lines.length > 1 || currentX === MARGIN_LEFT) { currentY += LINE_HEIGHT_12; currentX = MARGIN_LEFT; }
+                pdfDoc.text(lines, currentX, currentY);
+                currentY += (lines.length * LINE_HEIGHT_12) + 5; // Move past text + paragraph space
+
 
                 // Paragraph 3
+                currentX = MARGIN_LEFT;
                 pdfDoc.setFont(undefined, 'bold');
                 let text3_part1 = noticeData.street;
-                currentY = addWrappedText(pdfDoc, text3_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold' });
+                lines = pdfDoc.splitTextToSize(text3_part1, CONTENT_WIDTH);
+                pdfDoc.text(lines, currentX, currentY);
+                currentY += (lines.length - 1) * LINE_HEIGHT_12;
+                currentX = MARGIN_LEFT + pdfDoc.getTextWidth(lines[lines.length - 1] + " ");
                 pdfDoc.setFont(undefined, 'normal');
+
                 let text3_part2 = ` will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.`;
-                currentY = addWrappedText(pdfDoc, text3_part2, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH });
-                currentY += 5; // Paragraph space
+                lines = pdfDoc.splitTextToSize(text3_part2, MARGIN_RIGHT - currentX);
+                if (lines.length > 1 || currentX === MARGIN_LEFT) { currentY += LINE_HEIGHT_12; currentX = MARGIN_LEFT; }
+                pdfDoc.text(lines, currentX, currentY);
+                currentY += (lines.length * LINE_HEIGHT_12) + 5; // Move past text + paragraph space
 
                 // Apology Paragraph
                 pdfDoc.setFont(undefined, 'bold');
                 let text4 = `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.`;
-                currentY = addWrappedText(pdfDoc, text4, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold' });
+                currentY = addFormattedText(pdfDoc, text4, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
                 pdfDoc.setFont(undefined, 'normal');
                 currentY += 5; // Paragraph space
 
                 // Concerns Line
+                const LINE_HEIGHT_13 = (13 / pdfDoc.internal.scaleFactor) * 1.15;
+                currentX = MARGIN_LEFT;
                 pdfDoc.setFontSize(13);
                 let text5_part1 = `ANY CONCERNS PLEASE CALL `;
-                currentY = addWrappedText(pdfDoc, text5_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 13 });
+                lines = pdfDoc.splitTextToSize(text5_part1, CONTENT_WIDTH);
+                pdfDoc.text(lines, currentX, currentY);
+                currentY += (lines.length - 1) * LINE_HEIGHT_13;
+                currentX = MARGIN_LEFT + pdfDoc.getTextWidth(lines[lines.length - 1] + " ");
+
                 pdfDoc.setFont(undefined, 'bold');
                 let text5_part2 = `0845 200 4035`;
-                currentY = addWrappedText(pdfDoc, text5_part2, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 13 });
+                lines = pdfDoc.splitTextToSize(text5_part2, MARGIN_RIGHT - currentX);
+                if (lines.length > 1 || currentX === MARGIN_LEFT) { currentY += LINE_HEIGHT_13; currentX = MARGIN_LEFT; }
+                pdfDoc.text(lines, currentX, currentY);
+                currentX += pdfDoc.getTextWidth(lines[lines.length - 1] + " ");
                 pdfDoc.setFont(undefined, 'normal');
+
                 let text5_part3 = ` WITH OUR REF: ${noticeData.ref}`;
-                currentY = addWrappedText(pdfDoc, text5_part3, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 13 });
-                currentY += 10; // Space
+                lines = pdfDoc.splitTextToSize(text5_part3, MARGIN_RIGHT - currentX);
+                if (lines.length > 1 || currentX === MARGIN_LEFT) { currentY += LINE_HEIGHT_13; currentX = MARGIN_LEFT; }
+                pdfDoc.text(lines, currentX, currentY);
+                currentY += (lines.length * LINE_HEIGHT_13) + 10; // Move past text + space
 
                 // Closing
                 pdfDoc.setFontSize(12);
                 const closingLines = [ "Regards", "Zoe Franks", "I & A Communications Ltd", "Tel: 0845 200 4035" ];
-                 currentY = addWrappedText(pdfDoc, closingLines.join('\n'), MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
+                currentY = addFormattedText(pdfDoc, closingLines.join('\n'), MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
 
                 // --- Save ---
                 pdfDoc.save(filename);
