@@ -78,7 +78,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 32)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 33)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -528,76 +528,8 @@
         }
 
         /**
-         * Adds text segments with potentially different styles, attempting to keep them on the same line.
-         * @param {jsPDF} doc
-         * @param {Array<object>} segments - [{ text: string, font: string, fontStyle: string, fontSize: number }]
-         * @param {number} x - Starting X
-         * @param {number} y - Starting Y
-         * @param {number} maxWidth - Max width for wrapping
-         * @param {number} lineSpacing - Additional spacing between lines
-         * @returns {number} New Y position
-         */
-        function addFlowingText(doc, segments, x, y, maxWidth, lineSpacing = 0) {
-            let currentX = x;
-            let currentY = y;
-            const spaceWidth = doc.getTextWidth(" ");
-
-            let maxFontSize = 10;
-            segments.forEach(seg => { if (seg.fontSize && seg.fontSize > maxFontSize) maxFontSize = seg.fontSize; });
-            const lineHeightFactor = 1.2;
-            const lineHeight = (maxFontSize / doc.internal.scaleFactor) * lineHeightFactor + lineSpacing;
-
-            segments.forEach((segment) => {
-                doc.setFont(segment.font || FONT_HELVETICA, segment.fontStyle || 'normal');
-                doc.setFontSize(segment.fontSize || 12);
-
-                let words = segment.text.split(' '); // Split by space
-
-                words.forEach((word, wordIndex) => {
-                    if (!word) return;
-
-                    let wordWidth = doc.getTextWidth(word);
-                    let spaceNeeded = (currentX > x) ? spaceWidth : 0; // Space needed only if not first word on line
-
-                    // Check if the word fits on the current line
-                    if (currentX + spaceNeeded + wordWidth > x + maxWidth) {
-                        // Doesn't fit, move to the next line
-                        currentY += lineHeight;
-                        currentX = x;
-                        spaceNeeded = 0; // Reset space for the new line
-
-                        // Re-check if the word *itself* is too long for a line
-                        if (wordWidth > maxWidth) {
-                             const splitWords = doc.splitTextToSize(word, maxWidth);
-                             doc.text(splitWords, currentX, currentY, { baseline: 'top' });
-                             currentY += (splitWords.length - 1) * lineHeight;
-                             currentX = x + doc.getTextWidth(splitWords[splitWords.length - 1]);
-                        } else {
-                             // Word fits on the new line
-                             doc.text(word, currentX, currentY, { baseline: 'top' });
-                             currentX += wordWidth;
-                        }
-                    } else {
-                        // Word fits on the current line
-                        if (spaceNeeded > 0) {
-                            currentX += spaceNeeded; // Add space before the word
-                        }
-                        doc.text(word, currentX, currentY, { baseline: 'top' });
-                        currentX += wordWidth;
-                    }
-                });
-            });
-
-             // Reset font to default after processing all segments
-             pdfDoc.setFont(FONT_HELVETICA, 'normal');
-             pdfDoc.setFontSize(12);
-
-            return currentY; // Return the Y position of the current baseline
-        }
-
-
-        /**
          * Downloads the generated notice text as a formatted PDF file using jsPDF.
+         * Revised approach to handle inline bolding more reliably.
          */
         function downloadNoticeAsPdf() {
             console.log("Starting PDF generation...");
@@ -636,7 +568,7 @@
                 // --- PLEASE NOTE ---
                 console.log("Adding PLEASE NOTE...");
                 currentY = addFormattedText(pdfDoc, "PLEASE NOTE", MARGIN_LEFT, currentY, { font: FONT_TIMES, fontSize: 22, fontStyle: 'bold' });
-                currentY += lineSpacing;
+                currentY += lineSpacing; // Use defined spacing
                 console.log("PLEASE NOTE added. currentY:", currentY);
 
                 // --- Date (Centered) ---
@@ -652,62 +584,54 @@
                 currentY = dateLineY + lineSpacing * 2; // More space after date line
                 console.log("Date added. currentY:", currentY);
 
-                // --- Main Paragraphs (Using flowing text helper) ---
-                const paraFontSize = 12;
-                const concernFontSize = 13;
-                const lineHeight12 = (paraFontSize / pdfDoc.internal.scaleFactor) * 1.2;
-                const lineHeight13 = (concernFontSize / pdfDoc.internal.scaleFactor) * 1.2;
+                // --- Main Paragraphs ---
+                pdfDoc.setFontSize(12); // Reset default size
+                pdfDoc.setFont(FONT_HELVETICA, 'normal'); // Reset default font
 
                 // Paragraph 1
                 console.log("Adding Paragraph 1...");
-                currentY = addFlowingText(pdfDoc, [
-                    { text: `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along `, font: FONT_HELVETICA, fontStyle: 'normal', fontSize: paraFontSize },
-                    { text: noticeData.street + ".", font: FONT_HELVETICA, fontStyle: 'bold', fontSize: paraFontSize }
-                ], MARGIN_LEFT, currentY, CONTENT_WIDTH);
+                let para1_part1 = `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along `;
+                let para1_part2 = `${noticeData.street}.`;
+                currentY = addFormattedText(pdfDoc, para1_part1, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
+                currentY = addFormattedText(pdfDoc, para1_part2, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
                 currentY += lineSpacing;
                 console.log("Paragraph 1 added. currentY:", currentY);
 
                 // Paragraph 2
                  console.log("Adding Paragraph 2...");
-                 currentY = addFlowingText(pdfDoc, [
-                    { text: `The work is expected to take a maximum of `, font: FONT_HELVETICA, fontStyle: 'normal', fontSize: paraFontSize },
-                    { text: `${noticeData.days} working days`, font: FONT_HELVETICA, fontStyle: 'bold', fontSize: paraFontSize },
-                    { text: ` and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion `, font: FONT_HELVETICA, fontStyle: 'normal', fontSize: paraFontSize },
-                    { text: noticeData.diversion, font: FONT_HELVETICA, fontStyle: 'bold', fontSize: paraFontSize },
-                    { text: ` and Vice Versa.`, font: FONT_HELVETICA, fontStyle: 'normal', fontSize: paraFontSize }
-                ], MARGIN_LEFT, currentY, CONTENT_WIDTH);
+                 currentY = addFormattedText(pdfDoc, `The work is expected to take a maximum of `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
+                 currentY = addFormattedText(pdfDoc, `${noticeData.days} working days`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
+                 currentY = addFormattedText(pdfDoc, ` and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
+                 currentY = addFormattedText(pdfDoc, noticeData.diversion, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
+                 currentY = addFormattedText(pdfDoc, ` and Vice Versa.`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                  currentY += lineSpacing;
                  console.log("Paragraph 2 added. currentY:", currentY);
 
                 // Paragraph 3
                  console.log("Adding Paragraph 3...");
-                 currentY = addFlowingText(pdfDoc, [
-                    { text: noticeData.street, font: FONT_HELVETICA, fontStyle: 'bold', fontSize: paraFontSize },
-                    { text: ` will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.`, font: FONT_HELVETICA, fontStyle: 'normal', fontSize: paraFontSize }
-                ], MARGIN_LEFT, currentY, CONTENT_WIDTH);
+                 currentY = addFormattedText(pdfDoc, noticeData.street, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
+                 currentY = addFormattedText(pdfDoc, ` will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                  currentY += lineSpacing;
                  console.log("Paragraph 3 added. currentY:", currentY);
 
                 // Apology Paragraph
                  console.log("Adding Apology...");
-                 currentY = addFormattedText(pdfDoc, `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, font: FONT_HELVETICA, fontStyle: 'bold', fontSize: paraFontSize });
+                 currentY = addFormattedText(pdfDoc, `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 12 });
                  currentY += lineSpacing;
                  console.log("Apology added. currentY:", currentY);
 
                 // Concerns Line
                  console.log("Adding Concerns line...");
-                 currentY = addFlowingText(pdfDoc, [
-                    { text: `ANY CONCERNS PLEASE CALL `, font: FONT_HELVETICA, fontStyle: 'normal', fontSize: concernFontSize },
-                    { text: `0845 200 4035`, font: FONT_HELVETICA, fontStyle: 'bold', fontSize: concernFontSize },
-                    { text: ` WITH OUR REF: ${noticeData.ref}`, font: FONT_HELVETICA, fontStyle: 'normal', fontSize: concernFontSize }
-                 ], MARGIN_LEFT, currentY, CONTENT_WIDTH);
+                 currentY = addFormattedText(pdfDoc, `ANY CONCERNS PLEASE CALL `, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 13 });
+                 currentY = addFormattedText(pdfDoc, `0845 200 4035`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontStyle: 'bold', fontSize: 13 });
+                 currentY = addFormattedText(pdfDoc, ` WITH OUR REF: ${noticeData.ref}`, MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 13 });
                  currentY += lineSpacing * 2; // More space after concerns
                  console.log("Concerns line added. currentY:", currentY);
 
                 // Closing
                  console.log("Adding Closing...");
                  const closingLines = [ "Regards", "Zoe Franks", "I & A Communications Ltd", "Tel: 0845 200 4035" ];
-                 currentY = addFormattedText(pdfDoc, closingLines.join('\n'), MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, font: FONT_HELVETICA, fontSize: paraFontSize });
+                 currentY = addFormattedText(pdfDoc, closingLines.join('\n'), MARGIN_LEFT, currentY, { maxWidth: CONTENT_WIDTH, fontSize: 12 });
                  console.log("Closing added. currentY:", currentY);
 
                 // --- Save ---
