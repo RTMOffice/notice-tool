@@ -85,7 +85,7 @@
         #noticePrintArea .float-right { float: right; }
         #noticePrintArea .clear-both { clear: both; }
         /* Logo & Address Specific */
-        #noticePrintArea .logo-container { /* Changed from placeholder */
+        #noticePrintArea .logo-container { /* Container for logo */
             width: 59.8mm; /* Approx 224px */
             height: 11.4mm; /* Approx 43px */
             float: right;
@@ -117,16 +117,14 @@
             }
              /* Remove default browser print header/footer */
              @page {
-                margin: 15mm; size: A4 portrait;
-                @top-left { content: ""; }
-                @top-center { content: ""; }
-                @top-right { content: ""; }
-                @bottom-left { content: ""; }
-                @bottom-center { content: ""; }
-                @bottom-right { content: ""; }
+                margin: 0mm; /* Set margin to 0 for @page, use padding on #noticePrintArea */
+                size: A4 portrait;
+                 /* Standard CSS doesn't reliably remove headers/footers,
+                    but setting margin to 0 helps minimize their impact.
+                    Users might need to adjust settings in their print dialog. */
             }
             /* Attempt to force no headers/footers in Chrome/Edge */
-            body { margin: 0; }
+             body { margin: 0 !important; padding: 0 !important; } /* Ensure body has no margin/padding */
         }
 
     </style>
@@ -134,7 +132,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200" id="toolInterface">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 38)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 39)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -148,14 +146,7 @@
                 <p id="pasteSuccess" class="text-green-600 text-sm mt-2"></p>
             </div>
 
-             <div class="form-group bg-purple-50 p-4 rounded-md border border-purple-200">
-                <label for="logoFile" class="block text-sm font-bold text-gray-700 mb-1">Upload Logo (Optional)</label>
-                <input type="file" id="logoFile" accept="image/*" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100">
-                 <p id="logoError" class="text-red-600 text-sm mt-2"></p>
-                 <p id="logoSuccess" class="text-green-600 text-sm mt-2"></p>
-            </div>
-
-            <div class="form-group bg-green-50 p-4 rounded-md border border-green-200">
+             <div class="form-group bg-green-50 p-4 rounded-md border border-green-200">
                <label for="planFile" class="block text-sm font-bold text-gray-700 mb-1">Upload TM Plan</label>
                <input type="file" id="planFile" accept="image/*,application/pdf" class="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
                 <p class="text-xs text-gray-600 mt-1">Accepts images or PDF. PDF viewing requires a browser viewer/extension.</p>
@@ -243,9 +234,8 @@
 
     </div> <div id="noticePrintArea">
         <div class="logo-container">
-             <img id="print-logo-img" src="" alt="Company Logo" style="display: none;"> {/* Initially hidden */}
-             <div id="print-logo-placeholder" style="width: 59.8mm; height: 11.4mm; background-color: #90ee90; display: block;"></div> {/* Placeholder */}
-        </div>
+             <img id="print-logo-img" src="https://raw.githubusercontent.com/RTMOffice/notice-tool/refs/heads/main/Logo.jpg" alt="Company Logo">
+             </div>
         <div class="address-block print-text-10pt">
             <div>I & A Communications</div>
             <div>Burgon House</div>
@@ -260,6 +250,7 @@
 
         <div class="mt-15 font-times print-text-22pt font-bold" id="print-please-note">PLEASE NOTE</div>
         <div class="mt-4 print-text-24pt underline text-center" id="print-date">On DATE</div>
+        {/* Updated paragraph classes to 11pt */}
         <p class="mt-10 print-text-11pt" id="print-para1">
             I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along <strong class="font-bold" id="print-para1-street">STREET</strong>.
         </p>
@@ -272,9 +263,11 @@
         <p class="print-text-11pt font-bold" id="print-apology">
             We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.
         </p>
+        {/* Updated concerns class to 12pt */}
         <p class="print-text-12pt" id="print-concerns">
              ANY CONCERNS PLEASE CALL <strong class="font-bold" id="print-concerns-phone">0845 200 4035</strong> WITH OUR REF: <span id="print-concerns-ref">REFR</span>
         </p>
+         {/* Updated closing class to 11pt */}
         <div class="mt-10 print-text-11pt" id="print-closing">
             <p>Regards</p>
             <p class="mt-4">Zoe Franks</p>
@@ -287,7 +280,7 @@
     <script>
         // --- Global Variables ---
         let planFileUrl = null;
-        let logoFileDataUrl = null; // To store the logo image data
+        // logoFileDataUrl removed, using direct URL now
         let noticeData = { ref: '', lat: '', lon: '', date: '', street: '', days: '1', diversion: '', houses: '' };
         let dataParsed = false;
         let planUploaded = false;
@@ -298,9 +291,7 @@
         const pasteArea = document.getElementById('pasteArea');
         const pasteError = document.getElementById('pasteError');
         const pasteSuccess = document.getElementById('pasteSuccess');
-        const logoFileInput = document.getElementById('logoFile'); // Logo input
-        const logoError = document.getElementById('logoError');
-        const logoSuccess = document.getElementById('logoSuccess');
+        // logo elements removed
         const planFileInput = document.getElementById('planFile');
         const planPreview = document.getElementById('planPreview');
         const planError = document.getElementById('planError');
@@ -322,7 +313,7 @@
         const copyStatus = document.getElementById('copyStatus');
         // Print area elements
         const printLogoImg = document.getElementById('print-logo-img');
-        const printLogoPlaceholder = document.getElementById('print-logo-placeholder');
+        // printLogoPlaceholder removed
 
         // --- Navigation Buttons ---
         const parseAndNextBtn = document.getElementById('parseAndNextBtn');
@@ -340,7 +331,7 @@
         }
 
         function checkEnableStep1NextButton() {
-            // Requires data parsed AND plan uploaded (logo is optional)
+            // Requires data parsed AND plan uploaded (logo is now hardcoded)
             if (dataParsed && planUploaded) {
                 nextToStep3CombinedBtn.disabled = false;
                 console.log("Next button enabled.");
@@ -438,48 +429,7 @@
             }
         }
 
-         /**
-         * Handles logo file upload and stores it as a Data URL.
-         */
-         function handleLogoUpload(event) {
-            const file = event.target.files[0];
-            logoError.textContent = '';
-            logoSuccess.textContent = '';
-            logoFileDataUrl = null; // Reset logo data
-            // Hide image, show placeholder in print preview
-            if (printLogoImg) printLogoImg.style.display = 'none';
-            if (printLogoPlaceholder) printLogoPlaceholder.style.display = 'block';
-
-
-            if (!file) return; // No file selected
-
-            if (!file.type.startsWith('image/')) {
-                logoError.textContent = 'Please select an image file (e.g., JPG, PNG).';
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                logoFileDataUrl = e.target.result; // Store the Data URL
-                logoSuccess.textContent = `Logo "${file.name}" uploaded.`;
-                console.log("Logo uploaded and stored.");
-                 // Update print preview immediately if possible
-                 if (printLogoImg) {
-                     printLogoImg.src = logoFileDataUrl;
-                     printLogoImg.style.display = 'inline-block'; // Show image
-                 }
-                 if (printLogoPlaceholder) {
-                     printLogoPlaceholder.style.display = 'none'; // Hide placeholder
-                 }
-            };
-            reader.onerror = (e) => {
-                console.error("Error reading logo file:", e);
-                logoError.textContent = 'Error reading logo file.';
-                logoFileDataUrl = null;
-            };
-            reader.readAsDataURL(file); // Read file as Data URL
-        }
-
+         // handleLogoUpload removed
 
         function handlePlanUpload(event) {
             console.log("handlePlanUpload started");
@@ -604,15 +554,7 @@
              if (!noticeData.diversion) { alert("Please go back and enter the Diversion Route in Step 1."); showStep('step1'); diversionRouteStep1Input.focus(); return; }
 
              // --- Populate Hidden Print Area ---
-             // Logo
-             if (logoFileDataUrl) {
-                 printLogoImg.src = logoFileDataUrl;
-                 printLogoImg.style.display = 'inline-block';
-                 printLogoPlaceholder.style.display = 'none';
-             } else {
-                 printLogoImg.style.display = 'none';
-                 printLogoPlaceholder.style.display = 'block';
-             }
+             // Logo src is set directly in HTML now
              // Date
              document.getElementById('print-date').textContent = `On ${noticeData.date}`;
              // Paragraph 1
@@ -661,7 +603,7 @@
 
         // --- Event Listeners ---
         parseAndNextBtn.addEventListener('click', parsePastedData);
-        logoFileInput.addEventListener('change', handleLogoUpload); // Add listener for logo
+        // logoFileInput listener removed
         planFileInput.addEventListener('change', handlePlanUpload);
         copyCoordsBtn.addEventListener('click', copyCoordinatesToClipboard); // Updated ID
 
