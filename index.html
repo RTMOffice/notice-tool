@@ -9,29 +9,27 @@
     <style>
         /* Basic styling */
         body { font-family: 'Inter', sans-serif; }
-        /* Remove fixed height from general iframe rule */
-        iframe { width: 100%; border: 1px solid #ccc; border-radius: 0.375rem; }
+        /* Set base height for iframes within containers */
+        iframe { width: 100%; height: 100%; border: 1px solid #ccc; border-radius: 0.375rem; } /* Set height 100% */
 
-        /* Style for the plan preview area - UPDATED */
+        /* Style for the plan preview area */
         #planPreview {
              border: 1px solid #ccc; border-radius: 0.375rem;
              display: flex; justify-content: center; align-items: center;
              overflow: hidden; background-color: #f9fafb; padding: 0;
              text-align: center;
              width: 100%; /* Takes width of parent grid cell */
-             height: 500px; /* Default height, can be adjusted if needed */
-             /* Removed max-width, aspect-ratio */
+             height: 500px; /* Set fixed height */
         }
         #planPreview img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; margin: auto; }
         /* Style for the plan PDF preview (iframe) */
         #planPreview iframe { width: 100%; height: 100%; border: none; border-radius: 0.375rem; }
 
-        /* Container for map iframe and overlay button - UPDATED */
+        /* Container for map iframe and overlay button */
         .map-container {
             position: relative; /* Needed for absolute positioning of children */
             width: 100%; /* Takes width of parent grid cell */
-            height: 500px; /* Default height, matches plan preview */
-            /* Removed max-width, aspect-ratio */
+            height: 500px; /* Set fixed height */
         }
         .map-container iframe {
              position: absolute;
@@ -60,10 +58,10 @@
         #pasteArea { @apply font-mono min-h-[80px]; }
         button { @apply inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed; }
         .secondary-button { @apply border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500; }
-        .step > * + * { margin-top: 1rem; }
+        .step > * + * { margin-top: 1.5rem; } /* Increased spacing between elements in steps */
         .form-group > * + * { margin-top: 0.5rem; }
         /* Adjusted container padding */
-        .container { @apply max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 bg-gray-50 rounded-lg shadow-md; } /* Increased max-width slightly */
+        .container { @apply max-w-6xl mx-auto p-4 sm:p-6 lg:p-8 bg-gray-50 rounded-lg shadow-md; }
         h2 { @apply text-xl font-semibold text-gray-800 mb-4; }
         /* Use Grid for side-by-side layout and spacing */
         .map-plan-grid { @apply grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6; } /* Ensure grid is active */
@@ -73,38 +71,43 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body class="bg-gray-100 p-4"> {/* Added some body padding back */}
+<body class="bg-gray-100 p-4">
 
     <div class="container">
-        <h1 class="text-2xl font-bold text-center text-gray-900 mb-6">Notice Generation Tool (Ver 11)</h1>
+        <h1 class="text-2xl font-bold text-center text-gray-900 mb-6">Notice Generation Tool (Ver 12)</h1>
 
         <div id="step1" class="step">
-            <h2>Step 1: Paste Spreadsheet Row</h2>
-            <div class="form-group">
-                <label for="pasteArea">Paste one full row from your spreadsheet here:</label>
-                <textarea id="pasteArea" placeholder="Paste row data here..."></textarea>
-                <p class="text-xs text-gray-500 mt-1">Expects Date (A), Ref (H), Location (P).</p>
-                 <p id="pasteError" class="text-red-500 text-sm mt-1"></p>
-                 <p id="pasteSuccess" class="text-green-500 text-sm mt-1"></p>
-            </div>
-            <button id="parseAndNextBtn">Parse Data & Proceed</button>
-        </div>
+            <h2>Step 1: Data collection</h2>
 
-        <div id="step2" class="step">
-            <h2>Step 2: Upload Plan</h2>
-             <div class="form-group">
-                <label for="planFile">Select Plan File (Image or PDF):</label>
-                <input type="file" id="planFile" accept="image/*,application/pdf">
-                 <p class="text-xs text-gray-500 mt-1">Accepts images or PDF. PDF viewing requires a browser viewer/extension.</p>
-                 <p id="planError" class="text-red-500 text-sm mt-1"></p>
-                 <p id="planSuccess" class="text-green-500 text-sm mt-1"></p>
+            <div class="form-group">
+                <label for="pasteArea" class="font-bold">Copy and paste job row from planned WB</label>
+                <p class="text-xs text-gray-600 mb-1">Date (Col A), Job (Col H), Location (Col P).</p>
+                <textarea id="pasteArea" placeholder="Paste row data here..." class="w-full"></textarea> {/* Ensure full width */}
+                <button id="parseAndNextBtn" class="mt-2">Parse Pasted Data</button>
+                <p id="pasteError" class="text-red-500 text-sm mt-1"></p>
+                <p id="pasteSuccess" class="text-green-500 text-sm mt-1"></p>
             </div>
-             <button class="secondary-button" onclick="showStep('step1')">Back</button>
-            <button id="nextToStep3" disabled>Next: Review & Enter Details</button>
+
+            <div class="form-group">
+               <label for="planFile" class="font-bold">Upload TM Plan</label>
+               <input type="file" id="planFile" accept="image/*,application/pdf">
+                <p class="text-xs text-gray-500 mt-1">Accepts images or PDF. PDF viewing requires a browser viewer/extension.</p>
+                <p id="planError" class="text-red-500 text-sm mt-1"></p>
+                <p id="planSuccess" class="text-green-500 text-sm mt-1"></p>
+           </div>
+
+            <div class="form-group">
+                <label for="diversionRouteStep1" class="font-bold">Enter diversion route</label>
+                <textarea id="diversionRouteStep1" rows="3" placeholder="Enter diversion route details..." class="w-full"></textarea>
+            </div>
+
+             <div class="mt-6 text-right"> {/* Align button to the right */}
+                 <button id="nextToStep3Combined" disabled>Next: Review Map & Plan</button>
+             </div>
         </div>
 
         <div id="step3" class="step">
-            <h2>Step 3: Review Map/Plan & Enter Details</h2>
+            <h2>Step 2: Review Map/Plan & Enter Details</h2>
 
             <div class="map-plan-grid mb-6">
                 <div class="mb-4 md:mb-0"> {/* Grid column 1 */}
@@ -128,10 +131,6 @@
                     <input type="text" id="streetName" placeholder="Enter street name from map">
                 </div>
                  <div class="form-group">
-                    <label for="diversionRoute">Diversion Route:</label>
-                    <textarea id="diversionRoute" rows="3" placeholder="Enter diversion route"></textarea>
-                </div>
-                 <div class="form-group">
                     <label for="workDays">Number of Working Days:</label>
                     <input type="number" id="workDays" min="1" value="1">
                 </div>
@@ -151,17 +150,18 @@
                      <label>Coordinates (extracted Lat, Lon):</label>
                      <input type="text" id="coordsDisplay" readonly class="bg-gray-100">
                      <p id="copyCoordsStatus" class="text-sm text-green-600 mt-1"></p>
+                     <p id="mapSearchStatus" class="hidden"></p>
                  </div>
             </div>
 
              <div class="mt-6 flex justify-between">
-                 <button class="secondary-button" onclick="showStep('step2')">Back</button>
+                 <button class="secondary-button" onclick="showStep('step1')">Back</button>
                 <button id="generateNoticeBtn">Next: Generate Notice</button>
             </div>
         </div>
 
         <div id="step4" class="step">
-            <h2>Step 4: Generated Notice Text</h2>
+            <h2>Step 3: Generated Notice Text</h2>
              <p class="mb-4">Review the generated text below. Copy and paste into your Word template.</p>
             <textarea id="generatedNotice" rows="20" readonly class="w-full p-2 border rounded bg-gray-100 font-mono text-sm"></textarea>
              <div class="mt-6 flex justify-between items-center">
@@ -180,6 +180,9 @@
         // --- Global Variables ---
         let planFileUrl = null;
         let noticeData = { ref: '', lat: '', lon: '', date: '', street: '', days: '1', diversion: '', houses: '' };
+        // Flags to track completion
+        let dataParsed = false;
+        let planUploaded = false;
 
         // --- DOM Elements ---
         const steps = document.querySelectorAll('.step');
@@ -190,25 +193,26 @@
         const planPreview = document.getElementById('planPreview');
         const planError = document.getElementById('planError');
         const planSuccess = document.getElementById('planSuccess');
+        const diversionRouteStep1Input = document.getElementById('diversionRouteStep1'); // New input
         const mapFrame = document.getElementById('mapFrame');
-        const mapSearchStatus = document.getElementById('mapSearchStatus'); // Still needed for JS, just hidden
+        const mapSearchStatus = document.getElementById('mapSearchStatus');
         const streetNameInput = document.getElementById('streetName');
-        const diversionRouteInput = document.getElementById('diversionRoute');
+        // Diversion route input in step 3 is removed
         const workDaysInput = document.getElementById('workDays');
         const affectedHousesInput = document.getElementById('affectedHouses');
         const refNumberDisplay = document.getElementById('refNumberDisplay');
         const dateDisplay = document.getElementById('dateDisplay');
         const coordsDisplay = document.getElementById('coordsDisplay');
         const copyCoordsBtnOverlay = document.getElementById('copyCoordsBtnOverlay');
-        const copyCoordsStatus = document.getElementById('copyCoordsStatus'); // Still needed for JS
+        const copyCoordsStatus = document.getElementById('copyCoordsStatus');
         const generatedNoticeTextarea = document.getElementById('generatedNotice');
         const copyNoticeBtn = document.getElementById('copyNoticeBtn');
         const downloadNoticeBtn = document.getElementById('downloadNoticeBtn');
         const copyStatus = document.getElementById('copyStatus');
 
         // --- Navigation Buttons ---
-        const parseAndNextBtn = document.getElementById('parseAndNextBtn');
-        const nextToStep3Btn = document.getElementById('nextToStep3');
+        const parseAndNextBtn = document.getElementById('parseAndNextBtn'); // Button to trigger parsing
+        const nextToStep3CombinedBtn = document.getElementById('nextToStep3Combined'); // Combined next button
         const generateNoticeBtn = document.getElementById('generateNoticeBtn');
 
         // --- Template Text ---
@@ -236,20 +240,35 @@ Tel: 0845 200 4035
         `;
 
         // --- Functions ---
-        // Functions (showStep, parsePastedData, handlePlanUpload, updateMap, tryAutoFillMapSearch,
-        // copyCoordinatesToClipboard, generateNotice, copyNoticeToClipboard, downloadNoticeAsTxt)
-        // remain the same as the previous version (v4). They are included here for completeness.
 
         function showStep(stepId) {
+            console.log("Showing step:", stepId);
             steps.forEach(step => {
                 step.style.display = (step.id === stepId) ? 'block' : 'none';
             });
             window.scrollTo(0, 0);
         }
 
+        /**
+         * Checks if both data parsing and plan upload are complete to enable the main next button.
+         */
+        function checkEnableStep1NextButton() {
+            if (dataParsed && planUploaded) {
+                nextToStep3CombinedBtn.disabled = false;
+                console.log("Next button enabled.");
+            } else {
+                 nextToStep3CombinedBtn.disabled = true;
+                 console.log("Next button disabled. Data Parsed:", dataParsed, "Plan Uploaded:", planUploaded);
+            }
+        }
+
+
         function parsePastedData() {
+            console.log("parsePastedData called");
             pasteError.textContent = '';
             pasteSuccess.textContent = '';
+            dataParsed = false; // Reset flag
+            checkEnableStep1NextButton(); // Disable button until success
             const pastedText = pasteArea.value.trim();
             if (!pastedText) { pasteError.textContent = 'Please paste data.'; return; }
             const columns = pastedText.split('\t');
@@ -305,41 +324,73 @@ Tel: 0845 200 4035
 
                 console.log("Parsed Data:", noticeData);
                 pasteSuccess.textContent = 'Data parsed successfully!';
-                showStep('step2');
+                dataParsed = true; // Set flag on success
+                checkEnableStep1NextButton(); // Check if other part is done
+                // Don't automatically show next step here
 
             } catch (error) {
                 console.error("Parsing error:", error);
                 pasteError.textContent = `Error: ${error.message}`;
+                dataParsed = false; // Reset flag on error
+                checkEnableStep1NextButton(); // Ensure button is disabled
                 noticeData = { ref: '', lat: '', lon: '', date: '', street: '', days: '1', diversion: '', houses: '' }; // Reset
             }
         }
 
+        /**
+         * Handles plan upload (Image or PDF) and sets up preview (image or iframe).
+         */
         function handlePlanUpload(event) {
+            console.log("handlePlanUpload started");
             const file = event.target.files[0];
             planError.textContent = '';
             planSuccess.textContent = '';
-            nextToStep3Btn.disabled = true;
+            planUploaded = false; // Reset flag
+            checkEnableStep1NextButton(); // Disable button until success
             planPreview.innerHTML = '<p class="text-gray-500 text-sm">Processing plan...</p>';
 
             if (planFileUrl) { URL.revokeObjectURL(planFileUrl); planFileUrl = null; }
-            if (!file) { planPreview.innerHTML = '<p class="text-gray-500 text-sm">No plan selected.</p>'; return; }
+            if (!file) {
+                planPreview.innerHTML = '<p class="text-gray-500 text-sm">No plan selected.</p>';
+                console.log("No file selected, exiting handlePlanUpload.");
+                return;
+            }
+             console.log("File selected:", file.name, "Type:", file.type);
 
             try {
                  planFileUrl = URL.createObjectURL(file);
+                 console.log("Object URL created:", planFileUrl);
             } catch (e) {
                  console.error("URL Creation Error:", e);
                  planError.textContent = 'Could not create URL for the file.';
                  planPreview.innerHTML = '<p class="text-red-500 text-sm">Error loading preview.</p>';
+                 planUploaded = false; // Ensure flag is false
+                 checkEnableStep1NextButton();
                  return;
             }
 
             if (file.type.startsWith('image/')) {
+                console.log("File type is image. Creating image preview...");
                 const img = document.createElement('img');
                 img.src = planFileUrl;
                 img.alt = "Plan Preview";
-                img.onerror = () => { planError.textContent = 'Could not display image.'; planPreview.innerHTML = '<p class="text-red-500 text-sm">Error loading preview.</p>'; URL.revokeObjectURL(planFileUrl); planFileUrl = null; nextToStep3Btn.disabled = true; };
-                img.onload = () => { planPreview.innerHTML = ''; planPreview.appendChild(img); planSuccess.textContent = `Image Plan "${file.name}" ready.`; nextToStep3Btn.disabled = false; };
+                img.onerror = () => {
+                    console.error("Image onerror triggered.");
+                    planError.textContent = 'Could not display image.';
+                    planPreview.innerHTML = '<p class="text-red-500 text-sm">Error loading image preview.</p>';
+                    URL.revokeObjectURL(planFileUrl); planFileUrl = null;
+                    planUploaded = false; // Reset flag
+                    checkEnableStep1NextButton(); // Ensure button disabled
+                };
+                img.onload = () => {
+                    console.log("Image onload triggered.");
+                    planPreview.innerHTML = ''; planPreview.appendChild(img);
+                    planSuccess.textContent = `Image Plan "${file.name}" ready.`;
+                    planUploaded = true; // Set flag on success
+                    checkEnableStep1NextButton(); // Check if other part is done
+                };
             } else if (file.type === 'application/pdf') {
+                 console.log("File type is PDF. Creating PDF iframe...");
                 planPreview.innerHTML = '';
                 const iframe = document.createElement('iframe');
                 iframe.src = planFileUrl;
@@ -347,16 +398,21 @@ Tel: 0845 200 4035
                 iframe.setAttribute('type', 'application/pdf');
                 planPreview.appendChild(iframe);
                 planSuccess.textContent = `PDF Plan "${file.name}" ready for preview above.`;
-                nextToStep3Btn.disabled = false;
+                 console.log("PDF iframe appended.");
+                 planUploaded = true; // Set flag on success
+                 checkEnableStep1NextButton(); // Check if other part is done
             } else {
+                 console.warn("Unsupported file type:", file.type);
                 planError.textContent = 'Unsupported file type (Image or PDF only).';
                 planPreview.innerHTML = '<p class="text-red-500 text-sm">Invalid file type.</p>';
                 URL.revokeObjectURL(planFileUrl); planFileUrl = null;
+                planUploaded = false; // Reset flag
+                checkEnableStep1NextButton(); // Ensure button disabled
             }
         }
 
         function updateMap() {
-            mapSearchStatus.textContent = ''; // Clear status from previous attempts
+            // mapSearchStatus.textContent = ''; // Don't show status
             if (noticeData.lat && noticeData.lon) {
                 const mapUrl = `https://symology.maps.arcgis.com/apps/webappviewer/index.html?id=1055c1d3a2c344cea5353d8ed744831c&center=${noticeData.lon},${noticeData.lat}&level=15`;
                 mapFrame.src = mapUrl;
@@ -368,8 +424,8 @@ Tel: 0845 200 4035
         function tryAutoFillMapSearch() {
              const coordsString = coordsDisplay.value;
              if (!coordsString || coordsString === 'N/A') return;
-             // mapSearchStatus.textContent = 'Attempting auto-fill...'; // Don't show status message
-             console.log('Attempting auto-fill...'); // Log attempt to console instead
+             // mapSearchStatus.textContent = 'Attempting auto-fill...'; // Don't show status
+             console.log('Attempting auto-fill...');
              setTimeout(() => {
                  try {
                      const iframeDoc = mapFrame.contentWindow?.document;
@@ -411,13 +467,18 @@ Tel: 0845 200 4035
         }
 
         function generateNotice() {
+             // Diversion route is already in noticeData from Step 1
              noticeData.street = streetNameInput.value.trim() || '[STREET NAME MISSING]';
-             noticeData.diversion = diversionRouteInput.value.trim() || '[DIVERSION ROUTE MISSING]';
              noticeData.days = workDaysInput.value || '1';
              noticeData.houses = affectedHousesInput.value;
 
              if (noticeData.street === '[STREET NAME MISSING]') { alert("Please enter Street Name."); streetNameInput.focus(); return; }
-             if (noticeData.diversion === '[DIVERSION ROUTE MISSING]') { alert("Please enter Diversion Route."); diversionRouteInput.focus(); return; }
+             if (!noticeData.diversion) { // Check if diversion route was entered in Step 1
+                 alert("Please go back and enter the Diversion Route in Step 1.");
+                 showStep('step1'); // Go back to step 1
+                 diversionRouteStep1Input.focus();
+                 return;
+             }
 
              let populatedNotice = noticeTemplate;
              populatedNotice = populatedNotice.replace(/DAY 2025/g, noticeData.date);
@@ -427,7 +488,7 @@ Tel: 0845 200 4035
              populatedNotice = populatedNotice.replace(/REFR/g, noticeData.ref);
 
              generatedNoticeTextarea.value = populatedNotice;
-             showStep('step4');
+             showStep('step4'); // Show the final step (conceptually Step 3)
         }
 
         function copyNoticeToClipboard() {
@@ -451,11 +512,21 @@ Tel: 0845 200 4035
 
 
         // --- Event Listeners ---
-        parseAndNextBtn.addEventListener('click', parsePastedData);
-        planFileInput.addEventListener('change', handlePlanUpload);
-        copyCoordsBtnOverlay.addEventListener('click', copyCoordinatesToClipboard);
+        parseAndNextBtn.addEventListener('click', parsePastedData); // Parse button in Step 1
+        planFileInput.addEventListener('change', handlePlanUpload); // Plan upload in Step 1
+        copyCoordsBtnOverlay.addEventListener('click', copyCoordinatesToClipboard); // Copy button in Step 3
 
-        nextToStep3Btn.addEventListener('click', () => {
+        // Combined "Next" button from Step 1
+        nextToStep3CombinedBtn.addEventListener('click', () => {
+            // Get diversion route from Step 1 input
+            noticeData.diversion = diversionRouteStep1Input.value.trim();
+            if (!noticeData.diversion) {
+                alert("Please enter the diversion route before proceeding.");
+                diversionRouteStep1Input.focus();
+                return; // Stop if diversion route is empty
+            }
+
+            // Proceed to Step 3 (Map/Plan review)
             updateMap();
             refNumberDisplay.value = noticeData.ref;
             dateDisplay.value = noticeData.date;
@@ -463,12 +534,13 @@ Tel: 0845 200 4035
             showStep('step3');
             tryAutoFillMapSearch();
         });
-        generateNoticeBtn.addEventListener('click', generateNotice);
-        copyNoticeBtn.addEventListener('click', copyNoticeToClipboard);
-        downloadNoticeBtn.addEventListener('click', downloadNoticeAsTxt);
+
+        generateNoticeBtn.addEventListener('click', generateNotice); // Generate button in Step 3
+        copyNoticeBtn.addEventListener('click', copyNoticeToClipboard); // Copy button in Step 4
+        downloadNoticeBtn.addEventListener('click', downloadNoticeAsTxt); // Download button in Step 4
 
         // --- Initialisation ---
-        showStep('step1');
+        showStep('step1'); // Start at the combined Step 1
 
     </script>
 
