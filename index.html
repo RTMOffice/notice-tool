@@ -17,7 +17,7 @@
         #planPreview {
              border: 1px solid #ccc; border-radius: 0.375rem;
              display: flex; justify-content: center; align-items: center;
-             overflow: auto; /* Changed overflow to auto */ background-color: #f9fafb; padding: 0;
+             overflow: auto; background-color: #f9fafb; padding: 0;
              text-align: center;
              width: 100%; /* Takes width of parent grid cell */
              max-width: 1000px; /* Max width */
@@ -78,7 +78,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 23)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 24)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -492,7 +492,7 @@
          * @param {string} text - The text to add.
          * @param {number} x - The starting X coordinate.
          * @param {number} y - The starting Y coordinate.
-         * @param {object} options - Options: {maxWidth: number, fontStyle: 'normal'|'bold'|'italic'|'bolditalic', fontSize: number, align: 'left'|'center'|'right'}
+         * @param {object} options - Options: {maxWidth: number, font: string, fontStyle: 'normal'|'bold'|'italic'|'bolditalic', fontSize: number, align: 'left'|'center'|'right'}
          * @returns {number} The Y coordinate after adding the text.
          */
         function addFormattedText(doc, text, x, y, options = {}) {
@@ -501,8 +501,8 @@
             const originalSize = doc.getFontSize();
             const align = options.align || 'left';
 
-            // Set font style and size
-            doc.setFont(originalFont.fontName, options.fontStyle || 'normal'); // Use original font name
+            // Set font, style, and size
+            doc.setFont(options.font || originalFont.fontName, options.fontStyle || 'normal');
             doc.setFontSize(options.fontSize || originalSize);
 
             const lines = doc.splitTextToSize(text, maxWidth);
@@ -517,6 +517,7 @@
             const lineHeight = ((options.fontSize || originalSize) / doc.internal.scaleFactor) * lineHeightFactor;
             return y + (lines.length * lineHeight);
         }
+
 
         /**
          * Downloads the generated notice text as a formatted PDF file using jsPDF.
@@ -536,44 +537,35 @@
                 const pdfDoc = new jsPDF({ orientation: 'p', unit: 'mm', format: 'a4' });
 
                 // --- Address Block (Left) ---
-                pdfDoc.setFont(FONT_HELVETICA, 'normal');
-                pdfDoc.setFontSize(10);
                 const addressLines = [
                     "I & A Communications", "Burgon House", "James Swallow Way",
                     "London and Medway Commercial", "Rochester", "Kent", "ME3 9GX"
                 ];
                 const addressLineHeight = 4;
-                pdfDoc.text(addressLines, MARGIN_LEFT, currentY);
-                const addressBlockHeight = addressLines.length * addressLineHeight;
-                const telY = currentY + addressBlockHeight + 2;
-                pdfDoc.text("Tel:     0845 200 4035", MARGIN_LEFT, telY);
+                currentY = addFormattedText(pdfDoc, addressLines.join('\n'), MARGIN_LEFT, currentY, { font: FONT_HELVETICA, fontSize: 10 });
+                currentY = addFormattedText(pdfDoc, "Tel:     0845 200 4035", MARGIN_LEFT, currentY, { font: FONT_HELVETICA, fontSize: 10 });
 
                 // --- Placeholder Logo (Right) ---
                 const logoWidth = 50; const logoHeight = 15;
-                const logoX = MARGIN_RIGHT - logoWidth; const logoY = currentY;
+                const logoX = MARGIN_RIGHT - logoWidth; const logoY = 20; // Reset Y to top for logo
                 pdfDoc.setFillColor(144, 238, 144); // Light green
                 pdfDoc.rect(logoX, logoY, logoWidth, logoHeight, 'F');
 
-                currentY = telY + addressLineHeight + 15; // Move down past address/tel + space
+                currentY += 10; // Space before next section
 
                 // --- PLEASE NOTE ---
-                pdfDoc.setFont(FONT_TIMES, 'bold'); // Set font before calling helper
-                currentY = addFormattedText(pdfDoc, "PLEASE NOTE", MARGIN_LEFT, currentY, { fontSize: 22, fontStyle: 'bold' }); // Size corrected
+                currentY = addFormattedText(pdfDoc, "PLEASE NOTE", MARGIN_LEFT, currentY, { font: FONT_TIMES, fontSize: 22, fontStyle: 'bold' });
                 currentY += 4; // Space
 
                 // --- Date (Centered) ---
-                pdfDoc.setFont(FONT_HELVETICA, 'normal'); // Reset font before calling helper
-                pdfDoc.setFontSize(24);
                 const dateText = `On ${noticeData.date}`;
                 const dateTextWidth = pdfDoc.getTextWidth(dateText);
                 const dateX = (PAGE_WIDTH - dateTextWidth) / 2;
-                // Use addFormattedText for consistency, though alignment is handled by x coord here
-                let dateY = addFormattedText(pdfDoc, dateText, dateX, currentY, { fontSize: 24 });
+                let dateLineY = addFormattedText(pdfDoc, dateText, dateX, currentY, { font: FONT_HELVETICA, fontSize: 24 }); // Get Y after text
                 // Underline - Draw line just below the baseline of the date text
-                const dateLineY = dateY - ((24 / pdfDoc.internal.scaleFactor) * 0.15); // Adjust Y slightly below baseline
                 pdfDoc.setLineWidth(0.5);
-                pdfDoc.line(dateX, dateLineY, dateX + dateTextWidth, dateLineY);
-                currentY = dateY + 10; // Space after date line
+                pdfDoc.line(dateX, dateLineY - 2 , dateX + dateTextWidth, dateLineY - 2); // Adjust Y slightly up
+                currentY = dateLineY + 10; // Space after date line
 
                 // --- Main Paragraphs (Simplified approach) ---
                 pdfDoc.setFontSize(12); // Set default size for paragraphs
