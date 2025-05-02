@@ -19,11 +19,8 @@
              overflow: hidden; background-color: #f9fafb; padding: 0;
              text-align: center;
              width: 100%; /* Takes width of parent grid cell */
-             max-width: 500px; /* Max width */
-             height: 500px; /* Fixed height */
-             /* Removed aspect-ratio */
-             margin-left: auto; /* Center if grid cell is wider */
-             margin-right: auto; /* Center if grid cell is wider */
+             height: 500px; /* Default height, can be adjusted if needed */
+             /* Removed max-width, aspect-ratio */
         }
         #planPreview img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; margin: auto; }
         /* Style for the plan PDF preview (iframe) */
@@ -33,11 +30,8 @@
         .map-container {
             position: relative; /* Needed for absolute positioning of children */
             width: 100%; /* Takes width of parent grid cell */
-            max-width: 500px; /* Max width */
-            height: 500px; /* Fixed height */
-            /* Removed aspect-ratio */
-             margin-left: auto; /* Center if grid cell is wider */
-             margin-right: auto; /* Center if grid cell is wider */
+            height: 500px; /* Default height, matches plan preview */
+            /* Removed max-width, aspect-ratio */
         }
         .map-container iframe {
              position: absolute;
@@ -82,7 +76,7 @@
 <body class="bg-gray-100 p-4"> {/* Added some body padding back */}
 
     <div class="container">
-        <h1 class="text-2xl font-bold text-center text-gray-900 mb-6">Notice Generation Tool (Ver 10)</h1>
+        <h1 class="text-2xl font-bold text-center text-gray-900 mb-6">Notice Generation Tool (Ver 11)</h1>
 
         <div id="step1" class="step">
             <h2>Step 1: Paste Spreadsheet Row</h2>
@@ -115,20 +109,14 @@
             <div class="map-plan-grid mb-6">
                 <div class="mb-4 md:mb-0"> {/* Grid column 1 */}
                     <h3 class="text-lg font-medium text-gray-800 mb-2">Map Location</h3>
-                    <div class="map-container"> {/* Max width/height applied here */}
+                    <div class="map-container"> {/* Height applied here */}
                         <iframe id="mapFrame" src="about:blank" title="Location Map"></iframe>
                         <button id="copyCoordsBtnOverlay" title="Copy coordinates to clipboard">Copy Coords</button>
                     </div>
-                     <p class="text-xs text-gray-500 mt-1">
-                         Map centered. Tool attempts auto-fill.
-                         <strong class="text-indigo-700">If map search fails:</strong> Click overlay "Copy Coords", then paste into map's search box.
-                     </p>
-                     <p id="copyCoordsStatus" class="text-sm text-green-600 mt-1"></p>
-                     <p id="mapSearchStatus" class="text-xs text-orange-600 mt-1"></p>
-                </div>
+                     </div>
                 <div> {/* Grid column 2 */}
                     <h3 class="text-lg font-medium text-gray-800 mb-2">Uploaded Plan</h3>
-                    <div id="planPreview"> {/* Max width/height applied here */}
+                    <div id="planPreview"> {/* Height applied here */}
                         <p class="text-gray-500 text-sm">Plan preview will appear here.</p>
                     </div>
                 </div>
@@ -162,6 +150,7 @@
                  <div class="form-group md:col-span-2">
                      <label>Coordinates (extracted Lat, Lon):</label>
                      <input type="text" id="coordsDisplay" readonly class="bg-gray-100">
+                     <p id="copyCoordsStatus" class="text-sm text-green-600 mt-1"></p>
                  </div>
             </div>
 
@@ -202,7 +191,7 @@
         const planError = document.getElementById('planError');
         const planSuccess = document.getElementById('planSuccess');
         const mapFrame = document.getElementById('mapFrame');
-        const mapSearchStatus = document.getElementById('mapSearchStatus');
+        const mapSearchStatus = document.getElementById('mapSearchStatus'); // Still needed for JS, just hidden
         const streetNameInput = document.getElementById('streetName');
         const diversionRouteInput = document.getElementById('diversionRoute');
         const workDaysInput = document.getElementById('workDays');
@@ -210,8 +199,8 @@
         const refNumberDisplay = document.getElementById('refNumberDisplay');
         const dateDisplay = document.getElementById('dateDisplay');
         const coordsDisplay = document.getElementById('coordsDisplay');
-        const copyCoordsBtnOverlay = document.getElementById('copyCoordsBtnOverlay'); // Updated ID
-        const copyCoordsStatus = document.getElementById('copyCoordsStatus');
+        const copyCoordsBtnOverlay = document.getElementById('copyCoordsBtnOverlay');
+        const copyCoordsStatus = document.getElementById('copyCoordsStatus'); // Still needed for JS
         const generatedNoticeTextarea = document.getElementById('generatedNotice');
         const copyNoticeBtn = document.getElementById('copyNoticeBtn');
         const downloadNoticeBtn = document.getElementById('downloadNoticeBtn');
@@ -367,7 +356,7 @@ Tel: 0845 200 4035
         }
 
         function updateMap() {
-            mapSearchStatus.textContent = '';
+            mapSearchStatus.textContent = ''; // Clear status from previous attempts
             if (noticeData.lat && noticeData.lon) {
                 const mapUrl = `https://symology.maps.arcgis.com/apps/webappviewer/index.html?id=1055c1d3a2c344cea5353d8ed744831c&center=${noticeData.lon},${noticeData.lat}&level=15`;
                 mapFrame.src = mapUrl;
@@ -379,7 +368,8 @@ Tel: 0845 200 4035
         function tryAutoFillMapSearch() {
              const coordsString = coordsDisplay.value;
              if (!coordsString || coordsString === 'N/A') return;
-             mapSearchStatus.textContent = 'Attempting auto-fill...';
+             // mapSearchStatus.textContent = 'Attempting auto-fill...'; // Don't show status message
+             console.log('Attempting auto-fill...'); // Log attempt to console instead
              setTimeout(() => {
                  try {
                      const iframeDoc = mapFrame.contentWindow?.document;
@@ -388,11 +378,11 @@ Tel: 0845 200 4035
                      if (searchInput) {
                          searchInput.value = coordsString;
                          console.log("Attempted map search auto-fill.");
-                         mapSearchStatus.textContent = 'Auto-fill attempted. Verify map.';
+                         // mapSearchStatus.textContent = 'Auto-fill attempted. Verify map.'; // Don't show status
                      } else { throw new Error("Map search input not found."); }
                  } catch (error) {
                      console.warn("Auto-fill failed:", error.message);
-                     mapSearchStatus.textContent = `Auto-fill failed (likely security). Use 'Copy Coords'.`;
+                     // mapSearchStatus.textContent = `Auto-fill failed (likely security). Use 'Copy Coords'.`; // Don't show status
                  }
              }, 3000);
         }
