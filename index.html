@@ -15,53 +15,53 @@
 
         /* Style for the plan preview area */
         #planPreview {
-            border: 1px solid #ccc; border-radius: 0.375rem;
-            display: flex; justify-content: center; align-items: center;
-            overflow: auto; background-color: #f9fafb; padding: 0;
-            text-align: center;
-            width: 100%; max-width: 1000px; height: 600px;
-            margin-left: auto; margin-right: auto;
+            border: 1px solid #ccc; border-radius: 0.375rem; /* Tailwind: border border-gray-300 rounded-md */
+            display: flex; justify-content: center; align-items: center; /* Tailwind: flex justify-center items-center */
+            overflow: auto; background-color: #f9fafb; padding: 0; /* Tailwind: overflow-auto bg-gray-50 p-0 */
+            text-align: center; /* Tailwind: text-center */
+            width: 100%; max-width: 1000px; height: 600px; /* Tailwind: w-full max-w-5xl h-[600px] */
+            margin-left: auto; margin-right: auto; /* Tailwind: mx-auto */
         }
-        #planPreview img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; margin: auto; }
-        #planPreview iframe { width: 100%; height: 100%; border: none; border-radius: 0.375rem; }
+        #planPreview img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; margin: auto; } /* Tailwind: max-w-full max-h-full object-contain block mx-auto */
+        #planPreview iframe { width: 100%; height: 100%; border: none; border-radius: 0.375rem; } /* Tailwind: w-full h-full border-none rounded-md */
 
         /* Container for map iframe */
         .map-container {
-            position: relative; width: 100%; max-width: 1000px; height: 600px;
-            margin-left: auto; margin-right: auto;
-            overflow: hidden; border: 1px solid #ccc; border-radius: 0.375rem;
+            position: relative; width: 100%; max-width: 1000px; height: 600px; /* Tailwind: relative w-full max-w-5xl h-[600px] */
+            margin-left: auto; margin-right: auto; /* Tailwind: mx-auto */
+            overflow: hidden; border: 1px solid #ccc; border-radius: 0.375rem; /* Tailwind: overflow-hidden border border-gray-300 rounded-md */
         }
-        .map-container iframe { width: 100%; height: 100%; border: none; }
+        .map-container iframe { width: 100%; height: 100%; border: none; } /* Tailwind: w-full h-full border-none */
 
         /* Style for button nested at bottom of map container */
         #copyCoordsBtn {
-            position: absolute; bottom: 10px; left: 50%;
-            transform: translateX(-50%); z-index: 10;
+            position: absolute; bottom: 10px; left: 50%; /* Tailwind: absolute bottom-2.5 left-1/2 */
+            transform: translateX(-50%); z-index: 10; /* Tailwind: -translate-x-1/2 z-10 */
         }
 
         /* Hide steps initially */
-        .step { display: none; }
-        #step1 { display: block; }
+        .step { display: none; } /* Tailwind: hidden */
+        #step1 { display: block; } /* Tailwind: block (or remove hidden for the first step if using JS to manage visibility) */
 
         /* Add a subtle border between form groups in Step 1 */
         #step1 .form-group + .form-group {
-            border-top: 1px solid #e5e7eb; padding-top: 1.5rem; margin-top: 1.5rem;
+            border-top: 1px solid #e5e7eb; padding-top: 1.5rem; margin-top: 1.5rem; /* Tailwind: border-t border-gray-200 pt-6 mt-6 */
         }
         /* Add margin between instruction boxes */
         #searchInstructionBox + #columnCBox {
-            margin-top: 1rem;
+            margin-top: 1rem; /* Tailwind: mt-4 */
         }
 
 
         /* Grid for side-by-side layout and spacing */
         .map-plan-grid {
-            display: grid;
-            grid-template-columns: repeat(1, minmax(0, 1fr)); /* Default to 1 column */
-            gap: 1rem; /* Default gap */
+            display: grid; /* Tailwind: grid */
+            grid-template-columns: repeat(1, minmax(0, 1fr)); /* Tailwind: grid-cols-1 */
+            gap: 1rem; /* Tailwind: gap-4 */
         }
         @media (min-width: 768px) { /* md breakpoint */
             .map-plan-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 columns on medium screens and up */
+                grid-template-columns: repeat(2, minmax(0, 1fr)); /* Tailwind: md:grid-cols-2 */
             }
         }
 
@@ -69,7 +69,7 @@
         /* Styles for the printable notice area */
         #noticePrintArea {
             display: none; /* Hidden by default */
-            font-family: 'Open Sans', sans-serif; /* USE OPEN SANS */
+            font-family: 'Open Sans', sans-serif;
             color: black;
             width: 210mm; /* A4 width */
             padding: 15mm; /* Standard margins */
@@ -77,10 +77,10 @@
             background-color: white;
         }
         /* Font Substitutes & Sizes */
-        #noticePrintArea .font-times { font-family: 'Tinos', serif; /* Google Font similar to Times */ }
+        #noticePrintArea .font-times { font-family: 'Tinos', serif; }
         #noticePrintArea .print-text-10pt { font-size: 10pt; line-height: 1.1; }
-        #noticePrintArea .print-text-11pt { font-size: 11pt; line-height: 1.25; } /* Updated line height */
-        #noticePrintArea .print-text-12pt { font-size: 12pt; line-height: 1.25; } /* Updated line height */
+        #noticePrintArea .print-text-11pt { font-size: 11pt; line-height: 1.25; }
+        #noticePrintArea .print-text-12pt { font-size: 12pt; line-height: 1.25; }
         #noticePrintArea .print-text-22pt { font-size: 22pt; line-height: 1.2; }
         #noticePrintArea .print-text-24pt { font-size: 24pt; line-height: 1.2; }
         #noticePrintArea .font-bold { font-weight: 700; }
@@ -124,7 +124,7 @@
                 position: absolute; left: 0; top: 0;
                 width: 100%; height: auto;
                 padding: 15mm; margin: 0; border: none; box-shadow: none;
-                display: block !important;
+                display: block !important; /* Ensure it's block for printing */
             }
             @page {
                 margin: 0mm; size: A4 portrait;
@@ -143,12 +143,11 @@
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
 
             <div id="searchInstructionBox" class="p-4 rounded-md border-2 border-[#c31f33] text-gray-700 mb-6" style="display: none;">
-                Search job number in folder: <strong id="searchRefNumber"></strong>
+                Search job number in folder: <strong id="searchRefNumber">[Job Number]</strong>
             </div>
             <div id="columnCBox" class="p-4 rounded-md border-2 border-[#c31f33] text-gray-700 bg-red-50" style="display: none;">
                 Times: <strong id="columnCData">[Data]</strong>
             </div>
-
 
             <div class="form-group bg-blue-50 p-4 rounded-md border border-blue-200">
                 <label for="pasteArea" class="block text-sm font-bold text-gray-700 mb-1">Copy and paste job row from planned WB</label>
@@ -188,8 +187,7 @@
                         <button id="copyCoordsBtn" title="Copy coordinates to clipboard" class="py-2 px-4 text-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500 shadow-md rounded-md">Copy Coordinates</button>
                     </div>
                     <p id="copyCoordsStatus" class="text-sm text-green-600 mt-2 h-4"></p>
-                    <p id="mapSearchStatus" class="hidden"></p>
-                </div>
+                    <p id="mapSearchStatus" class="hidden"></p> </div>
                 <div class="flex flex-col items-center">
                     <h3 class="text-lg font-medium text-gray-800 mb-2 w-full max-w-[1000px]">Uploaded Plan</h3>
                     <div id="planPreview">
@@ -209,7 +207,7 @@
                 </div>
                 <div class="form-group">
                     <label for="workDays" class="block text-sm font-medium text-gray-700 mb-1">Number of Working Days:</label>
-                    <input type="number" id="workDays" min="1" value="1" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <input type="number" id="workDays" min="1" value="2" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
                 </div>
                 <div class="form-group">
                     <label for="affectedHouses" class="block text-sm font-medium text-gray-700 mb-1">Required Letters:</label>
@@ -283,8 +281,7 @@
         </div>
 
 
-    </div>
-    <div id="noticePrintArea">
+    </div> <div id="noticePrintArea">
         <div class="logo-container">
             <img id="print-logo-img" src="https://raw.githubusercontent.com/RTMOffice/notice-tool/refs/heads/main/Logo.jpg" alt="Company Logo">
         </div>
@@ -298,9 +295,7 @@
             <div>ME3 9GX</div>
             <div class="mt-4">Tel:      0845 200 4035</div>
         </div>
-        <div class="clear-both mb-10"></div>
-
-        <div class="mt-15 font-times print-text-22pt font-bold" id="print-please-note">PLEASE NOTE</div>
+        <div class="clear-both mb-10"></div> <div class="mt-15 font-times print-text-22pt font-bold" id="print-please-note">PLEASE NOTE</div>
         <div class="mt-4 print-text-24pt underline text-center" id="print-date">On DATE</div>
         <p class="mt-10 print-text-11pt body-para" id="print-para1">
             I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along <strong class="font-bold" id="print-para1-street-town">STREET, TOWN</strong>.
@@ -328,79 +323,108 @@
 
     <script>
         // --- Global Variables ---
-        let planFileUrl = null;
-        let noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '1', diversion: '', houses: '', postcode: '', locationName: '', fullAddress: '', columnCData: '' }; // Added fullAddress & columnCData
-        let dataParsed = false;
-        let planUploaded = false;
+        let planFileUrl = null; // Stores the object URL for the uploaded plan file
+        // Object to store all notice-related data extracted and entered by the user
+        let noticeData = {
+            ref: '',          // Job reference number
+            lat: '',          // Latitude
+            lon: '',          // Longitude
+            date: '',         // Formatted work start date
+            street: '',       // Street name for the notice
+            town: '',         // Town name for the notice
+            days: '2',        // Number of working days, DEFAULT TO 2
+            diversion: '',    // Diversion route details
+            houses: '',       // Number of affected houses (for print count)
+            postcode: '',     // Postcode (currently not used but reserved)
+            locationName: '', // Exchange or general location name
+            fullAddress: '',  // Full address from pasted data (for post-it)
+            columnCData: ''   // Data from Column C (Times)
+        };
+        let dataParsed = false;    // Flag to track if spreadsheet data has been successfully parsed
+        let planUploaded = false;  // Flag to track if a TM plan has been successfully uploaded
 
         // --- DOM Elements ---
-        const steps = document.querySelectorAll('.step');
-        const pasteArea = document.getElementById('pasteArea');
-        const pasteError = document.getElementById('pasteError');
-        const pasteSuccess = document.getElementById('pasteSuccess');
-        const planFileInput = document.getElementById('planFile');
-        const planPreview = document.getElementById('planPreview');
-        const planError = document.getElementById('planError');
-        const planSuccess = document.getElementById('planSuccess');
-        const diversionRouteStep1Input = document.getElementById('diversionRouteStep1');
-        const mapFrame = document.getElementById('mapFrame');
-        const mapSearchStatus = document.getElementById('mapSearchStatus');
-        const streetInput = document.getElementById('streetInput'); // New Street Input
-        const townInput = document.getElementById('townInput'); // New Town Input
-        const workDaysInput = document.getElementById('workDays');
-        const affectedHousesInput = document.getElementById('affectedHouses');
-        const refNumberDisplay = document.getElementById('refNumberDisplay');
-        const dateDisplay = document.getElementById('dateDisplay');
-        const coordsDisplay = document.getElementById('coordsDisplay');
-        const copyCoordsBtn = document.getElementById('copyCoordsBtn');
-        const copyCoordsStatus = document.getElementById('copyCoordsStatus');
-        const generatedNoticeTextarea = document.getElementById('generatedNotice');
-        const printNoticeBtn = document.getElementById('printNoticeBtn');
-        const printCopiesDisplay = document.getElementById('printCopiesDisplay');
-        const searchInstructionBox = document.getElementById('searchInstructionBox');
-        const searchRefNumber = document.getElementById('searchRefNumber');
-        const columnCBox = document.getElementById('columnCBox');
-        const columnCData = document.getElementById('columnCData');
-        // Step 4 Elements
-        const postItDetails = document.getElementById('postItDetails');
-        const viewPlanBtn = document.getElementById('viewPlanBtn');
-        const finaliseDropBtn = document.getElementById('finaliseDropBtn');
-        const wbUpdatedCheckbox = document.getElementById('wbUpdatedCheckbox');
+        // General UI elements
+        const steps = document.querySelectorAll('.step'); // Collection of all step divs
+        const pasteArea = document.getElementById('pasteArea'); // Textarea for pasting spreadsheet data
+        const pasteError = document.getElementById('pasteError'); // Paragraph for displaying paste errors
+        const pasteSuccess = document.getElementById('pasteSuccess'); // Paragraph for displaying paste success
+        const planFileInput = document.getElementById('planFile'); // File input for TM plan
+        const planPreview = document.getElementById('planPreview'); // Div to show plan preview (image or iframe)
+        const planError = document.getElementById('planError'); // Paragraph for plan upload errors
+        const planSuccess = document.getElementById('planSuccess'); // Paragraph for plan upload success
+        const diversionRouteStep1Input = document.getElementById('diversionRouteStep1'); // Textarea for diversion route in Step 1
+        const mapFrame = document.getElementById('mapFrame'); // Iframe for displaying the map
+        const mapSearchStatus = document.getElementById('mapSearchStatus'); // Status for map search (currently hidden)
+        const streetInput = document.getElementById('streetInput'); // Input for street name in Step 2
+        const townInput = document.getElementById('townInput'); // Input for town name in Step 2
+        const workDaysInput = document.getElementById('workDays'); // Input for number of working days
+        const affectedHousesInput = document.getElementById('affectedHouses'); // Input for number of affected houses/letters
+        const refNumberDisplay = document.getElementById('refNumberDisplay'); // Readonly input to display parsed reference number
+        const dateDisplay = document.getElementById('dateDisplay'); // Readonly input to display parsed and formatted date
+        const coordsDisplay = document.getElementById('coordsDisplay'); // Readonly input to display extracted coordinates
+        const copyCoordsBtn = document.getElementById('copyCoordsBtn'); // Button to copy coordinates
+        const copyCoordsStatus = document.getElementById('copyCoordsStatus'); // Status message for coordinate copy
+        const generatedNoticeTextarea = document.getElementById('generatedNotice'); // Textarea to display the generated notice text
+        const printNoticeBtn = document.getElementById('printNoticeBtn'); // Button to trigger printing the notice
+        const printCopiesDisplay = document.getElementById('printCopiesDisplay'); // Div to show how many copies to print
+        const searchInstructionBox = document.getElementById('searchInstructionBox'); // Info box for searching job number
+        const searchRefNumber = document.getElementById('searchRefNumber'); // Span within info box for job number
+        const columnCBox = document.getElementById('columnCBox'); // Info box for Column C data
+        const columnCData = document.getElementById('columnCData'); // Span within info box for Column C data
+
+        // Step 4 (Final Actions) Elements
+        const postItDetails = document.getElementById('postItDetails'); // Div to display details for the post-it note
+        const viewPlanBtn = document.getElementById('viewPlanBtn'); // Button to view/print the TM plan
+        const finaliseDropBtn = document.getElementById('finaliseDropBtn'); // Button to finalise and start a new notice
+        const wbUpdatedCheckbox = document.getElementById('wbUpdatedCheckbox'); // Checkbox to confirm WB update
 
 
         // --- Navigation Buttons ---
-        const parseAndNextBtn = document.getElementById('parseAndNextBtn');
-        const nextToStep3CombinedBtn = document.getElementById('nextToStep3Combined');
-        const generateNoticeBtn = document.getElementById('generateNoticeBtn');
+        const parseAndNextBtn = document.getElementById('parseAndNextBtn'); // Button in Step 1 to parse data
+        const nextToStep3CombinedBtn = document.getElementById('nextToStep3Combined'); // Button in Step 1 to proceed to Step 2 (Review Map/Plan)
+        const generateNoticeBtn = document.getElementById('generateNoticeBtn'); // Button in Step 2 to generate the notice text
 
         // --- Functions ---
 
+        /**
+         * Shows the specified step and hides others.
+         * @param {string} stepId - The ID of the step div to display.
+         */
         function showStep(stepId) {
             console.log("Showing step:", stepId);
             steps.forEach(step => {
                 step.style.display = (step.id === stepId) ? 'block' : 'none';
             });
-            window.scrollTo(0, 0);
-            // Reset checkbox when moving away from step 4 (now step5 in ID)
+            window.scrollTo(0, 0); // Scroll to the top of the page
+            // Reset "WB Updated" checkbox and "New Notice" button when navigating away from the final step
             if (stepId !== 'step5' && wbUpdatedCheckbox) {
                 wbUpdatedCheckbox.checked = false;
-                finaliseDropBtn.disabled = true; // Ensure button is disabled
+                finaliseDropBtn.disabled = true;
             }
         }
 
+        /**
+         * Checks if conditions are met to enable the "Next: Review Map & Plan" button in Step 1.
+         * Requires data to be parsed and a plan to be uploaded.
+         */
         function checkEnableStep1NextButton() {
-            // Requires data parsed AND plan uploaded
             if (dataParsed && planUploaded) {
                 nextToStep3CombinedBtn.disabled = false;
-                console.log("Next button enabled.");
+                console.log("Step 1 Next button enabled.");
             } else {
                 nextToStep3CombinedBtn.disabled = true;
-                console.log("Next button disabled. Data Parsed:", dataParsed, "Plan Uploaded:", planUploaded);
+                console.log("Step 1 Next button disabled. Data Parsed:", dataParsed, "Plan Uploaded:", planUploaded);
             }
         }
 
+        /**
+         * Returns the correct ordinal suffix for a given day of the month.
+         * @param {number} day - The day of the month.
+         * @returns {string} The ordinal suffix (e.g., "st", "nd", "rd", "th").
+         */
         function getDaySuffix(day) {
-            if (day > 3 && day < 21) return 'th';
+            if (day > 3 && day < 21) return 'th'; // Covers 4th-20th
             switch (day % 10) {
                 case 1: return "st";
                 case 2: return "nd";
@@ -409,89 +433,114 @@
             }
         }
 
+        /**
+         * Parses the tab-separated data pasted by the user from the spreadsheet.
+         * Extracts date, reference, exchange, location (for coordinates), and Column C data.
+         * Attempts to extract number of days from Column C.
+         * Validates data and updates the UI accordingly.
+         */
         function parsePastedData() {
             console.log("parsePastedData called");
             pasteError.textContent = '';
             pasteSuccess.textContent = '';
             dataParsed = false;
-            searchInstructionBox.style.display = 'none'; // Hide instruction boxes initially
+            noticeData.days = '2'; // Reset to default 2 before parsing new data
+            searchInstructionBox.style.display = 'none';
             columnCBox.style.display = 'none';
             checkEnableStep1NextButton();
+
             const pastedText = pasteArea.value.trim();
-            if (!pastedText) { pasteError.textContent = 'Please paste data.'; return; }
+            if (!pastedText) {
+                pasteError.textContent = 'Please paste data.';
+                return;
+            }
             const columns = pastedText.split('\t');
-            // Need at least 16 columns for P (index 15)
-            if (columns.length <= 15) { pasteError.textContent = `Error: Need at least 16 columns (found ${columns.length}). Check copied data.`; return; }
+
+            if (columns.length <= 15) {
+                pasteError.textContent = `Error: Need at least 16 columns for all required data (found ${columns.length}). Please check the copied row.`;
+                return;
+            }
 
             try {
-                // Date Extraction, Adjustment, and Formatting (Column A, index 0)
-                let rawDate = columns[0]?.trim();
-                if (!rawDate) throw new Error("Date (Col A) missing.");
+                // 1. Date Extraction
+                let rawDateStr = columns[0]?.trim();
+                if (!rawDateStr) throw new Error("Date (Col A) is missing or empty.");
                 let parsedDate;
-                let tempDate = new Date(rawDate);
-                if (!isNaN(tempDate.getTime())) { parsedDate = tempDate; }
-                else {
-                    const dateParts = rawDate.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
+                let tempDate = new Date(rawDateStr);
+                if (!isNaN(tempDate.getTime())) {
+                    parsedDate = tempDate;
+                } else {
+                    const dateParts = rawDateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
                     if (dateParts) {
                         const day = parseInt(dateParts[1], 10), month = parseInt(dateParts[2], 10) - 1;
                         let year = parseInt(dateParts[3], 10); if (year < 100) year += 2000;
                         parsedDate = new Date(Date.UTC(year, month, day));
-                        if (isNaN(parsedDate.getTime())) throw new Error(`Invalid date format: "${rawDate}".`);
+                        if (isNaN(parsedDate.getTime())) throw new Error(`Invalid date components in "${rawDateStr}".`);
                     } else {
-                        const potentialSerial = Number(rawDate);
-                        if (!isNaN(potentialSerial) && potentialSerial > 1 && potentialSerial < 2958466) { // Excel serial date check
-                            const excelEpochOffset = 25569; // Days between 1970-01-01 and 1900-01-01 (Excel epoch)
+                        const potentialSerial = Number(rawDateStr);
+                        if (!isNaN(potentialSerial) && potentialSerial > 1 && potentialSerial < 2958466) {
+                            const excelEpochOffset = 25569;
                             const jsTimestamp = (potentialSerial - excelEpochOffset) * 86400 * 1000;
                             parsedDate = new Date(jsTimestamp);
-                            if (isNaN(parsedDate.getTime())) throw new Error(`Invalid date format: "${rawDate}".`);
-                        } else { throw new Error(`Invalid date format: "${rawDate}".`); }
+                            if (isNaN(parsedDate.getTime())) throw new Error(`Invalid Excel serial date: "${rawDateStr}".`);
+                        } else {
+                            throw new Error(`Unrecognized date format: "${rawDateStr}". Please use DD/MM/YYYY, YYYY-MM-DD, or Excel serial number.`);
+                        }
                     }
                 }
-                const today = new Date(), currentYear = today.getFullYear();
-                const comparisonDate = new Date(Date.UTC(currentYear, parsedDate.getUTCMonth(), parsedDate.getUTCDate()));
+                const today = new Date(), currentYear = today.getUTCFullYear();
+                const comparisonDateThisYear = new Date(Date.UTC(currentYear, parsedDate.getUTCMonth(), parsedDate.getUTCDate()));
                 const todayDateOnly = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-
-                let finalYear = comparisonDate < todayDateOnly ? currentYear + 1 : currentYear;
+                let finalYear = comparisonDateThisYear < todayDateOnly ? currentYear + 1 : currentYear;
                 parsedDate.setUTCFullYear(finalYear);
-
                 const dayOfMonth = parsedDate.getUTCDate();
                 const weekday = parsedDate.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' }).toUpperCase();
-                const month = parsedDate.toLocaleDateString('en-GB', { month: 'long', timeZone: 'UTC' }).toUpperCase();
-                const year = parsedDate.getUTCFullYear();
-                const dayWithSuffix = dayOfMonth + getDaySuffix(dayOfMonth);
-                noticeData.date = `${weekday} ${dayWithSuffix} ${month} ${year}`; // Formatted Date
+                const monthName = parsedDate.toLocaleDateString('en-GB', { month: 'long', timeZone: 'UTC' }).toUpperCase();
+                const yearNum = parsedDate.getUTCFullYear();
+                noticeData.date = `${weekday} ${dayOfMonth + getDaySuffix(dayOfMonth)} ${monthName} ${yearNum}`;
 
-                // Reference (Column H, index 7)
-                noticeData.ref = columns[7]?.trim() || '[REF MISSING]';
-                if (noticeData.ref === '[REF MISSING]') throw new Error("Ref (Col H) missing.");
+                // 2. Reference (Column H, index 7)
+                noticeData.ref = columns[7]?.trim();
+                if (!noticeData.ref) throw new Error("Reference (Col H) is missing or empty.");
 
-                // Location Name / Exchange (Column I, index 8)
-                noticeData.locationName = columns[8]?.trim() || '[EXCHANGE MISSING]';
-                if (noticeData.locationName === '[EXCHANGE MISSING]') throw new Error("Exchange (Col I) missing.");
+                // 3. Location Name / Exchange (Column I, index 8)
+                noticeData.locationName = columns[8]?.trim();
+                if (!noticeData.locationName) throw new Error("Exchange/Location Name (Col I) is missing or empty.");
 
-                // Full Address / Coordinates / Postcode (Column P, index 15)
+                // 4. Full Address / Coordinates (Column P, index 15)
                 let locationString = columns[15]?.trim();
-                if (!locationString) throw new Error("Location data (Col P) missing.");
-                noticeData.fullAddress = locationString; // Store full address for post-it
-                if (locationString.includes('/')) locationString = locationString.split('/')[0].trim();
+                if (!locationString) throw new Error("Location data (Col P) is missing or empty.");
+                noticeData.fullAddress = locationString;
                 const coordRegex = /.*?(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)/;
                 const coordMatch = locationString.match(coordRegex);
                 if (coordMatch && coordMatch[1] && coordMatch[2]) {
                     const lat = parseFloat(coordMatch[1]), lon = parseFloat(coordMatch[2]);
                     if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
                         noticeData.lat = String(lat); noticeData.lon = String(lon);
-                    } else { throw new Error(`Coords out of range (${lat}, ${lon}).`); }
-                } else { throw new Error("Couldn't find Lat, Lon in Col P."); }
+                    } else { throw new Error(`Coordinates out of valid range (Lat: ${lat}, Lon: ${lon}) in Col P.`); }
+                } else { throw new Error("Could not find valid Latitude, Longitude in Col P. Expected format 'lat, lon'."); }
 
-                // Column C Data (index 2)
-                noticeData.columnCData = columns[2]?.trim();
+                // 5. Column C Data (Times, index 2) and Day Extraction
+                noticeData.columnCData = columns[2]?.trim() || "";
+                if (noticeData.columnCData) {
+                    const daysRegex = /\b(\d+)\s*day(s)?\b/i; // Looks for "X day" or "X days"
+                    const daysMatch = noticeData.columnCData.match(daysRegex);
+                    if (daysMatch && daysMatch[1]) {
+                        const extractedDays = parseInt(daysMatch[1], 10);
+                        if (extractedDays > 0) { // Ensure it's a positive number
+                           noticeData.days = String(extractedDays);
+                           console.log(`Extracted ${noticeData.days} days from Column C.`);
+                        }
+                    }
+                }
 
-                console.log("Parsed Data:", noticeData);
+                console.log("Parsed Data (after Col C check):", noticeData);
                 pasteSuccess.textContent = 'Data parsed successfully!';
                 dataParsed = true;
+
                 searchRefNumber.textContent = noticeData.ref;
                 searchInstructionBox.style.display = 'block';
-                if(noticeData.columnCData) {
+                if (noticeData.columnCData) {
                     columnCData.textContent = noticeData.columnCData;
                     columnCBox.style.display = 'block';
                 } else {
@@ -506,10 +555,16 @@
                 searchInstructionBox.style.display = 'none';
                 columnCBox.style.display = 'none';
                 checkEnableStep1NextButton();
-                noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '1', diversion: '', houses: '', postcode: '', locationName: '', fullAddress: '', columnCData: '' }; // Reset all
+                noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '2', diversion: '', houses: '', postcode: '', locationName: '', fullAddress: '', columnCData: '' };
             }
         }
 
+
+        /**
+         * Handles the TM plan file upload.
+         * Creates an object URL for preview and displays image or PDF.
+         * @param {Event} event - The file input change event.
+         */
         function handlePlanUpload(event) {
             console.log("handlePlanUpload started");
             const file = event.target.files[0];
@@ -522,76 +577,59 @@
             if (planFileUrl) { URL.revokeObjectURL(planFileUrl); planFileUrl = null; }
             if (!file) {
                 planPreview.innerHTML = '<p class="text-gray-500 text-sm">No plan selected.</p>';
-                console.log("No file selected, exiting handlePlanUpload.");
                 return;
             }
             console.log("File selected:", file.name, "Type:", file.type);
 
             try {
                 planFileUrl = URL.createObjectURL(file);
-                console.log("Object URL created:", planFileUrl);
             } catch (e) {
                 console.error("URL Creation Error:", e);
                 planError.textContent = 'Could not create URL for the file.';
                 planPreview.innerHTML = '<p class="text-red-500 text-sm">Error loading preview.</p>';
-                planUploaded = false;
-                checkEnableStep1NextButton();
-                return;
+                planUploaded = false; checkEnableStep1NextButton(); return;
             }
 
             if (file.type.startsWith('image/')) {
-                console.log("File type is image. Creating image preview...");
                 const img = document.createElement('img');
                 img.src = planFileUrl;
                 img.alt = "Plan Preview";
                 img.onerror = () => {
-                    console.error("Image onerror triggered.");
-                    planError.textContent = 'Could not display image.';
+                    planError.textContent = 'Could not display image. File might be corrupted or unsupported.';
                     planPreview.innerHTML = '<p class="text-red-500 text-sm">Error loading image preview.</p>';
-                    URL.revokeObjectURL(planFileUrl); planFileUrl = null;
-                    planUploaded = false;
-                    checkEnableStep1NextButton();
+                    URL.revokeObjectURL(planFileUrl); planFileUrl = null; planUploaded = false; checkEnableStep1NextButton();
                 };
                 img.onload = () => {
-                    console.log("Image onload triggered.");
                     planPreview.innerHTML = ''; planPreview.appendChild(img);
                     planSuccess.textContent = `Image Plan "${file.name}" successfully uploaded.`;
-                    planUploaded = true;
-                    checkEnableStep1NextButton();
+                    planUploaded = true; checkEnableStep1NextButton();
                 };
             } else if (file.type === 'application/pdf') {
-                console.log("File type is PDF. Creating PDF iframe...");
                 planPreview.innerHTML = '';
                 const iframe = document.createElement('iframe');
                 iframe.src = planFileUrl;
                 iframe.title = "Plan PDF Preview";
                 iframe.setAttribute('type', 'application/pdf');
-                iframe.onload = () => {
-                    console.log("PDF iframe onload triggered.");
-                    planSuccess.textContent = `PDF Plan "${file.name}" successfully uploaded.`;
-                    planUploaded = true;
-                    checkEnableStep1NextButton();
+                iframe.onload = () => { // May not be fully reliable for PDF rendering
+                    planSuccess.textContent = `PDF Plan "${file.name}" uploaded. Preview depends on browser/extensions.`;
+                    planUploaded = true; checkEnableStep1NextButton();
                 };
                 iframe.onerror = () => {
-                    console.error("PDF iframe onerror triggered.");
-                    planError.textContent = 'Could not load PDF preview in iframe.';
+                    planError.textContent = 'Could not load PDF preview. Ensure browser can display PDFs.';
                     planPreview.innerHTML = '<p class="text-red-500 text-sm">Error loading PDF preview.</p>';
-                    URL.revokeObjectURL(planFileUrl); planFileUrl = null;
-                    planUploaded = false;
-                    checkEnableStep1NextButton();
+                    URL.revokeObjectURL(planFileUrl); planFileUrl = null; planUploaded = false; checkEnableStep1NextButton();
                 };
                 planPreview.appendChild(iframe);
-                console.log("PDF iframe appended.");
             } else {
-                console.warn("Unsupported file type:", file.type);
-                planError.textContent = 'Unsupported file type (Image or PDF only).';
+                planError.textContent = 'Unsupported file type. Please upload an Image or PDF.';
                 planPreview.innerHTML = '<p class="text-red-500 text-sm">Invalid file type.</p>';
-                URL.revokeObjectURL(planFileUrl); planFileUrl = null;
-                planUploaded = false;
-                checkEnableStep1NextButton();
+                URL.revokeObjectURL(planFileUrl); planFileUrl = null; planUploaded = false; checkEnableStep1NextButton();
             }
         }
 
+        /**
+         * Updates the map iframe source URL using the parsed coordinates.
+         */
         function updateMap() {
             if (noticeData.lat && noticeData.lon) {
                 const mapUrl = `https://symology.maps.arcgis.com/apps/webappviewer/index.html?id=1055c1d3a2c344cea5353d8ed744831c&center=${noticeData.lon},${noticeData.lat}&level=15`;
@@ -599,96 +637,107 @@
                 console.log("Updated map URL to ArcGIS:", mapUrl);
             } else {
                 mapFrame.src = 'about:blank';
+                console.log("Map cleared due to missing coordinates.");
             }
         }
 
+        /**
+         * Attempts to auto-fill the search box within the ArcGIS map iframe.
+         */
         function tryAutoFillMapSearch() {
             const coordsString = coordsDisplay.value;
             if (!coordsString || coordsString === 'N/A') return;
-            console.log('Attempting auto-fill ArcGIS map...');
+            console.log('Attempting auto-fill ArcGIS map search with:', coordsString);
             setTimeout(() => {
                 try {
                     const iframeDoc = mapFrame.contentWindow?.document;
-                    if (!iframeDoc) throw new Error("Cannot access iframe content.");
+                    if (!iframeDoc) {
+                        console.warn("Cannot access iframe content for auto-fill."); return;
+                    }
                     const searchInput = iframeDoc.getElementById('esri_dijit_Search_0_input');
                     if (searchInput) {
                         searchInput.value = coordsString;
                         console.log("Attempted ArcGIS map search auto-fill.");
-                    } else { throw new Error("ArcGIS map search input 'esri_dijit_Search_0_input' not found."); }
+                    } else { console.warn("ArcGIS map search input 'esri_dijit_Search_0_input' not found."); }
                 } catch (error) {
                     console.warn("ArcGIS Auto-fill failed:", error.message);
                 }
-            }, 3000); // Wait for map to potentially load
+            }, 3000);
         }
 
+        /**
+         * Copies the extracted coordinates to the clipboard.
+         */
         function copyCoordinatesToClipboard() {
             const coordsString = coordsDisplay.value;
             copyCoordsStatus.textContent = '';
-            if (!coordsString || coordsString === 'N/A') { copyCoordsStatus.textContent = 'No coordinates to copy.'; return; }
-            if (!navigator.clipboard || !navigator.clipboard.writeText) { copyCoordsStatus.textContent = 'Clipboard API not available (try manual copy). Needs HTTPS or localhost.'; return; }
+            if (!coordsString || coordsString === 'N/A') {
+                copyCoordsStatus.textContent = 'No coordinates to copy.';
+                copyCoordsStatus.className = 'text-sm text-yellow-600 mt-2 h-4'; return;
+            }
+            if (!navigator.clipboard || !navigator.clipboard.writeText) {
+                copyCoordsStatus.textContent = 'Clipboard API not available (HTTPS/localhost needed).';
+                copyCoordsStatus.className = 'text-sm text-red-600 mt-2 h-4'; return;
+            }
             navigator.clipboard.writeText(coordsString).then(() => {
                 copyCoordsStatus.textContent = 'Coordinates copied!';
+                copyCoordsStatus.className = 'text-sm text-green-600 mt-2 h-4';
                 setTimeout(() => { copyCoordsStatus.textContent = ''; }, 3000);
             }).catch(err => {
                 console.error('Failed to copy coordinates:', err);
-                copyCoordsStatus.textContent = 'Copy failed. Check browser permissions or use HTTPS/localhost.';
+                copyCoordsStatus.textContent = 'Copy failed. Check permissions.';
+                copyCoordsStatus.className = 'text-sm text-red-600 mt-2 h-4';
             });
         }
 
         /**
-         * Populates the hidden print area and the visible textarea.
+         * Generates the notice text based on user inputs and parsed data.
          */
         function generateNotice() {
-            noticeData.street = streetInput.value.trim() || '[STREET MISSING]';
-            noticeData.town = townInput.value.trim() || '[TOWN MISSING]';
+            noticeData.street = streetInput.value.trim();
+            noticeData.town = townInput.value.trim();
+            if (!noticeData.street) { alert("Please enter the Street name."); streetInput.focus(); return; }
+            if (!noticeData.town) { alert("Please enter the Town name."); townInput.focus(); return; }
             const streetAndTown = `${noticeData.street}, ${noticeData.town}`;
 
-            noticeData.days = workDaysInput.value || '1';
+            // Use the value from the input field in Step 2, which might have been manually changed
+            noticeData.days = workDaysInput.value || '2'; // Default to '2' if input is empty
             noticeData.houses = affectedHousesInput.value || '0';
 
-            if (noticeData.street === '[STREET MISSING]' || noticeData.town === '[TOWN MISSING]') {
-                alert("Please enter both Street and Town names.");
-                if (noticeData.street === '[STREET MISSING]') streetInput.focus();
-                else townInput.focus();
-                return;
+            if (!noticeData.diversion) {
+                alert("Diversion route is missing. Please go back to Step 1.");
+                showStep('step1'); diversionRouteStep1Input.focus(); return;
             }
-            if (!noticeData.diversion) { alert("Please go back and enter the Diversion Route in Step 1."); showStep('step1'); diversionRouteStep1Input.focus(); return; }
 
-            // --- Populate Hidden Print Area ---
             document.getElementById('print-date').textContent = `On ${noticeData.date}`;
             document.getElementById('print-para1-street-town').textContent = streetAndTown;
-            document.getElementById('print-para2-days').textContent = `${noticeData.days} working days`;
+            const daysText = `${noticeData.days} working day${parseInt(noticeData.days) === 1 ? '' : 's'}`;
+            document.getElementById('print-para2-days').textContent = daysText;
             document.getElementById('print-para2-div').textContent = noticeData.diversion;
             document.getElementById('print-para3-street-town').textContent = streetAndTown;
             document.getElementById('print-concerns-ref').textContent = noticeData.ref;
 
-            // --- Populate Visible Textarea (for reference/copy) ---
-            let textPreview = `I & A Communications Ltd\n\n`;
-            textPreview += `Tel: 0845 200 4035\n\n`;
-            textPreview += `PLEASE NOTE\n`;
-            textPreview += `On ${noticeData.date}\n\n`;
+            let textPreview = `I & A Communications Ltd\n\nTel: 0845 200 4035\n\nPLEASE NOTE\nOn ${noticeData.date}\n\n`;
             textPreview += `I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along ${streetAndTown}.\n\n`;
-            textPreview += `The work is expected to take a maximum of ${noticeData.days} working days and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion ${noticeData.diversion} and Vice Versa.\n\n`;
+            textPreview += `The work is expected to take a maximum of ${daysText} and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion ${noticeData.diversion} and Vice Versa.\n\n`;
             textPreview += `${streetAndTown} will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.\n\n`;
             textPreview += `We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.\n\n`;
             textPreview += `ANY CONCERNS PLEASE CALL 0845 200 4035 WITH OUR REF: ${noticeData.ref}\n\n`;
             textPreview += `Regards\nZoe Franks\nI & A Communications Ltd\nTel: 0845 200 4035`;
-
             generatedNoticeTextarea.value = textPreview;
 
-            const numHouses = parseInt(noticeData.houses, 10) || 0;
-            printCopiesDisplay.textContent = `Print ${numHouses}`;
-
+            const numHouses = parseInt(noticeData.houses, 10);
+            printCopiesDisplay.textContent = `Print ${isNaN(numHouses) || numHouses < 0 ? 0 : numHouses}`;
             showStep('step4');
         }
 
         /**
-         * Triggers the browser's print dialog and shows the final step.
+         * Triggers browser print and shows final step.
          */
         function printNotice() {
             postItDetails.innerHTML = `
                 Location: ${noticeData.locationName || '[Exchange Missing]'}<br>
-                Job Ref: ${noticeData.ref}<br>
+                Job Ref: ${noticeData.ref || '[Ref Missing]'}<br>
                 Address: ${noticeData.fullAddress || '[Address Missing]'}
             `;
             window.print();
@@ -700,11 +749,11 @@
          */
         function resetTool() {
             pasteArea.value = '';
-            planFileInput.value = null;
+            if(planFileInput) planFileInput.value = null;
             diversionRouteStep1Input.value = '';
             streetInput.value = '';
             townInput.value = '';
-            workDaysInput.value = '1';
+            workDaysInput.value = '2'; // DEFAULT TO 2
             affectedHousesInput.value = '';
             refNumberDisplay.value = '';
             dateDisplay.value = '';
@@ -712,27 +761,23 @@
             generatedNoticeTextarea.value = '';
             wbUpdatedCheckbox.checked = false;
 
-            pasteError.textContent = '';
-            pasteSuccess.textContent = '';
-            planError.textContent = '';
-            planSuccess.textContent = '';
+            pasteError.textContent = ''; pasteSuccess.textContent = '';
+            planError.textContent = ''; planSuccess.textContent = '';
             copyCoordsStatus.textContent = '';
 
-            dataParsed = false;
-            planUploaded = false;
-            noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '1', diversion: '', houses: '', postcode: '', locationName: '', fullAddress: '', columnCData: '' };
-            planFileUrl = null;
+            dataParsed = false; planUploaded = false;
+            noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '2', diversion: '', houses: '', postcode: '', locationName: '', fullAddress: '', columnCData: '' }; // DEFAULT DAYS TO 2
+            if (planFileUrl) { URL.revokeObjectURL(planFileUrl); planFileUrl = null; }
 
-            searchInstructionBox.style.display = 'none';
-            searchRefNumber.textContent = '[Job Number]';
-            columnCBox.style.display = 'none';
-            columnCData.textContent = '[Data]';
+            searchInstructionBox.style.display = 'none'; searchRefNumber.textContent = '[Job Number]';
+            columnCBox.style.display = 'none'; columnCData.textContent = '[Data]';
             planPreview.innerHTML = '<p class="text-gray-500 text-sm">Plan preview will appear here.</p>';
             printCopiesDisplay.textContent = 'Print 0';
-            postItDetails.textContent = 'Loading...';
+            postItDetails.innerHTML = 'Loading...';
             finaliseDropBtn.disabled = true;
-
+            checkEnableStep1NextButton();
             showStep('step1');
+            console.log("Tool reset. Default days set to 2.");
         }
 
 
@@ -741,28 +786,31 @@
         planFileInput.addEventListener('change', handlePlanUpload);
         copyCoordsBtn.addEventListener('click', copyCoordinatesToClipboard);
         viewPlanBtn.addEventListener('click', () => {
-            if (planFileUrl) {
-                window.open(planFileUrl, '_blank');
-            } else {
-                alert("No plan file has been uploaded yet.");
-            }
+            if (planFileUrl) { window.open(planFileUrl, '_blank'); }
+            else { alert("No plan file has been uploaded yet."); }
         });
         finaliseDropBtn.addEventListener('click', resetTool);
-
         wbUpdatedCheckbox.addEventListener('change', (event) => {
             finaliseDropBtn.disabled = !event.target.checked;
         });
 
-
         nextToStep3CombinedBtn.addEventListener('click', () => {
             noticeData.diversion = diversionRouteStep1Input.value.trim();
-            if (!noticeData.diversion) { alert("Please enter the diversion route before proceeding."); diversionRouteStep1Input.focus(); return; }
-            if (!dataParsed || !planUploaded) { alert("Please ensure data is parsed and a plan is uploaded successfully before proceeding."); console.error("Proceed clicked but flags not set. Data Parsed:", dataParsed, "Plan Uploaded:", planUploaded); return; }
+            if (!noticeData.diversion) {
+                alert("Please enter the diversion route before proceeding.");
+                diversionRouteStep1Input.focus(); return;
+            }
+            if (!dataParsed || !planUploaded) {
+                alert("Please ensure data is parsed and a plan is uploaded successfully.");
+                return;
+            }
 
             updateMap();
             refNumberDisplay.value = noticeData.ref;
             dateDisplay.value = noticeData.date;
-            coordsDisplay.value = noticeData.lat && noticeData.lon ? `${noticeData.lat}, ${noticeData.lon}` : 'N/A';
+            coordsDisplay.value = (noticeData.lat && noticeData.lon) ? `${noticeData.lat}, ${noticeData.lon}` : 'N/A';
+            workDaysInput.value = noticeData.days; // Populate workDaysInput with potentially updated days value
+
             showStep('step3');
             tryAutoFillMapSearch();
         });
