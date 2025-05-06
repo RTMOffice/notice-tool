@@ -132,7 +132,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200" id="toolInterface">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 65)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 66)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -350,7 +350,7 @@
         // Step 4 Elements
         const postItDetails = document.getElementById('postItDetails');
         const viewPlanBtn = document.getElementById('viewPlanBtn');
-        const startNewBtn = document.getElementById('startNewBtn'); // Renamed from finaliseDropBtn
+        // const startNewBtn = document.getElementById('startNewBtn'); // Removed old button ID
         const finaliseDropBtn = document.getElementById('finaliseDropBtn'); // Added new button
 
 
@@ -443,7 +443,7 @@
                 noticeData.ref = columns[7]?.trim() || '[REF MISSING]';
                 if (noticeData.ref === '[REF MISSING]') throw new Error("Ref (Col H) missing.");
 
-                // Location Name (Column I, index 8) - NEW
+                // Location Name (Column I, index 8) - UPDATED
                 noticeData.locationName = columns[8]?.trim() || '[LOCATION NAME MISSING]';
                  if (noticeData.locationName === '[LOCATION NAME MISSING]') throw new Error("Location Name (Col I) missing.");
 
@@ -748,7 +748,7 @@
         });
         // Updated: Both "Finalise Drop" and "Start New Notice" reset the tool
         finaliseDropBtn.addEventListener('click', resetTool);
-        startNewBtn.addEventListener('click', resetTool);
+        // startNewBtn listener removed
 
 
         nextToStep3CombinedBtn.addEventListener('click', () => {
@@ -765,7 +765,7 @@
         });
 
         generateNoticeBtn.addEventListener('click', generateNotice);
-        // copyNoticeBtn listener removed
+        copyNoticeBtn.addEventListener('click', copyNoticeToClipboard); // Kept for now, but hidden
         // Changed listener to call print function
         printNoticeBtn.addEventListener('click', printNotice);
 
