@@ -345,45 +345,45 @@
 
         // --- DOM Elements ---
         // General UI elements
-        const steps = document.querySelectorAll('.step'); // Collection of all step divs
-        const pasteArea = document.getElementById('pasteArea'); // Textarea for pasting spreadsheet data
-        const pasteError = document.getElementById('pasteError'); // Paragraph for displaying paste errors
-        const pasteSuccess = document.getElementById('pasteSuccess'); // Paragraph for displaying paste success
-        const planFileInput = document.getElementById('planFile'); // File input for TM plan
-        const planPreview = document.getElementById('planPreview'); // Div to show plan preview (image or iframe)
-        const planError = document.getElementById('planError'); // Paragraph for plan upload errors
-        const planSuccess = document.getElementById('planSuccess'); // Paragraph for plan upload success
-        const diversionRouteStep1Input = document.getElementById('diversionRouteStep1'); // Textarea for diversion route in Step 1
-        const mapFrame = document.getElementById('mapFrame'); // Iframe for displaying the map
-        const mapSearchStatus = document.getElementById('mapSearchStatus'); // Status for map search (currently hidden)
-        const streetInput = document.getElementById('streetInput'); // Input for street name in Step 2
-        const townInput = document.getElementById('townInput'); // Input for town name in Step 2
-        const workDaysInput = document.getElementById('workDays'); // Input for number of working days
-        const affectedHousesInput = document.getElementById('affectedHouses'); // Input for number of affected houses/letters
-        const refNumberDisplay = document.getElementById('refNumberDisplay'); // Readonly input to display parsed reference number
-        const dateDisplay = document.getElementById('dateDisplay'); // Readonly input to display parsed and formatted date
-        const coordsDisplay = document.getElementById('coordsDisplay'); // Readonly input to display extracted coordinates
-        const copyCoordsBtn = document.getElementById('copyCoordsBtn'); // Button to copy coordinates
-        const copyCoordsStatus = document.getElementById('copyCoordsStatus'); // Status message for coordinate copy
-        const generatedNoticeTextarea = document.getElementById('generatedNotice'); // Textarea to display the generated notice text
-        const printNoticeBtn = document.getElementById('printNoticeBtn'); // Button to trigger printing the notice
-        const printCopiesDisplay = document.getElementById('printCopiesDisplay'); // Div to show how many copies to print
-        const searchInstructionBox = document.getElementById('searchInstructionBox'); // Info box for searching job number
-        const searchRefNumber = document.getElementById('searchRefNumber'); // Span within info box for job number
-        const columnCBox = document.getElementById('columnCBox'); // Info box for Column C data
-        const columnCData = document.getElementById('columnCData'); // Span within info box for Column C data
+        const steps = document.querySelectorAll('.step');
+        const pasteArea = document.getElementById('pasteArea');
+        const pasteError = document.getElementById('pasteError');
+        const pasteSuccess = document.getElementById('pasteSuccess');
+        const planFileInput = document.getElementById('planFile');
+        const planPreview = document.getElementById('planPreview');
+        const planError = document.getElementById('planError');
+        const planSuccess = document.getElementById('planSuccess');
+        const diversionRouteStep1Input = document.getElementById('diversionRouteStep1');
+        const mapFrame = document.getElementById('mapFrame');
+        const mapSearchStatus = document.getElementById('mapSearchStatus');
+        const streetInput = document.getElementById('streetInput');
+        const townInput = document.getElementById('townInput');
+        const workDaysInput = document.getElementById('workDays');
+        const affectedHousesInput = document.getElementById('affectedHouses');
+        const refNumberDisplay = document.getElementById('refNumberDisplay');
+        const dateDisplay = document.getElementById('dateDisplay');
+        const coordsDisplay = document.getElementById('coordsDisplay');
+        const copyCoordsBtn = document.getElementById('copyCoordsBtn');
+        const copyCoordsStatus = document.getElementById('copyCoordsStatus');
+        const generatedNoticeTextarea = document.getElementById('generatedNotice');
+        const printNoticeBtn = document.getElementById('printNoticeBtn');
+        const printCopiesDisplay = document.getElementById('printCopiesDisplay');
+        const searchInstructionBox = document.getElementById('searchInstructionBox');
+        const searchRefNumber = document.getElementById('searchRefNumber');
+        const columnCBox = document.getElementById('columnCBox');
+        const columnCData = document.getElementById('columnCData');
 
         // Step 4 (Final Actions) Elements
-        const postItDetails = document.getElementById('postItDetails'); // Div to display details for the post-it note
-        const viewPlanBtn = document.getElementById('viewPlanBtn'); // Button to view/print the TM plan
-        const finaliseDropBtn = document.getElementById('finaliseDropBtn'); // Button to finalise and start a new notice
-        const wbUpdatedCheckbox = document.getElementById('wbUpdatedCheckbox'); // Checkbox to confirm WB update
+        const postItDetails = document.getElementById('postItDetails');
+        const viewPlanBtn = document.getElementById('viewPlanBtn');
+        const finaliseDropBtn = document.getElementById('finaliseDropBtn');
+        const wbUpdatedCheckbox = document.getElementById('wbUpdatedCheckbox');
 
 
         // --- Navigation Buttons ---
-        const parseAndNextBtn = document.getElementById('parseAndNextBtn'); // Button in Step 1 to parse data
-        const nextToStep3CombinedBtn = document.getElementById('nextToStep3Combined'); // Button in Step 1 to proceed to Step 2 (Review Map/Plan)
-        const generateNoticeBtn = document.getElementById('generateNoticeBtn'); // Button in Step 2 to generate the notice text
+        const parseAndNextBtn = document.getElementById('parseAndNextBtn');
+        const nextToStep3CombinedBtn = document.getElementById('nextToStep3Combined');
+        const generateNoticeBtn = document.getElementById('generateNoticeBtn');
 
         // --- Functions ---
 
@@ -396,8 +396,7 @@
             steps.forEach(step => {
                 step.style.display = (step.id === stepId) ? 'block' : 'none';
             });
-            window.scrollTo(0, 0); // Scroll to the top of the page
-            // Reset "WB Updated" checkbox and "New Notice" button when navigating away from the final step
+            window.scrollTo(0, 0);
             if (stepId !== 'step5' && wbUpdatedCheckbox) {
                 wbUpdatedCheckbox.checked = false;
                 finaliseDropBtn.disabled = true;
@@ -406,25 +405,22 @@
 
         /**
          * Checks if conditions are met to enable the "Next: Review Map & Plan" button in Step 1.
-         * Requires data to be parsed and a plan to be uploaded.
          */
         function checkEnableStep1NextButton() {
             if (dataParsed && planUploaded) {
                 nextToStep3CombinedBtn.disabled = false;
-                console.log("Step 1 Next button enabled.");
             } else {
                 nextToStep3CombinedBtn.disabled = true;
-                console.log("Step 1 Next button disabled. Data Parsed:", dataParsed, "Plan Uploaded:", planUploaded);
             }
         }
 
         /**
          * Returns the correct ordinal suffix for a given day of the month.
          * @param {number} day - The day of the month.
-         * @returns {string} The ordinal suffix (e.g., "st", "nd", "rd", "th").
+         * @returns {string} The ordinal suffix.
          */
         function getDaySuffix(day) {
-            if (day > 3 && day < 21) return 'th'; // Covers 4th-20th
+            if (day > 3 && day < 21) return 'th';
             switch (day % 10) {
                 case 1: return "st";
                 case 2: return "nd";
@@ -434,284 +430,176 @@
         }
 
         /**
-         * Parses the tab-separated data pasted by the user from the spreadsheet.
-         * Extracts date, reference, exchange, location (for coordinates), and Column C data.
-         * Attempts to extract number of days from Column C.
-         * Validates data and updates the UI accordingly.
+         * Parses pasted spreadsheet data.
          */
         function parsePastedData() {
-            console.log("parsePastedData called");
-            pasteError.textContent = '';
-            pasteSuccess.textContent = '';
-            dataParsed = false;
-            noticeData.days = '2'; // Reset to default 2 before parsing new data
-            searchInstructionBox.style.display = 'none';
-            columnCBox.style.display = 'none';
+            pasteError.textContent = ''; pasteSuccess.textContent = '';
+            dataParsed = false; noticeData.days = '2'; // Default days
+            searchInstructionBox.style.display = 'none'; columnCBox.style.display = 'none';
             checkEnableStep1NextButton();
 
             const pastedText = pasteArea.value.trim();
-            if (!pastedText) {
-                pasteError.textContent = 'Please paste data.';
-                return;
-            }
+            if (!pastedText) { pasteError.textContent = 'Please paste data.'; return; }
             const columns = pastedText.split('\t');
-
-            if (columns.length <= 15) {
-                pasteError.textContent = `Error: Need at least 16 columns for all required data (found ${columns.length}). Please check the copied row.`;
-                return;
-            }
+            if (columns.length <= 15) { pasteError.textContent = `Error: Need at least 16 columns (found ${columns.length}).`; return; }
 
             try {
-                // 1. Date Extraction
+                // Date Extraction (Col A, index 0)
                 let rawDateStr = columns[0]?.trim();
-                if (!rawDateStr) throw new Error("Date (Col A) is missing or empty.");
+                if (!rawDateStr) throw new Error("Date (Col A) missing.");
                 let parsedDate;
                 let tempDate = new Date(rawDateStr);
-                if (!isNaN(tempDate.getTime())) {
-                    parsedDate = tempDate;
-                } else {
+                if (!isNaN(tempDate.getTime())) { parsedDate = tempDate; }
+                else {
                     const dateParts = rawDateStr.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
                     if (dateParts) {
-                        const day = parseInt(dateParts[1], 10), month = parseInt(dateParts[2], 10) - 1;
-                        let year = parseInt(dateParts[3], 10); if (year < 100) year += 2000;
+                        const day = parseInt(dateParts[1],10), month = parseInt(dateParts[2],10)-1;
+                        let year = parseInt(dateParts[3],10); if(year < 100) year+=2000;
                         parsedDate = new Date(Date.UTC(year, month, day));
-                        if (isNaN(parsedDate.getTime())) throw new Error(`Invalid date components in "${rawDateStr}".`);
+                        if(isNaN(parsedDate.getTime())) throw new Error(`Invalid date: "${rawDateStr}".`);
                     } else {
-                        const potentialSerial = Number(rawDateStr);
-                        if (!isNaN(potentialSerial) && potentialSerial > 1 && potentialSerial < 2958466) {
-                            const excelEpochOffset = 25569;
-                            const jsTimestamp = (potentialSerial - excelEpochOffset) * 86400 * 1000;
-                            parsedDate = new Date(jsTimestamp);
-                            if (isNaN(parsedDate.getTime())) throw new Error(`Invalid Excel serial date: "${rawDateStr}".`);
-                        } else {
-                            throw new Error(`Unrecognized date format: "${rawDateStr}". Please use DD/MM/YYYY, YYYY-MM-DD, or Excel serial number.`);
-                        }
+                        const serial = Number(rawDateStr);
+                        if (!isNaN(serial) && serial > 1 && serial < 2958466) { // Excel serial check
+                            parsedDate = new Date((serial - 25569) * 86400 * 1000);
+                            if(isNaN(parsedDate.getTime())) throw new Error(`Invalid serial date: "${rawDateStr}".`);
+                        } else throw new Error(`Unrecognized date: "${rawDateStr}".`);
                     }
                 }
                 const today = new Date(), currentYear = today.getUTCFullYear();
-                const comparisonDateThisYear = new Date(Date.UTC(currentYear, parsedDate.getUTCMonth(), parsedDate.getUTCDate()));
-                const todayDateOnly = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
-                let finalYear = comparisonDateThisYear < todayDateOnly ? currentYear + 1 : currentYear;
-                parsedDate.setUTCFullYear(finalYear);
-                const dayOfMonth = parsedDate.getUTCDate();
-                const weekday = parsedDate.toLocaleDateString('en-GB', { weekday: 'long', timeZone: 'UTC' }).toUpperCase();
-                const monthName = parsedDate.toLocaleDateString('en-GB', { month: 'long', timeZone: 'UTC' }).toUpperCase();
-                const yearNum = parsedDate.getUTCFullYear();
-                noticeData.date = `${weekday} ${dayOfMonth + getDaySuffix(dayOfMonth)} ${monthName} ${yearNum}`;
+                const compDate = new Date(Date.UTC(currentYear, parsedDate.getUTCMonth(), parsedDate.getUTCDate()));
+                const todayOnly = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()));
+                parsedDate.setUTCFullYear(compDate < todayOnly ? currentYear + 1 : currentYear);
+                noticeData.date = `${parsedDate.toLocaleDateString('en-GB', {weekday:'long', timeZone:'UTC'}).toUpperCase()} ${parsedDate.getUTCDate() + getDaySuffix(parsedDate.getUTCDate())} ${parsedDate.toLocaleDateString('en-GB', {month:'long', timeZone:'UTC'}).toUpperCase()} ${parsedDate.getUTCFullYear()}`;
 
-                // 2. Reference (Column H, index 7)
-                noticeData.ref = columns[7]?.trim();
-                if (!noticeData.ref) throw new Error("Reference (Col H) is missing or empty.");
-
-                // 3. Location Name / Exchange (Column I, index 8)
-                noticeData.locationName = columns[8]?.trim();
-                if (!noticeData.locationName) throw new Error("Exchange/Location Name (Col I) is missing or empty.");
-
-                // 4. Full Address / Coordinates (Column P, index 15)
-                let locationString = columns[15]?.trim();
-                if (!locationString) throw new Error("Location data (Col P) is missing or empty.");
-                noticeData.fullAddress = locationString;
-                const coordRegex = /.*?(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)/;
-                const coordMatch = locationString.match(coordRegex);
-                if (coordMatch && coordMatch[1] && coordMatch[2]) {
+                // Reference (Col H, index 7)
+                noticeData.ref = columns[7]?.trim(); if (!noticeData.ref) throw new Error("Ref (Col H) missing.");
+                // Location Name (Col I, index 8)
+                noticeData.locationName = columns[8]?.trim(); if (!noticeData.locationName) throw new Error("Exchange (Col I) missing.");
+                // Full Address & Coords (Col P, index 15)
+                let locStr = columns[15]?.trim(); if (!locStr) throw new Error("Location (Col P) missing.");
+                noticeData.fullAddress = locStr;
+                const coordMatch = locStr.match(/.*?(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)/);
+                if (coordMatch) {
                     const lat = parseFloat(coordMatch[1]), lon = parseFloat(coordMatch[2]);
-                    if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
-                        noticeData.lat = String(lat); noticeData.lon = String(lon);
-                    } else { throw new Error(`Coordinates out of valid range (Lat: ${lat}, Lon: ${lon}) in Col P.`); }
-                } else { throw new Error("Could not find valid Latitude, Longitude in Col P. Expected format 'lat, lon'."); }
+                    if (lat>=-90&&lat<=90&&lon>=-180&&lon<=180) { noticeData.lat=String(lat); noticeData.lon=String(lon); }
+                    else throw new Error(`Coords out of range: ${lat}, ${lon}.`);
+                } else throw new Error("Lat, Lon not found in Col P.");
 
-                // 5. Column C Data (Times, index 2) and Day Extraction
+                // Column C Data (Times, index 2) & Day Extraction
                 noticeData.columnCData = columns[2]?.trim() || "";
                 if (noticeData.columnCData) {
-                    const daysRegex = /\b(\d+)\s*day(s)?\b/i; // Looks for "X day" or "X days"
-                    const daysMatch = noticeData.columnCData.match(daysRegex);
+                    const daysMatch = noticeData.columnCData.match(/\b(\d+)\s*day(s)?\b/i);
                     if (daysMatch && daysMatch[1]) {
                         const extractedDays = parseInt(daysMatch[1], 10);
-                        if (extractedDays > 0) { // Ensure it's a positive number
-                           noticeData.days = String(extractedDays);
-                           console.log(`Extracted ${noticeData.days} days from Column C.`);
-                        }
+                        if (extractedDays > 0) noticeData.days = String(extractedDays);
                     }
-                }
+                    columnCData.textContent = noticeData.columnCData; columnCBox.style.display = 'block';
+                } else { columnCBox.style.display = 'none'; }
 
-                console.log("Parsed Data (after Col C check):", noticeData);
-                pasteSuccess.textContent = 'Data saved successfully!';
-                dataParsed = true;
-
-                searchRefNumber.textContent = noticeData.ref;
-                searchInstructionBox.style.display = 'block';
-                if (noticeData.columnCData) {
-                    columnCData.textContent = noticeData.columnCData;
-                    columnCBox.style.display = 'block';
-                } else {
-                    columnCBox.style.display = 'none';
-                }
+                pasteSuccess.textContent = 'Data saved successfully!'; dataParsed = true;
+                searchRefNumber.textContent = noticeData.ref; searchInstructionBox.style.display = 'block';
                 checkEnableStep1NextButton();
-
             } catch (error) {
-                console.error("Parsing error:", error);
-                pasteError.textContent = `Error: ${error.message}`;
-                dataParsed = false;
-                searchInstructionBox.style.display = 'none';
-                columnCBox.style.display = 'none';
+                console.error("Parsing error:", error); pasteError.textContent = `Error: ${error.message}`;
+                dataParsed = false; searchInstructionBox.style.display = 'none'; columnCBox.style.display = 'none';
                 checkEnableStep1NextButton();
                 noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '2', diversion: '', houses: '', postcode: '', locationName: '', fullAddress: '', columnCData: '' };
             }
         }
 
-
         /**
-         * Handles the TM plan file upload.
-         * Creates an object URL for preview and displays image or PDF.
-         * @param {Event} event - The file input change event.
+         * Handles TM plan file upload.
          */
         function handlePlanUpload(event) {
-            console.log("handlePlanUpload started");
             const file = event.target.files[0];
-            planError.textContent = '';
-            planSuccess.textContent = '';
-            planUploaded = false;
+            planError.textContent = ''; planSuccess.textContent = ''; planUploaded = false;
             checkEnableStep1NextButton();
             planPreview.innerHTML = '<p class="text-gray-500 text-sm">Processing plan...</p>';
-
             if (planFileUrl) { URL.revokeObjectURL(planFileUrl); planFileUrl = null; }
-            if (!file) {
-                planPreview.innerHTML = '<p class="text-gray-500 text-sm">No plan selected.</p>';
-                return;
-            }
-            console.log("File selected:", file.name, "Type:", file.type);
+            if (!file) { planPreview.innerHTML = '<p class="text-gray-500 text-sm">No plan selected.</p>'; return; }
 
-            try {
-                planFileUrl = URL.createObjectURL(file);
-            } catch (e) {
-                console.error("URL Creation Error:", e);
-                planError.textContent = 'Could not create URL for the file.';
+            try { planFileUrl = URL.createObjectURL(file); }
+            catch (e) {
+                planError.textContent = 'Could not create URL for file.';
                 planPreview.innerHTML = '<p class="text-red-500 text-sm">Error loading preview.</p>';
                 planUploaded = false; checkEnableStep1NextButton(); return;
             }
 
             if (file.type.startsWith('image/')) {
-                const img = document.createElement('img');
-                img.src = planFileUrl;
-                img.alt = "Plan Preview";
+                const img = document.createElement('img'); img.src = planFileUrl; img.alt = "Plan Preview";
                 img.onerror = () => {
-                    planError.textContent = 'Could not display image. File might be corrupted or unsupported.';
-                    planPreview.innerHTML = '<p class="text-red-500 text-sm">Error loading image preview.</p>';
-                    URL.revokeObjectURL(planFileUrl); planFileUrl = null; planUploaded = false; checkEnableStep1NextButton();
+                    planError.textContent='Could not display image.'; planPreview.innerHTML='<p class="text-red-500 text-sm">Error image preview.</p>';
+                    URL.revokeObjectURL(planFileUrl); planFileUrl=null; planUploaded=false; checkEnableStep1NextButton();
                 };
                 img.onload = () => {
-                    planPreview.innerHTML = ''; planPreview.appendChild(img);
-                    planSuccess.textContent = `Image Plan "${file.name}" successfully uploaded.`;
-                    planUploaded = true; checkEnableStep1NextButton();
+                    planPreview.innerHTML=''; planPreview.appendChild(img); planSuccess.textContent=`Image "${file.name}" uploaded.`;
+                    planUploaded=true; checkEnableStep1NextButton();
                 };
             } else if (file.type === 'application/pdf') {
-                planPreview.innerHTML = '';
-                const iframe = document.createElement('iframe');
-                iframe.src = planFileUrl;
-                iframe.title = "Plan PDF Preview";
-                iframe.setAttribute('type', 'application/pdf');
-                iframe.onload = () => { // May not be fully reliable for PDF rendering
-                    planSuccess.textContent = `PDF Plan "${file.name}" uploaded. Preview depends on browser/extensions.`;
-                    planUploaded = true; checkEnableStep1NextButton();
-                };
+                planPreview.innerHTML=''; const iframe = document.createElement('iframe');
+                iframe.src = planFileUrl; iframe.title="Plan PDF Preview"; iframe.type="application/pdf";
+                iframe.onload = () => { planSuccess.textContent=`PDF "${file.name}" uploaded.`; planUploaded=true; checkEnableStep1NextButton(); };
                 iframe.onerror = () => {
-                    planError.textContent = 'Could not load PDF preview. Ensure browser can display PDFs.';
-                    planPreview.innerHTML = '<p class="text-red-500 text-sm">Error loading PDF preview.</p>';
-                    URL.revokeObjectURL(planFileUrl); planFileUrl = null; planUploaded = false; checkEnableStep1NextButton();
+                    planError.textContent='Could not load PDF.'; planPreview.innerHTML='<p class="text-red-500 text-sm">Error PDF preview.</p>';
+                    URL.revokeObjectURL(planFileUrl); planFileUrl=null; planUploaded=false; checkEnableStep1NextButton();
                 };
                 planPreview.appendChild(iframe);
             } else {
-                planError.textContent = 'Unsupported file type. Please upload an Image or PDF.';
-                planPreview.innerHTML = '<p class="text-red-500 text-sm">Invalid file type.</p>';
-                URL.revokeObjectURL(planFileUrl); planFileUrl = null; planUploaded = false; checkEnableStep1NextButton();
+                planError.textContent='Unsupported file (Image/PDF only).'; planPreview.innerHTML='<p class="text-red-500 text-sm">Invalid file.</p>';
+                URL.revokeObjectURL(planFileUrl); planFileUrl=null; planUploaded=false; checkEnableStep1NextButton();
             }
         }
 
         /**
-         * Updates the map iframe source URL using the parsed coordinates.
+         * Updates the map iframe source.
          */
         function updateMap() {
             if (noticeData.lat && noticeData.lon) {
-                const mapUrl = `https://symology.maps.arcgis.com/apps/webappviewer/index.html?id=1055c1d3a2c344cea5353d8ed744831c&center=${noticeData.lon},${noticeData.lat}&level=15`;
-                mapFrame.src = mapUrl;
-                console.log("Updated map URL to ArcGIS:", mapUrl);
-            } else {
-                mapFrame.src = 'about:blank';
-                console.log("Map cleared due to missing coordinates.");
-            }
+                mapFrame.src = `https://symology.maps.arcgis.com/apps/webappviewer/index.html?id=1055c1d3a2c344cea5353d8ed744831c&center=${noticeData.lon},${noticeData.lat}&level=15`;
+            } else { mapFrame.src = 'about:blank'; }
         }
 
         /**
-         * Attempts to auto-fill the search box within the ArcGIS map iframe.
+         * Attempts to auto-fill ArcGIS map search.
          */
         function tryAutoFillMapSearch() {
-            const coordsString = coordsDisplay.value;
-            if (!coordsString || coordsString === 'N/A') return;
-            console.log('Attempting auto-fill ArcGIS map search with:', coordsString);
+            const coordsStr = coordsDisplay.value; if (!coordsStr || coordsStr === 'N/A') return;
             setTimeout(() => {
                 try {
-                    const iframeDoc = mapFrame.contentWindow?.document;
-                    if (!iframeDoc) {
-                        console.warn("Cannot access iframe content for auto-fill."); return;
-                    }
-                    const searchInput = iframeDoc.getElementById('esri_dijit_Search_0_input');
-                    if (searchInput) {
-                        searchInput.value = coordsString;
-                        console.log("Attempted ArcGIS map search auto-fill.");
-                    } else { console.warn("ArcGIS map search input 'esri_dijit_Search_0_input' not found."); }
-                } catch (error) {
-                    console.warn("ArcGIS Auto-fill failed:", error.message);
-                }
+                    const iDoc = mapFrame.contentWindow?.document; if (!iDoc) return;
+                    const searchIn = iDoc.getElementById('esri_dijit_Search_0_input');
+                    if (searchIn) searchIn.value = coordsStr;
+                } catch (e) { console.warn("ArcGIS Auto-fill failed:", e.message); }
             }, 3000);
         }
 
         /**
-         * Copies the extracted coordinates to the clipboard.
+         * Copies coordinates to clipboard.
          */
         function copyCoordinatesToClipboard() {
-            const coordsString = coordsDisplay.value;
-            copyCoordsStatus.textContent = '';
-            if (!coordsString || coordsString === 'N/A') {
-                copyCoordsStatus.textContent = 'No coordinates to copy.';
-                copyCoordsStatus.className = 'text-sm text-yellow-600 mt-2 h-4'; return;
-            }
-            if (!navigator.clipboard || !navigator.clipboard.writeText) {
-                copyCoordsStatus.textContent = 'Clipboard API not available (HTTPS/localhost needed).';
-                copyCoordsStatus.className = 'text-sm text-red-600 mt-2 h-4'; return;
-            }
-            navigator.clipboard.writeText(coordsString).then(() => {
-                copyCoordsStatus.textContent = 'Coordinates copied!';
-                copyCoordsStatus.className = 'text-sm text-green-600 mt-2 h-4';
-                setTimeout(() => { copyCoordsStatus.textContent = ''; }, 3000);
-            }).catch(err => {
-                console.error('Failed to copy coordinates:', err);
-                copyCoordsStatus.textContent = 'Copy failed. Check permissions.';
-                copyCoordsStatus.className = 'text-sm text-red-600 mt-2 h-4';
-            });
+            const coordsStr = coordsDisplay.value; copyCoordsStatus.textContent = '';
+            if (!coordsStr || coordsStr === 'N/A') { copyCoordsStatus.textContent = 'No coords to copy.'; return; }
+            if (!navigator.clipboard) { copyCoordsStatus.textContent = 'Clipboard unavailable.'; return; }
+            navigator.clipboard.writeText(coordsStr).then(() => {
+                copyCoordsStatus.textContent = 'Coords copied!'; setTimeout(() => copyCoordsStatus.textContent = '', 3000);
+            }).catch(err => copyCoordsStatus.textContent = 'Copy failed.');
         }
 
         /**
-         * Generates the notice text based on user inputs and parsed data.
+         * Generates the notice text for preview and print.
          */
         function generateNotice() {
-            noticeData.street = streetInput.value.trim();
-            noticeData.town = townInput.value.trim();
-            if (!noticeData.street) { alert("Please enter the Street name."); streetInput.focus(); return; }
-            if (!noticeData.town) { alert("Please enter the Town name."); townInput.focus(); return; }
+            noticeData.street = streetInput.value.trim(); noticeData.town = townInput.value.trim();
+            if (!noticeData.street) { alert("Enter Street."); streetInput.focus(); return; }
+            if (!noticeData.town) { alert("Enter Town."); townInput.focus(); return; }
             const streetAndTown = `${noticeData.street}, ${noticeData.town}`;
 
-            // Use the value from the input field in Step 2, which might have been manually changed
-            noticeData.days = workDaysInput.value || '2'; // Default to '2' if input is empty
-            noticeData.houses = affectedHousesInput.value || '0';
+            noticeData.days = workDaysInput.value || '2'; noticeData.houses = affectedHousesInput.value || '0';
+            if (!noticeData.diversion) { alert("Diversion route missing (Step 1)."); showStep('step1'); diversionRouteStep1Input.focus(); return; }
 
-            if (!noticeData.diversion) {
-                alert("Diversion route is missing. Please go back to Step 1.");
-                showStep('step1'); diversionRouteStep1Input.focus(); return;
-            }
-
+            const daysText = `${noticeData.days} working day${parseInt(noticeData.days) === 1 ? '' : 's'}`;
             document.getElementById('print-date').textContent = `On ${noticeData.date}`;
             document.getElementById('print-para1-street-town').textContent = streetAndTown;
-            const daysText = `${noticeData.days} working day${parseInt(noticeData.days) === 1 ? '' : 's'}`;
             document.getElementById('print-para2-days').textContent = daysText;
             document.getElementById('print-para2-div').textContent = noticeData.diversion;
             document.getElementById('print-para3-street-town').textContent = streetAndTown;
@@ -727,57 +615,66 @@
             generatedNoticeTextarea.value = textPreview;
 
             const numHouses = parseInt(noticeData.houses, 10);
-            printCopiesDisplay.textContent = `Print ${isNaN(numHouses) || numHouses < 0 ? 0 : numHouses}`;
+            printCopiesDisplay.textContent = `Print ${isNaN(numHouses)||numHouses<0 ? 0 : numHouses}`;
             showStep('step4');
         }
 
         /**
-         * Triggers browser print and shows final step.
+         * Triggers browser print and populates post-it details.
          */
         function printNotice() {
+            let awsDetailsLine = ""; // To store the AWS details if found
+            // Check Column C data for "AWS "
+            if (noticeData.columnCData && noticeData.columnCData.includes("AWS ")) {
+                const awsStartIndex = noticeData.columnCData.indexOf("AWS ");
+                // Get the substring starting right after "AWS "
+                let awsValue = noticeData.columnCData.substring(awsStartIndex + 4);
+
+                // Find the delimiter " // " if it exists
+                const delimiterIndex = awsValue.indexOf(" // ");
+                if (delimiterIndex !== -1) {
+                    // If delimiter found, take the part before it
+                    awsValue = awsValue.substring(0, delimiterIndex).trim();
+                } else {
+                    // If no delimiter, take the whole remaining part and trim
+                    awsValue = awsValue.trim();
+                }
+
+                // Only add if there's a non-empty value after "AWS "
+                if (awsValue) {
+                    awsDetailsLine = `AWS ${awsValue}<br>`;
+                }
+            }
+
+            // Populate post-it details, prepending AWS details if available
             postItDetails.innerHTML = `
-                Location: ${noticeData.locationName || '[Exchange Missing]'}<br>
+                ${awsDetailsLine}Location: ${noticeData.locationName || '[Exchange Missing]'}<br>
                 Job Ref: ${noticeData.ref || '[Ref Missing]'}<br>
                 Address: ${noticeData.fullAddress || '[Address Missing]'}
             `;
-            window.print();
-            showStep('step5');
+            window.print(); // Trigger print dialog
+            showStep('step5'); // Show final step after print
         }
 
         /**
          * Resets the tool to its initial state.
          */
         function resetTool() {
-            pasteArea.value = '';
-            if(planFileInput) planFileInput.value = null;
-            diversionRouteStep1Input.value = '';
-            streetInput.value = '';
-            townInput.value = '';
-            workDaysInput.value = '2'; // DEFAULT TO 2
-            affectedHousesInput.value = '';
-            refNumberDisplay.value = '';
-            dateDisplay.value = '';
-            coordsDisplay.value = '';
-            generatedNoticeTextarea.value = '';
-            wbUpdatedCheckbox.checked = false;
-
-            pasteError.textContent = ''; pasteSuccess.textContent = '';
-            planError.textContent = ''; planSuccess.textContent = '';
-            copyCoordsStatus.textContent = '';
-
+            pasteArea.value = ''; if(planFileInput) planFileInput.value = null;
+            diversionRouteStep1Input.value = ''; streetInput.value = ''; townInput.value = '';
+            workDaysInput.value = '2'; affectedHousesInput.value = '';
+            refNumberDisplay.value = ''; dateDisplay.value = ''; coordsDisplay.value = '';
+            generatedNoticeTextarea.value = ''; wbUpdatedCheckbox.checked = false;
+            pasteError.textContent = ''; pasteSuccess.textContent = ''; planError.textContent = '';
+            planSuccess.textContent = ''; copyCoordsStatus.textContent = '';
             dataParsed = false; planUploaded = false;
-            noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '2', diversion: '', houses: '', postcode: '', locationName: '', fullAddress: '', columnCData: '' }; // DEFAULT DAYS TO 2
+            noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '2', diversion: '', houses: '', postcode: '', locationName: '', fullAddress: '', columnCData: '' };
             if (planFileUrl) { URL.revokeObjectURL(planFileUrl); planFileUrl = null; }
-
             searchInstructionBox.style.display = 'none'; searchRefNumber.textContent = '[Job Number]';
             columnCBox.style.display = 'none'; columnCData.textContent = '[Data]';
             planPreview.innerHTML = '<p class="text-gray-500 text-sm">Plan preview will appear here.</p>';
-            printCopiesDisplay.textContent = 'Print 0';
-            postItDetails.innerHTML = 'Loading...';
-            finaliseDropBtn.disabled = true;
-            checkEnableStep1NextButton();
-            showStep('step1');
-            console.log("Tool reset. Default days set to 2.");
+            printCopiesDisplay.textContent = 'Print 0'; postItDetails.innerHTML = 'Loading...';
+            finaliseDropBtn.disabled = true; checkEnableStep1NextButton(); showStep('step1');
         }
 
 
@@ -787,32 +684,20 @@
         copyCoordsBtn.addEventListener('click', copyCoordinatesToClipboard);
         viewPlanBtn.addEventListener('click', () => {
             if (planFileUrl) { window.open(planFileUrl, '_blank'); }
-            else { alert("No plan file has been uploaded yet."); }
+            else { alert("No plan file uploaded."); }
         });
         finaliseDropBtn.addEventListener('click', resetTool);
-        wbUpdatedCheckbox.addEventListener('change', (event) => {
-            finaliseDropBtn.disabled = !event.target.checked;
-        });
+        wbUpdatedCheckbox.addEventListener('change', (e) => { finaliseDropBtn.disabled = !e.target.checked; });
 
         nextToStep3CombinedBtn.addEventListener('click', () => {
             noticeData.diversion = diversionRouteStep1Input.value.trim();
-            if (!noticeData.diversion) {
-                alert("Please enter the diversion route before proceeding.");
-                diversionRouteStep1Input.focus(); return;
-            }
-            if (!dataParsed || !planUploaded) {
-                alert("Please ensure data is parsed and a plan is uploaded successfully.");
-                return;
-            }
-
+            if (!noticeData.diversion) { alert("Enter diversion route."); diversionRouteStep1Input.focus(); return; }
+            if (!dataParsed || !planUploaded) { alert("Parse data & upload plan first."); return; }
             updateMap();
-            refNumberDisplay.value = noticeData.ref;
-            dateDisplay.value = noticeData.date;
+            refNumberDisplay.value = noticeData.ref; dateDisplay.value = noticeData.date;
             coordsDisplay.value = (noticeData.lat && noticeData.lon) ? `${noticeData.lat}, ${noticeData.lon}` : 'N/A';
-            workDaysInput.value = noticeData.days; // Populate workDaysInput with potentially updated days value
-
-            showStep('step3');
-            tryAutoFillMapSearch();
+            workDaysInput.value = noticeData.days; // Ensure workDays input reflects noticeData.days
+            showStep('step3'); tryAutoFillMapSearch();
         });
 
         generateNoticeBtn.addEventListener('click', generateNotice);
