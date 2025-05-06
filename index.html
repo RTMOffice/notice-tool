@@ -137,7 +137,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200" id="toolInterface">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 78)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 79)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -210,7 +210,8 @@
                 </div>
                  <div class="form-group">
                     <label for="affectedHouses" class="block text-sm font-medium text-gray-700 mb-1">Required Letters:</label>
-                    <input type="number" id="affectedHouses" min="0" max="40" placeholder="e.g. 40" class="mt-1 block w-full px-3 py-2 bg-white border-2 border-[#c31f33] rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"> </div>
+                    <input type="number" id="affectedHouses" min="0" max="40" placeholder="e.g. 40" class="mt-1 block w-full px-3 py-2 bg-white border-2 border-[#c31f33] rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
                  <div class="form-group">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Reference Number:</label>
                     <input type="text" id="refNumberDisplay" readonly class="mt-1 block w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-md shadow-sm sm:text-sm">
@@ -267,11 +268,15 @@
              <div class="bg-purple-50 p-4 rounded-md border border-purple-200">
                  <h3 class="text-lg font-medium text-gray-800 mb-2">3. Update Spreadsheet</h3>
                  <p class="text-sm text-gray-600">Remember to update your main tracking spreadsheet with the relevant details for this notice.</p>
+                 <div class="mt-4 flex items-center">
+                     <input id="wbUpdatedCheckbox" name="wbUpdatedCheckbox" type="checkbox" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                     <label for="wbUpdatedCheckbox" class="ml-2 block text-sm text-gray-900"> I have updated the WB </label>
+                 </div>
              </div>
 
              <div class="mt-8 flex justify-between items-center">
                  <button class="secondary-button inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onclick="showStep('step4')">Back</button>
-                 <button id="finaliseDropBtn" class="inline-flex justify-center py-2 px-6 border-2 border-green-500 shadow-sm text-base font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">New Notice</button>
+                 <button id="finaliseDropBtn" disabled class="inline-flex justify-center py-2 px-6 border-2 border-green-500 shadow-sm text-base font-medium rounded-md text-green-700 bg-green-100 hover:bg-green-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">New Notice</button>
              </div>
         </div>
 
@@ -361,6 +366,7 @@
         const postItDetails = document.getElementById('postItDetails');
         const viewPlanBtn = document.getElementById('viewPlanBtn');
         const finaliseDropBtn = document.getElementById('finaliseDropBtn'); // Renamed from startNewBtn
+        const wbUpdatedCheckbox = document.getElementById('wbUpdatedCheckbox'); // NEW Checkbox element
 
 
         // --- Navigation Buttons ---
@@ -376,6 +382,11 @@
                 step.style.display = (step.id === stepId) ? 'block' : 'none';
             });
             window.scrollTo(0, 0);
+             // Reset checkbox when moving away from step 4
+             if (stepId !== 'step5' && wbUpdatedCheckbox) {
+                 wbUpdatedCheckbox.checked = false;
+                 finaliseDropBtn.disabled = true; // Ensure button is disabled
+             }
         }
 
         function checkEnableStep1NextButton() {
@@ -453,7 +464,7 @@
                 noticeData.ref = columns[7]?.trim() || '[REF MISSING]';
                 if (noticeData.ref === '[REF MISSING]') throw new Error("Ref (Col H) missing.");
 
-                // Location Name / Exchange (Column I, index 8) - CORRECTED
+                // Location Name / Exchange (Column I, index 8)
                 noticeData.locationName = columns[8]?.trim() || '[EXCHANGE MISSING]';
                  if (noticeData.locationName === '[EXCHANGE MISSING]') throw new Error("Exchange (Col I) missing.");
 
@@ -477,7 +488,7 @@
                 console.log("Parsed Data:", noticeData);
                 pasteSuccess.textContent = 'Data parsed successfully!';
                 dataParsed = true;
-                // Update and show the search instruction box
+                // Update and show the instruction boxes
                 searchRefNumber.textContent = noticeData.ref;
                 searchInstructionBox.style.display = 'block';
                 // Show Column C box ONLY if data exists
@@ -547,7 +558,7 @@
                 img.onload = () => {
                     console.log("Image onload triggered.");
                     planPreview.innerHTML = ''; planPreview.appendChild(img);
-                    planSuccess.textContent = `Image Plan "${file.name}" successfully uploaded.`; // Updated Text
+                    planSuccess.textContent = `Image Plan "${file.name}" successfully uploaded.`;
                     planUploaded = true;
                     checkEnableStep1NextButton();
                 };
@@ -560,7 +571,7 @@
                 iframe.setAttribute('type', 'application/pdf');
                 iframe.onload = () => {
                     console.log("PDF iframe onload triggered.");
-                    planSuccess.textContent = `PDF Plan "${file.name}" successfully uploaded.`; // Updated Text
+                    planSuccess.textContent = `PDF Plan "${file.name}" successfully uploaded.`;
                     planUploaded = true;
                     checkEnableStep1NextButton();
                 };
@@ -725,6 +736,7 @@
             dateDisplay.value = '';
             coordsDisplay.value = '';
             generatedNoticeTextarea.value = '';
+            wbUpdatedCheckbox.checked = false; // Uncheck the confirmation box
 
             // Clear status messages
             pasteError.textContent = '';
@@ -748,6 +760,7 @@
             planPreview.innerHTML = '<p class="text-gray-500 text-sm">Plan preview will appear here.</p>'; // Reset plan preview
             printCopiesDisplay.textContent = 'Print 0'; // Reset print copies display
             postItDetails.textContent = 'Loading...'; // Reset post-it details
+            finaliseDropBtn.disabled = true; // Disable the final button again
 
             // Go back to first step
             showStep('step1');
@@ -767,6 +780,11 @@
         });
         // Updated: Both "Finalise Drop" / "New Notice" reset the tool
         finaliseDropBtn.addEventListener('click', resetTool);
+
+        // Listener for the new checkbox
+        wbUpdatedCheckbox.addEventListener('change', (event) => {
+            finaliseDropBtn.disabled = !event.target.checked;
+        });
 
 
         nextToStep3CombinedBtn.addEventListener('click', () => {
