@@ -107,6 +107,8 @@
         }
          #noticePrintArea p { margin-bottom: 5mm; }
          #noticePrintArea #print-closing p { margin-bottom: 1mm; margin-top: 1mm; }
+         /* Apply 1.25 line height specifically to body paragraphs */
+         #noticePrintArea .body-para { line-height: 1.25 !important; }
 
 
         /* Print-specific styles */
@@ -130,7 +132,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200" id="toolInterface">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 58)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 59)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -255,22 +257,22 @@
 
         <div class="mt-15 font-times print-text-22pt font-bold" id="print-please-note">PLEASE NOTE</div>
         <div class="mt-4 print-text-24pt underline text-center" id="print-date">On DATE</div>
-        <p class="mt-10 print-text-11pt leading-[1.25]" id="print-para1">
+        <p class="mt-10 print-text-11pt body-para" id="print-para1">
             I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along <strong class="font-bold" id="print-para1-street-town">STREET, TOWN</strong>.
         </p>
-        <p class="print-text-11pt leading-[1.25]" id="print-para2">
+        <p class="print-text-11pt body-para" id="print-para2">
             The work is expected to take a maximum of <strong class="font-bold" id="print-para2-days">DAY working days</strong> and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion <strong class="font-bold" id="print-para2-div">DIV</strong> and Vice Versa.
         </p>
-        <p class="print-text-11pt leading-[1.25]" id="print-para3">
+        <p class="print-text-11pt body-para" id="print-para3">
             <strong class="font-bold" id="print-para3-street-town">STREET, TOWN</strong> will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times.
         </p>
-        <p class="print-text-11pt font-bold leading-[1.25]" id="print-apology">
+        <p class="print-text-11pt font-bold body-para" id="print-apology">
             We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.
         </p>
-        <p class="print-text-12pt leading-[1.25]" id="print-concerns">
+        <p class="print-text-12pt body-para" id="print-concerns">
              ANY CONCERNS PLEASE CALL <strong class="font-bold" id="print-concerns-phone">0845 200 4035</strong> WITH OUR REF: <span id="print-concerns-ref">REFR</span>
         </p>
-        <div class="mt-10 print-text-11pt leading-[1.25]" id="print-closing">
+        <div class="mt-10 print-text-11pt body-para" id="print-closing">
             <p>Regards</p>
             <p class="mt-4">Zoe Franks</p>
             <p>I & A Communications Ltd</p>
