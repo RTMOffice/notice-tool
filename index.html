@@ -71,7 +71,7 @@
             box-sizing: border-box;
             background-color: white;
         }
-        /* Font Substitutes & Sizes - UPDATED LINE HEIGHT */
+        /* Font Substitutes & Sizes */
         #noticePrintArea .font-times { font-family: 'Tinos', serif; /* Google Font similar to Times */ }
         #noticePrintArea .print-text-10pt { font-size: 10pt; line-height: 1.1; }
         #noticePrintArea .print-text-11pt { font-size: 11pt; line-height: 1.1; }
@@ -132,7 +132,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200" id="toolInterface">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 60)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 61)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -239,6 +239,34 @@
              <p id="copyStatus" class="text-sm text-green-600 mt-2 text-right"></p>
         </div>
 
+        <div id="step5" class="step space-y-6">
+             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 4: Final Actions</h2>
+
+             <div class="bg-blue-50 p-4 rounded-md border border-blue-200">
+                 <h3 class="text-lg font-medium text-gray-800 mb-2">1. Print TM Plan</h3>
+                 <p class="text-sm text-gray-600 mb-3">Click the button below to open the uploaded TM plan in a new tab for printing.</p>
+                 <button id="viewPlanBtn" class="secondary-button inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">View/Print TM Plan</button>
+             </div>
+
+             <div class="bg-yellow-50 p-4 rounded-md border border-yellow-200">
+                 <h3 class="text-lg font-medium text-gray-800 mb-2">2. Prepare Post-it Note</h3>
+                 <p class="text-sm text-gray-600 mb-3">Write the following details on a post-it note:</p>
+                 <div id="postItDetails" class="p-3 bg-white border border-gray-200 rounded-md text-sm font-mono">
+                     Loading...
+                 </div>
+             </div>
+
+             <div class="bg-purple-50 p-4 rounded-md border border-purple-200">
+                 <h3 class="text-lg font-medium text-gray-800 mb-2">3. Update Spreadsheet</h3>
+                 <p class="text-sm text-gray-600">Remember to update your main tracking spreadsheet with the relevant details for this notice.</p>
+             </div>
+
+             <div class="mt-8 text-right">
+                 <button id="startNewBtn" class="inline-flex justify-center py-2 px-6 border border-transparent shadow-sm text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">Start New Notice</button>
+             </div>
+        </div>
+
+
     </div> <div id="noticePrintArea">
         <div class="logo-container">
              <img id="print-logo-img" src="https://raw.githubusercontent.com/RTMOffice/notice-tool/refs/heads/main/Logo.jpg" alt="Company Logo">
@@ -284,7 +312,7 @@
     <script>
         // --- Global Variables ---
         let planFileUrl = null;
-        let noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '1', diversion: '', houses: '' }; // Added town
+        let noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '1', diversion: '', houses: '', postcode: '' }; // Added postcode
         let dataParsed = false;
         let planUploaded = false;
         // jsPDF removed
@@ -318,6 +346,11 @@
         const printCopiesDisplay = document.getElementById('printCopiesDisplay'); // Added element
         const searchInstructionBox = document.getElementById('searchInstructionBox'); // New instruction box
         const searchRefNumber = document.getElementById('searchRefNumber'); // Span for ref number
+        // Step 4 Elements
+        const postItDetails = document.getElementById('postItDetails');
+        const viewPlanBtn = document.getElementById('viewPlanBtn');
+        const startNewBtn = document.getElementById('startNewBtn');
+
 
         // --- Navigation Buttons ---
         const parseAndNextBtn = document.getElementById('parseAndNextBtn');
@@ -407,18 +440,23 @@
                 noticeData.ref = columns[7]?.trim() || '[REF MISSING]';
                 if (noticeData.ref === '[REF MISSING]') throw new Error("Ref (Col H) missing.");
 
-                // Location & Coordinates
+                // Location & Coordinates & Postcode
                 let locationString = columns[15]?.trim();
                 if (!locationString) throw new Error("Location (Col P) missing.");
                 if (locationString.includes('/')) locationString = locationString.split('/')[0].trim();
                 const coordRegex = /.*?(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)/;
-                const match = locationString.match(coordRegex);
-                if (match && match[1] && match[2]) {
-                    const lat = parseFloat(match[1]), lon = parseFloat(match[2]);
+                const coordMatch = locationString.match(coordRegex);
+                if (coordMatch && coordMatch[1] && coordMatch[2]) {
+                    const lat = parseFloat(coordMatch[1]), lon = parseFloat(coordMatch[2]);
                     if (lat >= -90 && lat <= 90 && lon >= -180 && lon <= 180) {
                         noticeData.lat = String(lat); noticeData.lon = String(lon);
                     } else { throw new Error(`Coords out of range (${lat}, ${lon}).`); }
                 } else { throw new Error("Couldn't find Lat, Lon in Col P."); }
+
+                // Attempt to extract postcode (UK format) from the end of the location string
+                const postcodeRegex = /([A-Z]{1,2}[0-9][A-Z0-9]?\s?[0-9][A-Z]{2})$/i; // Case-insensitive UK postcode regex
+                const postcodeMatch = locationString.match(postcodeRegex);
+                noticeData.postcode = postcodeMatch ? postcodeMatch[1].toUpperCase() : '[POSTCODE NOT FOUND]'; // Store postcode or placeholder
 
                 console.log("Parsed Data:", noticeData);
                 pasteSuccess.textContent = 'Data parsed successfully!';
@@ -434,7 +472,7 @@
                 dataParsed = false;
                 searchInstructionBox.style.display = 'none'; // Hide on error
                 checkEnableStep1NextButton();
-                noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '1', diversion: '', houses: '' }; // Reset town too
+                noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '1', diversion: '', houses: '', postcode: '' }; // Reset postcode too
             }
         }
 
@@ -631,18 +669,78 @@
         }
 
         /**
-         * Triggers the browser's print dialog.
+         * Triggers the browser's print dialog and shows the final step.
          */
         function printNotice() {
+            // Populate post-it details before printing
+             const streetAndTown = `${noticeData.street}, ${noticeData.town}`;
+             postItDetails.innerHTML = `
+                 Location: ${streetAndTown}<br>
+                 Job Ref: ${noticeData.ref}<br>
+                 Postcode: ${noticeData.postcode}
+             `;
+             // Trigger print
             window.print();
+            // Show Step 4 after print dialog is closed (or immediately if cancelled)
+            showStep('step5');
+        }
+
+        /**
+         * Resets the tool to its initial state.
+         */
+        function resetTool() {
+            // Clear form inputs
+            pasteArea.value = '';
+            planFileInput.value = null; // Clear file input
+            diversionRouteStep1Input.value = '';
+            streetInput.value = '';
+            townInput.value = '';
+            workDaysInput.value = '1';
+            affectedHousesInput.value = '';
+            refNumberDisplay.value = '';
+            dateDisplay.value = '';
+            coordsDisplay.value = '';
+            generatedNoticeTextarea.value = '';
+
+            // Clear status messages
+            pasteError.textContent = '';
+            pasteSuccess.textContent = '';
+            planError.textContent = '';
+            planSuccess.textContent = '';
+            copyCoordsStatus.textContent = '';
+            copyStatus.textContent = '';
+
+            // Reset flags and data
+            dataParsed = false;
+            planUploaded = false;
+            noticeData = { ref: '', lat: '', lon: '', date: '', street: '', town: '', days: '1', diversion: '', houses: '', postcode: '' };
+            planFileUrl = null; // Clear stored plan URL
+
+            // Reset UI elements
+            searchInstructionBox.style.display = 'none';
+            searchRefNumber.textContent = '[Job Number]';
+            planPreview.innerHTML = '<p class="text-gray-500 text-sm">Plan preview will appear here.</p>'; // Reset plan preview
+            printCopiesDisplay.textContent = 'Print 0'; // Reset print copies display
+            postItDetails.textContent = 'Loading...'; // Reset post-it details
+
+            // Go back to first step
+            showStep('step1');
         }
 
 
         // --- Event Listeners ---
         parseAndNextBtn.addEventListener('click', parsePastedData);
-        // logoFileInput listener removed
         planFileInput.addEventListener('change', handlePlanUpload);
         copyCoordsBtn.addEventListener('click', copyCoordinatesToClipboard); // Updated ID
+        viewPlanBtn.addEventListener('click', () => { // Listener for view plan button
+             if (planFileUrl) {
+                 window.open(planFileUrl, '_blank');
+             } else {
+                 alert("No plan file has been uploaded yet.");
+             }
+        });
+        startNewBtn.addEventListener('click', resetTool); // Listener for start new button
+
 
         nextToStep3CombinedBtn.addEventListener('click', () => {
             noticeData.diversion = diversionRouteStep1Input.value.trim();
@@ -658,7 +756,7 @@
         });
 
         generateNoticeBtn.addEventListener('click', generateNotice);
-        // copyNoticeBtn listener removed
+        copyNoticeBtn.addEventListener('click', copyNoticeToClipboard); // Kept for now, but hidden
         // Changed listener to call print function
         printNoticeBtn.addEventListener('click', printNotice);
 
