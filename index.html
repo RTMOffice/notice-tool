@@ -130,7 +130,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200" id="toolInterface">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 52)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 54)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -222,9 +222,9 @@
              <div class="mt-6 flex justify-between items-center">
                  <button class="secondary-button inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onclick="showStep('step3')">Back</button>
                  <div class="flex items-center">
-                     <div id="printCopiesDisplay" class="border border-gray-400 rounded-md px-4 py-2 text-sm font-medium text-gray-700 mr-4">
+                     <div id="printCopiesDisplay" class="border-2 border-[#c31f33] rounded-md px-4 py-2 text-sm font-medium text-gray-700 mr-4">
                          Print 0 </div>
-                     <button id="printNoticeBtn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Print Notice</button>
+                    <button id="printNoticeBtn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Print Notice</button>
                  </div>
             </div>
              <p id="copyStatus" class="text-sm text-green-600 mt-2 text-right"></p>
@@ -303,10 +303,10 @@
         const copyCoordsBtn = document.getElementById('copyCoordsBtn'); // Updated ID
         const copyCoordsStatus = document.getElementById('copyCoordsStatus');
         const generatedNoticeTextarea = document.getElementById('generatedNotice');
-        const copyNoticeBtn = document.getElementById('copyNoticeBtn');
+        const copyNoticeBtn = document.getElementById('copyNoticeBtn'); // Kept for now, but hidden
         const printNoticeBtn = document.getElementById('printNoticeBtn'); // Changed ID
         const copyStatus = document.getElementById('copyStatus');
-        const printCopiesDisplay = document.getElementById('printCopiesDisplay'); // New display element
+        const printCopiesDisplay = document.getElementById('printCopiesDisplay'); // Added element
 
         // --- Navigation Buttons ---
         const parseAndNextBtn = document.getElementById('parseAndNextBtn');
@@ -618,8 +618,6 @@
          * Triggers the browser's print dialog.
          */
         function printNotice() {
-            // Optional: Add a small delay to ensure the print area is fully rendered if needed
-            // setTimeout(() => { window.print(); }, 100);
             window.print();
         }
 
@@ -644,7 +642,7 @@
         });
 
         generateNoticeBtn.addEventListener('click', generateNotice);
-        copyNoticeBtn.addEventListener('click', copyNoticeToClipboard);
+        // copyNoticeBtn listener removed
         // Changed listener to call print function
         printNoticeBtn.addEventListener('click', printNotice);
 
