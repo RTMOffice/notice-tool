@@ -132,7 +132,7 @@
 <body class="bg-gray-100 p-4">
 
     <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 bg-white rounded-lg shadow-lg border border-gray-200" id="toolInterface">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 67)</h1>
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Notice Generation Tool (Ver 69)</h1>
 
         <div id="step1" class="step space-y-6">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 1: Data collection</h2>
@@ -682,7 +682,7 @@
             // Populate post-it details before printing
              // Use Location Name (Col I) and Postcode (Col P)
              postItDetails.innerHTML = `
-                 Location: ${noticeData.locationName || '[Location Name Missing]'}<br>
+                 Location: ${noticeData.locationName || '[Exchange Missing]'}<br>
                  Job Ref: ${noticeData.ref}<br>
                  Postcode: ${noticeData.postcode}
              `;
