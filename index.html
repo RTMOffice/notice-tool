@@ -346,7 +346,6 @@
         const planSuccess = document.getElementById('planSuccess');
         const diversionRouteStep1Input = document.getElementById('diversionRouteStep1');
         const mapFrame = document.getElementById('mapFrame');
-        // const mapSearchStatus = document.getElementById('mapSearchStatus'); // Not actively used, can be removed if no future plans
         const streetInput = document.getElementById('streetInput');
         const townInput = document.getElementById('townInput');
         const workDaysInput = document.getElementById('workDays');
@@ -387,9 +386,8 @@
                 wbUpdatedCheckbox.checked = false;
                 finaliseDropBtn.disabled = true;
             }
-             // When leaving step 3 (id=step4), ensure print button is disabled for next time
-            if (stepId !== 'step4') {
-                printNoticeBtn.disabled = true;
+            if (stepId !== 'step4') { // When leaving step 3 (id=step4)
+                printNoticeBtn.disabled = true; // Ensure print button is disabled
             }
         }
 
@@ -406,7 +404,7 @@
 
         function parsePastedData() {
             pasteError.textContent = ''; pasteSuccess.textContent = '';
-            dataParsed = false; noticeData.days = '2'; // Reset days to default
+            dataParsed = false; noticeData.days = '2';
             searchInstructionBox.style.display = 'none'; columnCBox.style.display = 'none';
             checkEnableStep1NextButton();
 
@@ -568,16 +566,16 @@
 
             const numHouses = parseInt(noticeData.houses, 10);
             printCopiesDisplay.textContent = `Print ${isNaN(numHouses)||numHouses<0 ? 0 : numHouses}`;
-            printNoticeBtn.disabled = true; // Ensure print button is disabled until DOCX is saved
+            printNoticeBtn.disabled = true; // Disable print button until DOCX is saved
             showStep('step4');
         }
 
         function createDocxContent() {
-            const { Document, Packer, Paragraph, TextRun, AlignmentType, UnderlineType } = docx;
+            const { Document, Packer, Paragraph, TextRun, AlignmentType } = docx; // Removed UnderlineType as it's not directly used for simple underline
 
             const children = [];
 
-            // Address Block (Right Aligned, 10pt)
+            // Address Block (Right Aligned, 10pt Open Sans)
             const addressLines = [
                 "I & A Communications", "Burgon House", "James Swallow Way",
                 "London and Medway Commercial", "Rochester", "Kent", "ME3 9GX",
@@ -586,29 +584,36 @@
             addressLines.forEach((line, index) => {
                 children.push(new Paragraph({
                     alignment: AlignmentType.RIGHT,
-                    spacing: { after: (index === addressLines.length - 2) ? 80 : (index === addressLines.length - 1 ? 0 : 40) }, // approx 4mm after Tel line, less after others
-                    children: [new TextRun({ text: line, font: "Open Sans", size: 20 })] // 10pt
+                    spacing: { after: (index === addressLines.length - 2) ? 80 : (index === addressLines.length - 1 ? 0 : 40) }, // Spacing adjustments
+                    children: [new TextRun({ text: line, font: "Open Sans", size: 20 })] // 10pt = 20 half-points
                 }));
             });
-             children.push(new Paragraph({ spacing: { after: 200 } })); // mb-10 approx
+            children.push(new Paragraph({ spacing: { after: 200 } })); // Equivalent to mb-10
 
-            // PLEASE NOTE (22pt, Bold, Times)
+            // PLEASE NOTE (22pt, Bold, Tinos - or fallback Open Sans if Tinos not well supported in docx lib)
             children.push(new Paragraph({
-                spacing: { before: 1700, after: 80 }, // mt-15, then mt-4
+                spacing: { before: 1700, after: 80 }, // mt-15 then mt-4
                 children: [new TextRun({ text: "PLEASE NOTE", font: "Tinos", size: 44, bold: true })]
             }));
 
-            // On DATE (24pt, Underline, Center, Times)
+            // On DATE (24pt, Underline, Center, Open Sans)
             children.push(new Paragraph({
                 alignment: AlignmentType.CENTER,
                 spacing: { after: 1130 }, // mt-10
-                children: [new TextRun({ text: `On ${noticeData.date}`, font: "Open Sans", size: 48, underline: {} })] // Kept Open Sans as per print CSS, Tinos was only for "PLEASE NOTE"
+                children: [new TextRun({ text: `On ${noticeData.date}`, font: "Open Sans", size: 48, underline: {} })]
             }));
 
-            const paraStyle = { font: "Open Sans", size: 22, line: 360 }; // 11pt, approx 1.25 line height (22 * 1.25 * 20 / 12 = 366)
-            const paraSpacing = { after: 280 }; // mb-5 approx 5mm
+            // Common style for body paragraphs (11pt Open Sans, approx 1.25 line height)
+            // docx.js line spacing is complex; using `line` property with a value like 360 (for 1.5 lines) or 240 (single)
+            // For 1.25, it's often trial and error or leaving it to Word's default.
+            // We'll set font size and let Word handle line height or use a simple multiplier if available.
+            // The `line` property expects units of 1/20th of a point. 11pt * 1.25 line height.
+            // A simple approach is to just set font size and let Word default line spacing.
+            // For more control: `line: 11 * 20 * 1.25 = 275` (approx for 1.25 lines)
+            const paraStyle = { font: "Open Sans", size: 22 }; // 11pt
+            const paraSpacing = { after: 280 }; // mb-5
 
-            // Para 1 (11pt)
+            // Para 1
             children.push(new Paragraph({
                 spacing: paraSpacing,
                 children: [
@@ -618,7 +623,7 @@
                 ]
             }));
 
-            // Para 2 (11pt)
+            // Para 2
             const daysTextDocx = `${noticeData.days} working day${parseInt(noticeData.days) === 1 ? '' : 's'}`;
             children.push(new Paragraph({
                 spacing: paraSpacing,
@@ -631,7 +636,7 @@
                 ]
             }));
 
-            // Para 3 (11pt)
+            // Para 3
             children.push(new Paragraph({
                 spacing: paraSpacing,
                 children: [
@@ -640,41 +645,39 @@
                 ]
             }));
 
-            // Apology (11pt, Bold)
+            // Apology
             children.push(new Paragraph({
                 spacing: paraSpacing,
                 children: [new TextRun({ ...paraStyle, text: "We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.", bold: true })]
             }));
 
-            // Concerns (12pt)
+            // Concerns (12pt Open Sans)
             children.push(new Paragraph({
                 spacing: { after: 1130 }, // mt-10
                 children: [
-                    new TextRun({ text: "ANY CONCERNS PLEASE CALL ", font: "Open Sans", size: 24 }),
+                    new TextRun({ text: "ANY CONCERNS PLEASE CALL ", font: "Open Sans", size: 24 }), // 12pt
                     new TextRun({ text: "0845 200 4035", font: "Open Sans", size: 24, bold: true }),
                     new TextRun({ text: " WITH OUR REF: ", font: "Open Sans", size: 24 }),
-                    new TextRun({ text: noticeData.ref, font: "Open Sans", size: 24 }) // Ref not bolded in print
+                    new TextRun({ text: noticeData.ref, font: "Open Sans", size: 24 })
                 ]
             }));
 
-            // Closing (11pt)
+            // Closing (11pt Open Sans)
             const closingLines = ["Regards", "Zoe Franks", "I & A Communications Ltd", "Tel: 0845 200 4035"];
             closingLines.forEach((line, index) => {
                 children.push(new Paragraph({
                     spacing: { after: index === 0 ? 80 : 20 }, // mt-4 after Regards, then 1mm
-                    children: [new TextRun({ text: line, font: "Open Sans", size: 22 })]
+                    children: [new TextRun({ text: line, font: "Open Sans", size: 22 })] // 11pt
                 }));
             });
 
             return new Document({
                 sections: [{
-                    properties: { // A4 Page size, 15mm margins
+                    properties: {
                         page: {
-                            margin: {
-                                top: docx.convertMillimetersToTwip(15),
-                                right: docx.convertMillimetersToTwip(15),
-                                bottom: docx.convertMillimetersToTwip(15),
-                                left: docx.convertMillimetersToTwip(15),
+                            margin: { // A4 Page size, 15mm margins
+                                top: docx.convertMillimetersToTwip(15), right: docx.convertMillimetersToTwip(15),
+                                bottom: docx.convertMillimetersToTwip(15), left: docx.convertMillimetersToTwip(15),
                             },
                         },
                     },
@@ -687,9 +690,8 @@
         function saveDocumentToFile(doc, filename) {
             const { Packer } = docx;
             Packer.toBlob(doc).then(blob => {
-                console.log("Document_blob", blob);
                 saveAs(blob, filename); // saveAs is from FileSaver.js
-                console.log("Document created successfully");
+                console.log(`Document "${filename}" created successfully`);
                 printNoticeBtn.disabled = false; // Enable print button after DOCX is saved
             }).catch(err => {
                 console.error("Error creating document blob:", err);
@@ -763,15 +765,18 @@
         });
 
         generateNoticeBtn.addEventListener('click', generateNotice);
+
         saveDocxBtn.addEventListener('click', () => {
             try {
                 const doc = createDocxContent();
-                saveDocumentToFile(doc, "notice.docx");
+                const filename = `Letter Drop ${noticeData.ref || 'UnknownRef'}.docx`; // Use ref for filename
+                saveDocumentToFile(doc, filename);
             } catch (e) {
                 console.error("Error generating DOCX:", e);
                 alert("Could not generate DOCX file. Check console for details.");
             }
         });
+
         printNoticeBtn.addEventListener('click', printNotice);
 
         // --- Initialisation ---
