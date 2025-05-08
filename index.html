@@ -8,6 +8,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;700&family=Tinos:wght@400;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/docx@7.3.0/build/index.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
     <style>
         /* Basic styling */
         body { font-family: 'Inter', sans-serif; }
@@ -15,53 +17,53 @@
 
         /* Style for the plan preview area */
         #planPreview {
-            border: 1px solid #ccc; border-radius: 0.375rem; /* Tailwind: border border-gray-300 rounded-md */
-            display: flex; justify-content: center; align-items: center; /* Tailwind: flex justify-center items-center */
-            overflow: auto; background-color: #f9fafb; padding: 0; /* Tailwind: overflow-auto bg-gray-50 p-0 */
-            text-align: center; /* Tailwind: text-center */
-            width: 100%; max-width: 1000px; height: 600px; /* Tailwind: w-full max-w-5xl h-[600px] */
-            margin-left: auto; margin-right: auto; /* Tailwind: mx-auto */
+            border: 1px solid #ccc; border-radius: 0.375rem;
+            display: flex; justify-content: center; align-items: center;
+            overflow: auto; background-color: #f9fafb; padding: 0;
+            text-align: center;
+            width: 100%; max-width: 1000px; height: 600px;
+            margin-left: auto; margin-right: auto;
         }
-        #planPreview img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; margin: auto; } /* Tailwind: max-w-full max-h-full object-contain block mx-auto */
-        #planPreview iframe { width: 100%; height: 100%; border: none; border-radius: 0.375rem; } /* Tailwind: w-full h-full border-none rounded-md */
+        #planPreview img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; margin: auto; }
+        #planPreview iframe { width: 100%; height: 100%; border: none; border-radius: 0.375rem; }
 
         /* Container for map iframe */
         .map-container {
-            position: relative; width: 100%; max-width: 1000px; height: 600px; /* Tailwind: relative w-full max-w-5xl h-[600px] */
-            margin-left: auto; margin-right: auto; /* Tailwind: mx-auto */
-            overflow: hidden; border: 1px solid #ccc; border-radius: 0.375rem; /* Tailwind: overflow-hidden border border-gray-300 rounded-md */
+            position: relative; width: 100%; max-width: 1000px; height: 600px;
+            margin-left: auto; margin-right: auto;
+            overflow: hidden; border: 1px solid #ccc; border-radius: 0.375rem;
         }
-        .map-container iframe { width: 100%; height: 100%; border: none; } /* Tailwind: w-full h-full border-none */
+        .map-container iframe { width: 100%; height: 100%; border: none; }
 
         /* Style for button nested at bottom of map container */
         #copyCoordsBtn {
-            position: absolute; bottom: 10px; left: 50%; /* Tailwind: absolute bottom-2.5 left-1/2 */
-            transform: translateX(-50%); z-index: 10; /* Tailwind: -translate-x-1/2 z-10 */
+            position: absolute; bottom: 10px; left: 50%;
+            transform: translateX(-50%); z-index: 10;
         }
 
         /* Hide steps initially */
-        .step { display: none; } /* Tailwind: hidden */
-        #step1 { display: block; } /* Tailwind: block (or remove hidden for the first step if using JS to manage visibility) */
+        .step { display: none; }
+        #step1 { display: block; }
 
         /* Add a subtle border between form groups in Step 1 */
         #step1 .form-group + .form-group {
-            border-top: 1px solid #e5e7eb; padding-top: 1.5rem; margin-top: 1.5rem; /* Tailwind: border-t border-gray-200 pt-6 mt-6 */
+            border-top: 1px solid #e5e7eb; padding-top: 1.5rem; margin-top: 1.5rem;
         }
         /* Add margin between instruction boxes */
         #searchInstructionBox + #columnCBox {
-            margin-top: 1rem; /* Tailwind: mt-4 */
+            margin-top: 1rem;
         }
 
 
         /* Grid for side-by-side layout and spacing */
         .map-plan-grid {
-            display: grid; /* Tailwind: grid */
-            grid-template-columns: repeat(1, minmax(0, 1fr)); /* Tailwind: grid-cols-1 */
-            gap: 1rem; /* Tailwind: gap-4 */
+            display: grid;
+            grid-template-columns: repeat(1, minmax(0, 1fr)); /* Default to 1 column */
+            gap: 1rem; /* Default gap */
         }
         @media (min-width: 768px) { /* md breakpoint */
             .map-plan-grid {
-                grid-template-columns: repeat(2, minmax(0, 1fr)); /* Tailwind: md:grid-cols-2 */
+                grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 columns on medium screens and up */
             }
         }
 
@@ -77,7 +79,7 @@
             background-color: white;
         }
         /* Font Substitutes & Sizes */
-        #noticePrintArea .font-times { font-family: 'Tinos', serif; }
+        #noticePrintArea .font-times { font-family: 'Tinos', serif; /* Google Font similar to Times */ }
         #noticePrintArea .print-text-10pt { font-size: 10pt; line-height: 1.1; }
         #noticePrintArea .print-text-11pt { font-size: 11pt; line-height: 1.25; }
         #noticePrintArea .print-text-12pt { font-size: 12pt; line-height: 1.25; }
@@ -110,8 +112,8 @@
         #noticePrintArea .address-block {
             float: right; text-align: right; clear: right; margin-top: 5mm; width: 60mm;
         }
-        #noticePrintArea p { margin-bottom: 5mm; }
-        #noticePrintArea #print-closing p { margin-bottom: 1mm; margin-top: 1mm; }
+        #noticePrintArea p { margin-bottom: 5mm; } /* Default paragraph bottom margin for print */
+        #noticePrintArea #print-closing p { margin-bottom: 1mm; margin-top: 1mm; } /* Specific for closing */
         /* Apply 1.25 line height specifically to body paragraphs */
         #noticePrintArea .body-para { line-height: 1.25 !important; }
 
@@ -124,7 +126,7 @@
                 position: absolute; left: 0; top: 0;
                 width: 100%; height: auto;
                 padding: 15mm; margin: 0; border: none; box-shadow: none;
-                display: block !important; /* Ensure it's block for printing */
+                display: block !important;
             }
             @page {
                 margin: 0mm; size: A4 portrait;
@@ -187,7 +189,8 @@
                         <button id="copyCoordsBtn" title="Copy coordinates to clipboard" class="py-2 px-4 text-sm border border-gray-300 text-gray-700 bg-white hover:bg-gray-50 focus:ring-indigo-500 shadow-md rounded-md">Copy Coordinates</button>
                     </div>
                     <p id="copyCoordsStatus" class="text-sm text-green-600 mt-2 h-4"></p>
-                    <p id="mapSearchStatus" class="hidden"></p> </div>
+                    <p id="mapSearchStatus" class="hidden"></p>
+                </div>
                 <div class="flex flex-col items-center">
                     <h3 class="text-lg font-medium text-gray-800 mb-2 w-full max-w-[1000px]">Uploaded Plan</h3>
                     <div id="planPreview">
@@ -235,15 +238,15 @@
 
         <div id="step4" class="step">
             <h2 class="text-xl font-semibold text-gray-700 border-b pb-2">Step 3: Generated Notice Text</h2>
-            <p class="mb-4 mt-6 text-sm text-gray-600">Review the generated text below. Copy and paste into your Word template or use the Print button.</p>
+            <p class="mb-4 mt-6 text-sm text-gray-600">Review the generated text below. Save to DOCX, then Print Notice.</p>
             <textarea id="generatedNotice" rows="20" readonly class="w-full p-3 border border-gray-300 rounded bg-gray-50 font-mono text-sm shadow-sm"></textarea>
             <div class="mt-6 flex justify-between items-center">
                 <button class="secondary-button inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" onclick="showStep('step3')">Back</button>
-                <div class="flex items-center">
-                    <div id="printCopiesDisplay" class="border-2 border-[#c31f33] rounded-md px-4 py-2 text-sm font-medium text-gray-700 mr-4">
+                <div class="flex items-center space-x-3"> <div id="printCopiesDisplay" class="border-2 border-[#c31f33] rounded-md px-4 py-2 text-sm font-medium text-gray-700">
                         Print 0
                     </div>
-                    <button id="printNoticeBtn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500">Print Notice</button>
+                    <button id="saveDocxBtn" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">Save docx</button>
+                    <button id="printNoticeBtn" disabled class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">Print Notice</button>
                 </div>
             </div>
         </div>
@@ -280,7 +283,6 @@
             </div>
         </div>
 
-
     </div> <div id="noticePrintArea">
         <div class="logo-container">
             <img id="print-logo-img" src="https://raw.githubusercontent.com/RTMOffice/notice-tool/refs/heads/main/Logo.jpg" alt="Company Logo">
@@ -295,7 +297,8 @@
             <div>ME3 9GX</div>
             <div class="mt-4">Tel:      0845 200 4035</div>
         </div>
-        <div class="clear-both mb-10"></div> <div class="mt-15 font-times print-text-22pt font-bold" id="print-please-note">PLEASE NOTE</div>
+        <div class="clear-both mb-10"></div>
+        <div class="mt-15 font-times print-text-22pt font-bold" id="print-please-note">PLEASE NOTE</div>
         <div class="mt-4 print-text-24pt underline text-center" id="print-date">On DATE</div>
         <p class="mt-10 print-text-11pt body-para" id="print-para1">
             I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along <strong class="font-bold" id="print-para1-street-town">STREET, TOWN</strong>.
@@ -323,28 +326,16 @@
 
     <script>
         // --- Global Variables ---
-        let planFileUrl = null; // Stores the object URL for the uploaded plan file
-        // Object to store all notice-related data extracted and entered by the user
+        let planFileUrl = null;
         let noticeData = {
-            ref: '',          // Job reference number
-            lat: '',          // Latitude
-            lon: '',          // Longitude
-            date: '',         // Formatted work start date
-            street: '',       // Street name for the notice
-            town: '',         // Town name for the notice
-            days: '2',        // Number of working days, DEFAULT TO 2
-            diversion: '',    // Diversion route details
-            houses: '',       // Number of affected houses (for print count)
-            postcode: '',     // Postcode (currently not used but reserved)
-            locationName: '', // Exchange or general location name
-            fullAddress: '',  // Full address from pasted data (for post-it)
-            columnCData: ''   // Data from Column C (Times)
+            ref: '', lat: '', lon: '', date: '', street: '', town: '',
+            days: '2', diversion: '', houses: '', postcode: '',
+            locationName: '', fullAddress: '', columnCData: ''
         };
-        let dataParsed = false;    // Flag to track if spreadsheet data has been successfully parsed
-        let planUploaded = false;  // Flag to track if a TM plan has been successfully uploaded
+        let dataParsed = false;
+        let planUploaded = false;
 
         // --- DOM Elements ---
-        // General UI elements
         const steps = document.querySelectorAll('.step');
         const pasteArea = document.getElementById('pasteArea');
         const pasteError = document.getElementById('pasteError');
@@ -355,7 +346,7 @@
         const planSuccess = document.getElementById('planSuccess');
         const diversionRouteStep1Input = document.getElementById('diversionRouteStep1');
         const mapFrame = document.getElementById('mapFrame');
-        const mapSearchStatus = document.getElementById('mapSearchStatus');
+        // const mapSearchStatus = document.getElementById('mapSearchStatus'); // Not actively used, can be removed if no future plans
         const streetInput = document.getElementById('streetInput');
         const townInput = document.getElementById('townInput');
         const workDaysInput = document.getElementById('workDays');
@@ -366,33 +357,28 @@
         const copyCoordsBtn = document.getElementById('copyCoordsBtn');
         const copyCoordsStatus = document.getElementById('copyCoordsStatus');
         const generatedNoticeTextarea = document.getElementById('generatedNotice');
-        const printNoticeBtn = document.getElementById('printNoticeBtn');
         const printCopiesDisplay = document.getElementById('printCopiesDisplay');
         const searchInstructionBox = document.getElementById('searchInstructionBox');
         const searchRefNumber = document.getElementById('searchRefNumber');
         const columnCBox = document.getElementById('columnCBox');
         const columnCData = document.getElementById('columnCData');
-
-        // Step 4 (Final Actions) Elements
+        // Step 3 Buttons
+        const saveDocxBtn = document.getElementById('saveDocxBtn');
+        const printNoticeBtn = document.getElementById('printNoticeBtn');
+        // Step 4 Elements
         const postItDetails = document.getElementById('postItDetails');
         const viewPlanBtn = document.getElementById('viewPlanBtn');
         const finaliseDropBtn = document.getElementById('finaliseDropBtn');
         const wbUpdatedCheckbox = document.getElementById('wbUpdatedCheckbox');
 
-
-        // --- Navigation Buttons ---
+        // Navigation Buttons
         const parseAndNextBtn = document.getElementById('parseAndNextBtn');
         const nextToStep3CombinedBtn = document.getElementById('nextToStep3Combined');
         const generateNoticeBtn = document.getElementById('generateNoticeBtn');
 
         // --- Functions ---
 
-        /**
-         * Shows the specified step and hides others.
-         * @param {string} stepId - The ID of the step div to display.
-         */
         function showStep(stepId) {
-            console.log("Showing step:", stepId);
             steps.forEach(step => {
                 step.style.display = (step.id === stepId) ? 'block' : 'none';
             });
@@ -401,40 +387,26 @@
                 wbUpdatedCheckbox.checked = false;
                 finaliseDropBtn.disabled = true;
             }
-        }
-
-        /**
-         * Checks if conditions are met to enable the "Next: Review Map & Plan" button in Step 1.
-         */
-        function checkEnableStep1NextButton() {
-            if (dataParsed && planUploaded) {
-                nextToStep3CombinedBtn.disabled = false;
-            } else {
-                nextToStep3CombinedBtn.disabled = true;
+             // When leaving step 3 (id=step4), ensure print button is disabled for next time
+            if (stepId !== 'step4') {
+                printNoticeBtn.disabled = true;
             }
         }
 
-        /**
-         * Returns the correct ordinal suffix for a given day of the month.
-         * @param {number} day - The day of the month.
-         * @returns {string} The ordinal suffix.
-         */
+        function checkEnableStep1NextButton() {
+            nextToStep3CombinedBtn.disabled = !(dataParsed && planUploaded);
+        }
+
         function getDaySuffix(day) {
             if (day > 3 && day < 21) return 'th';
             switch (day % 10) {
-                case 1: return "st";
-                case 2: return "nd";
-                case 3: return "rd";
-                default: return "th";
+                case 1: return "st"; case 2: return "nd"; case 3: return "rd"; default: return "th";
             }
         }
 
-        /**
-         * Parses pasted spreadsheet data.
-         */
         function parsePastedData() {
             pasteError.textContent = ''; pasteSuccess.textContent = '';
-            dataParsed = false; noticeData.days = '2'; // Default days
+            dataParsed = false; noticeData.days = '2'; // Reset days to default
             searchInstructionBox.style.display = 'none'; columnCBox.style.display = 'none';
             checkEnableStep1NextButton();
 
@@ -444,7 +416,6 @@
             if (columns.length <= 15) { pasteError.textContent = `Error: Need at least 16 columns (found ${columns.length}).`; return; }
 
             try {
-                // Date Extraction (Col A, index 0)
                 let rawDateStr = columns[0]?.trim();
                 if (!rawDateStr) throw new Error("Date (Col A) missing.");
                 let parsedDate;
@@ -459,7 +430,7 @@
                         if(isNaN(parsedDate.getTime())) throw new Error(`Invalid date: "${rawDateStr}".`);
                     } else {
                         const serial = Number(rawDateStr);
-                        if (!isNaN(serial) && serial > 1 && serial < 2958466) { // Excel serial check
+                        if (!isNaN(serial) && serial > 1 && serial < 2958466) {
                             parsedDate = new Date((serial - 25569) * 86400 * 1000);
                             if(isNaN(parsedDate.getTime())) throw new Error(`Invalid serial date: "${rawDateStr}".`);
                         } else throw new Error(`Unrecognized date: "${rawDateStr}".`);
@@ -471,11 +442,8 @@
                 parsedDate.setUTCFullYear(compDate < todayOnly ? currentYear + 1 : currentYear);
                 noticeData.date = `${parsedDate.toLocaleDateString('en-GB', {weekday:'long', timeZone:'UTC'}).toUpperCase()} ${parsedDate.getUTCDate() + getDaySuffix(parsedDate.getUTCDate())} ${parsedDate.toLocaleDateString('en-GB', {month:'long', timeZone:'UTC'}).toUpperCase()} ${parsedDate.getUTCFullYear()}`;
 
-                // Reference (Col H, index 7)
                 noticeData.ref = columns[7]?.trim(); if (!noticeData.ref) throw new Error("Ref (Col H) missing.");
-                // Location Name (Col I, index 8)
                 noticeData.locationName = columns[8]?.trim(); if (!noticeData.locationName) throw new Error("Exchange (Col I) missing.");
-                // Full Address & Coords (Col P, index 15)
                 let locStr = columns[15]?.trim(); if (!locStr) throw new Error("Location (Col P) missing.");
                 noticeData.fullAddress = locStr;
                 const coordMatch = locStr.match(/.*?(-?\d{1,3}(?:\.\d+)?)\s*,\s*(-?\d{1,3}(?:\.\d+)?)/);
@@ -485,7 +453,6 @@
                     else throw new Error(`Coords out of range: ${lat}, ${lon}.`);
                 } else throw new Error("Lat, Lon not found in Col P.");
 
-                // Column C Data (Times, index 2) & Day Extraction
                 noticeData.columnCData = columns[2]?.trim() || "";
                 if (noticeData.columnCData) {
                     const daysMatch = noticeData.columnCData.match(/\b(\d+)\s*day(s)?\b/i);
@@ -496,7 +463,7 @@
                     columnCData.textContent = noticeData.columnCData; columnCBox.style.display = 'block';
                 } else { columnCBox.style.display = 'none'; }
 
-                pasteSuccess.textContent = 'Data saved successfully!'; dataParsed = true;
+                pasteSuccess.textContent = 'Data parsed successfully!'; dataParsed = true;
                 searchRefNumber.textContent = noticeData.ref; searchInstructionBox.style.display = 'block';
                 checkEnableStep1NextButton();
             } catch (error) {
@@ -507,9 +474,6 @@
             }
         }
 
-        /**
-         * Handles TM plan file upload.
-         */
         function handlePlanUpload(event) {
             const file = event.target.files[0];
             planError.textContent = ''; planSuccess.textContent = ''; planUploaded = false;
@@ -550,18 +514,12 @@
             }
         }
 
-        /**
-         * Updates the map iframe source.
-         */
         function updateMap() {
             if (noticeData.lat && noticeData.lon) {
                 mapFrame.src = `https://symology.maps.arcgis.com/apps/webappviewer/index.html?id=1055c1d3a2c344cea5353d8ed744831c&center=${noticeData.lon},${noticeData.lat}&level=15`;
             } else { mapFrame.src = 'about:blank'; }
         }
 
-        /**
-         * Attempts to auto-fill ArcGIS map search.
-         */
         function tryAutoFillMapSearch() {
             const coordsStr = coordsDisplay.value; if (!coordsStr || coordsStr === 'N/A') return;
             setTimeout(() => {
@@ -573,9 +531,6 @@
             }, 3000);
         }
 
-        /**
-         * Copies coordinates to clipboard.
-         */
         function copyCoordinatesToClipboard() {
             const coordsStr = coordsDisplay.value; copyCoordsStatus.textContent = '';
             if (!coordsStr || coordsStr === 'N/A') { copyCoordsStatus.textContent = 'No coords to copy.'; return; }
@@ -585,9 +540,6 @@
             }).catch(err => copyCoordsStatus.textContent = 'Copy failed.');
         }
 
-        /**
-         * Generates the notice text for preview and print.
-         */
         function generateNotice() {
             noticeData.street = streetInput.value.trim(); noticeData.town = townInput.value.trim();
             if (!noticeData.street) { alert("Enter Street."); streetInput.focus(); return; }
@@ -616,49 +568,158 @@
 
             const numHouses = parseInt(noticeData.houses, 10);
             printCopiesDisplay.textContent = `Print ${isNaN(numHouses)||numHouses<0 ? 0 : numHouses}`;
+            printNoticeBtn.disabled = true; // Ensure print button is disabled until DOCX is saved
             showStep('step4');
         }
 
-        /**
-         * Triggers browser print and populates post-it details.
-         */
+        function createDocxContent() {
+            const { Document, Packer, Paragraph, TextRun, AlignmentType, UnderlineType } = docx;
+
+            const children = [];
+
+            // Address Block (Right Aligned, 10pt)
+            const addressLines = [
+                "I & A Communications", "Burgon House", "James Swallow Way",
+                "London and Medway Commercial", "Rochester", "Kent", "ME3 9GX",
+                "Tel:      0845 200 4035"
+            ];
+            addressLines.forEach((line, index) => {
+                children.push(new Paragraph({
+                    alignment: AlignmentType.RIGHT,
+                    spacing: { after: (index === addressLines.length - 2) ? 80 : (index === addressLines.length - 1 ? 0 : 40) }, // approx 4mm after Tel line, less after others
+                    children: [new TextRun({ text: line, font: "Open Sans", size: 20 })] // 10pt
+                }));
+            });
+             children.push(new Paragraph({ spacing: { after: 200 } })); // mb-10 approx
+
+            // PLEASE NOTE (22pt, Bold, Times)
+            children.push(new Paragraph({
+                spacing: { before: 1700, after: 80 }, // mt-15, then mt-4
+                children: [new TextRun({ text: "PLEASE NOTE", font: "Tinos", size: 44, bold: true })]
+            }));
+
+            // On DATE (24pt, Underline, Center, Times)
+            children.push(new Paragraph({
+                alignment: AlignmentType.CENTER,
+                spacing: { after: 1130 }, // mt-10
+                children: [new TextRun({ text: `On ${noticeData.date}`, font: "Open Sans", size: 48, underline: {} })] // Kept Open Sans as per print CSS, Tinos was only for "PLEASE NOTE"
+            }));
+
+            const paraStyle = { font: "Open Sans", size: 22, line: 360 }; // 11pt, approx 1.25 line height (22 * 1.25 * 20 / 12 = 366)
+            const paraSpacing = { after: 280 }; // mb-5 approx 5mm
+
+            // Para 1 (11pt)
+            children.push(new Paragraph({
+                spacing: paraSpacing,
+                children: [
+                    new TextRun({ ...paraStyle, text: "I&A Communications working on behalf of BT Openreach are responsible for maintaining the network that provides you with your communications service regardless of which telephony or broadband supplier you are using and have been tasked in replacing a BT pole along " }),
+                    new TextRun({ ...paraStyle, text: `${noticeData.street}, ${noticeData.town}`, bold: true }),
+                    new TextRun({ ...paraStyle, text: "." })
+                ]
+            }));
+
+            // Para 2 (11pt)
+            const daysTextDocx = `${noticeData.days} working day${parseInt(noticeData.days) === 1 ? '' : 's'}`;
+            children.push(new Paragraph({
+                spacing: paraSpacing,
+                children: [
+                    new TextRun({ ...paraStyle, text: `The work is expected to take a maximum of ` }),
+                    new TextRun({ ...paraStyle, text: daysTextDocx, bold: true }),
+                    new TextRun({ ...paraStyle, text: " and during this time there will be a road closure in place. Access will be maintained for residents, but we ask for your patience while our engineers make way as this can take some time, alternatively you can follow our diversion " }),
+                    new TextRun({ ...paraStyle, text: noticeData.diversion, bold: true }),
+                    new TextRun({ ...paraStyle, text: " and Vice Versa." })
+                ]
+            }));
+
+            // Para 3 (11pt)
+            children.push(new Paragraph({
+                spacing: paraSpacing,
+                children: [
+                    new TextRun({ ...paraStyle, text: `${noticeData.street}, ${noticeData.town}`, bold: true }),
+                    new TextRun({ ...paraStyle, text: " will be closed during the hours of 09:00am and 17:00pm, the road will be reopened outside these times." })
+                ]
+            }));
+
+            // Apology (11pt, Bold)
+            children.push(new Paragraph({
+                spacing: paraSpacing,
+                children: [new TextRun({ ...paraStyle, text: "We would like to apologise if this work causes any inconvenience and would also like to thank you in advance for your co-operation.", bold: true })]
+            }));
+
+            // Concerns (12pt)
+            children.push(new Paragraph({
+                spacing: { after: 1130 }, // mt-10
+                children: [
+                    new TextRun({ text: "ANY CONCERNS PLEASE CALL ", font: "Open Sans", size: 24 }),
+                    new TextRun({ text: "0845 200 4035", font: "Open Sans", size: 24, bold: true }),
+                    new TextRun({ text: " WITH OUR REF: ", font: "Open Sans", size: 24 }),
+                    new TextRun({ text: noticeData.ref, font: "Open Sans", size: 24 }) // Ref not bolded in print
+                ]
+            }));
+
+            // Closing (11pt)
+            const closingLines = ["Regards", "Zoe Franks", "I & A Communications Ltd", "Tel: 0845 200 4035"];
+            closingLines.forEach((line, index) => {
+                children.push(new Paragraph({
+                    spacing: { after: index === 0 ? 80 : 20 }, // mt-4 after Regards, then 1mm
+                    children: [new TextRun({ text: line, font: "Open Sans", size: 22 })]
+                }));
+            });
+
+            return new Document({
+                sections: [{
+                    properties: { // A4 Page size, 15mm margins
+                        page: {
+                            margin: {
+                                top: docx.convertMillimetersToTwip(15),
+                                right: docx.convertMillimetersToTwip(15),
+                                bottom: docx.convertMillimetersToTwip(15),
+                                left: docx.convertMillimetersToTwip(15),
+                            },
+                        },
+                    },
+                    children: children
+                }]
+            });
+        }
+
+
+        function saveDocumentToFile(doc, filename) {
+            const { Packer } = docx;
+            Packer.toBlob(doc).then(blob => {
+                console.log("Document_blob", blob);
+                saveAs(blob, filename); // saveAs is from FileSaver.js
+                console.log("Document created successfully");
+                printNoticeBtn.disabled = false; // Enable print button after DOCX is saved
+            }).catch(err => {
+                console.error("Error creating document blob:", err);
+                alert("Error creating DOCX file. Please try again.");
+            });
+        }
+
+
         function printNotice() {
-            let awsDetailsLine = ""; // To store the AWS details if found
-            // Check Column C data for "AWS "
+            let awsDetailsLine = "";
             if (noticeData.columnCData && noticeData.columnCData.includes("AWS ")) {
                 const awsStartIndex = noticeData.columnCData.indexOf("AWS ");
-                // Get the substring starting right after "AWS "
                 let awsValue = noticeData.columnCData.substring(awsStartIndex + 4);
-
-                // Find the delimiter " // " if it exists
                 const delimiterIndex = awsValue.indexOf(" // ");
                 if (delimiterIndex !== -1) {
-                    // If delimiter found, take the part before it
                     awsValue = awsValue.substring(0, delimiterIndex).trim();
                 } else {
-                    // If no delimiter, take the whole remaining part and trim
                     awsValue = awsValue.trim();
                 }
-
-                // Only add if there's a non-empty value after "AWS "
-                if (awsValue) {
-                    awsDetailsLine = `AWS ${awsValue}<br>`;
-                }
+                if (awsValue) { awsDetailsLine = `AWS ${awsValue}<br>`; }
             }
-
-            // Populate post-it details, prepending AWS details if available
             postItDetails.innerHTML = `
                 ${awsDetailsLine}Location: ${noticeData.locationName || '[Exchange Missing]'}<br>
                 Job Ref: ${noticeData.ref || '[Ref Missing]'}<br>
                 Address: ${noticeData.fullAddress || '[Address Missing]'}
             `;
-            window.print(); // Trigger print dialog
-            showStep('step5'); // Show final step after print
+            window.print();
+            showStep('step5');
         }
 
-        /**
-         * Resets the tool to its initial state.
-         */
         function resetTool() {
             pasteArea.value = ''; if(planFileInput) planFileInput.value = null;
             diversionRouteStep1Input.value = ''; streetInput.value = ''; townInput.value = '';
@@ -674,9 +735,10 @@
             columnCBox.style.display = 'none'; columnCData.textContent = '[Data]';
             planPreview.innerHTML = '<p class="text-gray-500 text-sm">Plan preview will appear here.</p>';
             printCopiesDisplay.textContent = 'Print 0'; postItDetails.innerHTML = 'Loading...';
-            finaliseDropBtn.disabled = true; checkEnableStep1NextButton(); showStep('step1');
+            finaliseDropBtn.disabled = true;
+            printNoticeBtn.disabled = true; // Ensure print button is disabled on reset
+            checkEnableStep1NextButton(); showStep('step1');
         }
-
 
         // --- Event Listeners ---
         parseAndNextBtn.addEventListener('click', parsePastedData);
@@ -696,17 +758,24 @@
             updateMap();
             refNumberDisplay.value = noticeData.ref; dateDisplay.value = noticeData.date;
             coordsDisplay.value = (noticeData.lat && noticeData.lon) ? `${noticeData.lat}, ${noticeData.lon}` : 'N/A';
-            workDaysInput.value = noticeData.days; // Ensure workDays input reflects noticeData.days
+            workDaysInput.value = noticeData.days;
             showStep('step3'); tryAutoFillMapSearch();
         });
 
         generateNoticeBtn.addEventListener('click', generateNotice);
+        saveDocxBtn.addEventListener('click', () => {
+            try {
+                const doc = createDocxContent();
+                saveDocumentToFile(doc, "notice.docx");
+            } catch (e) {
+                console.error("Error generating DOCX:", e);
+                alert("Could not generate DOCX file. Check console for details.");
+            }
+        });
         printNoticeBtn.addEventListener('click', printNotice);
 
         // --- Initialisation ---
         showStep('step1');
-
     </script>
-
 </body>
 </html>
